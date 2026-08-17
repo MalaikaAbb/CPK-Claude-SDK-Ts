@@ -1,0 +1,436 @@
+{
+  "schema": 1,
+  "docsRoot": "https://docs.copilotkit.ai/claude-sdk-typescript",
+  "syncedAt": "2026-08-17T13:22:53.222Z",
+  "pages": {
+    "/claude-sdk-typescript": {
+      "file": "claude-sdk-typescript.md",
+      "sha256": "31609baff9a9fa7f926c3681b7f24c9e7895609ffeec8399240a1eae15531815",
+      "bytes": 13021,
+      "lines": 440,
+      "routes": [
+        "/",
+        "/doc-sync"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:53 GMT"
+    },
+    "/claude-sdk-typescript/agent-config": {
+      "file": "claude-sdk-typescript__agent-config.md",
+      "sha256": "6c909a7f8dc19c97ff883c8c39a739d28b13824c0b9f7864b699c7f52a33cd48",
+      "bytes": 7875,
+      "lines": 223,
+      "routes": [
+        "/agent-config"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:53 GMT"
+    },
+    "/claude-sdk-typescript/custom-look-and-feel/css": {
+      "file": "claude-sdk-typescript__custom-look-and-feel__css.md",
+      "sha256": "9efcc135df1382e4f4e22731a313e13ba4ff6c21b161e2b5602a7730994f7b5b",
+      "bytes": 10216,
+      "lines": 301,
+      "routes": [
+        "/custom-look-and-feel/css"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:53 GMT"
+    },
+    "/claude-sdk-typescript/custom-look-and-feel/headless-ui": {
+      "file": "claude-sdk-typescript__custom-look-and-feel__headless-ui.md",
+      "sha256": "74715ec45ca9a0bd93de8df619909454d98ad923733f05619c4eed097f1eb52b",
+      "bytes": 13682,
+      "lines": 366,
+      "routes": [
+        "/custom-look-and-feel/headless-ui"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:53 GMT"
+    },
+    "/claude-sdk-typescript/custom-look-and-feel/reasoning-messages": {
+      "file": "claude-sdk-typescript__custom-look-and-feel__reasoning-messages.md",
+      "sha256": "dd6ab86845cadd57cfbe7b383473badf058951fb7334bac24e8de1e2cda9b740",
+      "bytes": 7269,
+      "lines": 261,
+      "routes": [
+        "/custom-look-and-feel/reasoning-messages"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:53 GMT"
+    },
+    "/claude-sdk-typescript/custom-look-and-feel/slots": {
+      "file": "claude-sdk-typescript__custom-look-and-feel__slots.md",
+      "sha256": "04039989f8c58ebfd95b4613a38380986fd3112039b3b520334905b9dc8b6880",
+      "bytes": 6945,
+      "lines": 238,
+      "routes": [
+        "/custom-look-and-feel/slots"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:53 GMT"
+    },
+    "/claude-sdk-typescript/frontend-tools": {
+      "file": "claude-sdk-typescript__frontend-tools.md",
+      "sha256": "1cdbb4854874a946f6a68b5dcc433e6be93a36183cb4b5bd1c066057efa837e4",
+      "bytes": 4337,
+      "lines": 126,
+      "routes": [
+        "/frontend-tools"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema": {
+      "file": "claude-sdk-typescript__generative-ui__a2ui__dynamic-schema.md",
+      "sha256": "32c4c127a2c6ce0821d8404e553e0b039403e4ffa81165ab6a7c4faf0a5fcbff",
+      "bytes": 20351,
+      "lines": 584,
+      "routes": [
+        "/generative-ui/a2ui/dynamic-schema"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/generative-ui/a2ui/fixed-schema": {
+      "file": "claude-sdk-typescript__generative-ui__a2ui__fixed-schema.md",
+      "sha256": "1abaf61d6c3ee30c3217fe10ce1f63a659df1e04b6a2148ab0d82faf7683aec5",
+      "bytes": 23737,
+      "lines": 711,
+      "routes": [
+        "/generative-ui/a2ui/fixed-schema"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/generative-ui/reasoning": {
+      "file": "claude-sdk-typescript__generative-ui__reasoning.md",
+      "sha256": "6717c7ea6c98144d0bfa2c033d239087b3c646844d7be06f000d8ae0817c12c8",
+      "bytes": 5668,
+      "lines": 180,
+      "routes": [
+        "/generative-ui/reasoning"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/generative-ui/state-rendering": {
+      "file": "claude-sdk-typescript__generative-ui__state-rendering.md",
+      "sha256": "51aec353cc5892fd381d2f4c5e382e3ba80977003a4d64494fdb3d7309540922",
+      "bytes": 5335,
+      "lines": 164,
+      "routes": [
+        "/generative-ui/state-rendering"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/generative-ui/tool-based": {
+      "file": "claude-sdk-typescript__generative-ui__tool-based.md",
+      "sha256": "f4bd77ad0eb07baa9c938b34218cbe6db1ea75f66ee39a5df281c9fc65c682f8",
+      "bytes": 4031,
+      "lines": 115,
+      "routes": [
+        "/generative-ui/tool-based"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/generative-ui/tool-rendering": {
+      "file": "claude-sdk-typescript__generative-ui__tool-rendering.md",
+      "sha256": "c9988481487c1b5e00d722150c2567d85584aba59a6d54222efc2c0ccb042b69",
+      "bytes": 10377,
+      "lines": 365,
+      "routes": [
+        "/generative-ui/tool-rendering"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/human-in-the-loop": {
+      "file": "claude-sdk-typescript__human-in-the-loop.md",
+      "sha256": "0eb1398c6d4c615bf0d6a96c1994929153bf69b5dba2615d815bf5869d2c1f1e",
+      "bytes": 7499,
+      "lines": 224,
+      "routes": [
+        "/human-in-the-loop"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/multi-agent/subagents": {
+      "file": "claude-sdk-typescript__multi-agent__subagents.md",
+      "sha256": "82351404238417e9d05696f9ffb83187fda145cf0906550ba1ff1e22d3b26262",
+      "bytes": 14644,
+      "lines": 402,
+      "routes": [
+        "/multi-agent/subagents"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/multimodal-attachments": {
+      "file": "claude-sdk-typescript__multimodal-attachments.md",
+      "sha256": "7237dfd40119e56ee3057445eaf61f34ef8328b32acd750c95f2857d9defc1ae",
+      "bytes": 6144,
+      "lines": 176,
+      "routes": [
+        "/multimodal-attachments"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/prebuilt-components/chat": {
+      "file": "claude-sdk-typescript__prebuilt-components__chat.md",
+      "sha256": "10d75087273272f729fd8208a3424d69432a3e44b141abad356e83b785e2622b",
+      "bytes": 2955,
+      "lines": 77,
+      "routes": [
+        "/prebuilt-components/chat"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/prebuilt-components/chat-controls": {
+      "file": "claude-sdk-typescript__prebuilt-components__chat-controls.md",
+      "sha256": "7c6f54ba5e7f237a71e4a62cc8335e7f44d9aa3e25eeec1b039d7124c5cc7554",
+      "bytes": 3885,
+      "lines": 101,
+      "routes": [
+        "/prebuilt-components/chat-controls"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/prebuilt-components/popup": {
+      "file": "claude-sdk-typescript__prebuilt-components__popup.md",
+      "sha256": "06e2a09d6c6252c567f7f885f432ffdc607bad382b0c6daa919c98ed60102fea",
+      "bytes": 2491,
+      "lines": 70,
+      "routes": [
+        "/prebuilt-components/popup"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/prebuilt-components/sidebar": {
+      "file": "claude-sdk-typescript__prebuilt-components__sidebar.md",
+      "sha256": "35186164754f0c61b5269b23f28ad16effda4cbf07eb80dd0e0e049990d7f05f",
+      "bytes": 2542,
+      "lines": 70,
+      "routes": [
+        "/prebuilt-components/sidebar"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/programmatic-control": {
+      "file": "claude-sdk-typescript__programmatic-control.md",
+      "sha256": "258ef2bcd3c19227a54775c45a14643b6255299419beaeec1fdbb051534e0fae",
+      "bytes": 13213,
+      "lines": 382,
+      "routes": [
+        "/programmatic-control"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/quickstart": {
+      "file": "claude-sdk-typescript__quickstart.md",
+      "sha256": "31609baff9a9fa7f926c3681b7f24c9e7895609ffeec8399240a1eae15531815",
+      "bytes": 13021,
+      "lines": 440,
+      "routes": [
+        "/quickstart",
+        "/backend/copilot-runtime"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/shared-state": {
+      "file": "claude-sdk-typescript__shared-state.md",
+      "sha256": "f72393001a640fa2efdf8db53284e15dd9fea1a952dfa860f890e25a8800a3f3",
+      "bytes": 13769,
+      "lines": 393,
+      "routes": [
+        "/shared-state"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:54 GMT"
+    },
+    "/claude-sdk-typescript/shared-state/agent-readonly": {
+      "file": "claude-sdk-typescript__shared-state__agent-readonly.md",
+      "sha256": "b3df1926d63685cc50800d0a2aee517a5eb0b0a6bc9441fdbd460758794f520f",
+      "bytes": 4990,
+      "lines": 148,
+      "routes": [
+        "/shared-state/agent-readonly"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:55 GMT"
+    },
+    "/claude-sdk-typescript/shared-state/rendering-in-app": {
+      "file": "claude-sdk-typescript__shared-state__rendering-in-app.md",
+      "sha256": "775d5dc48d6dbc1702450f885e7eca605f894dfaaea62228f396fff5a800b211",
+      "bytes": 4251,
+      "lines": 115,
+      "routes": [
+        "/shared-state/rendering-in-app"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:55 GMT"
+    },
+    "/claude-sdk-typescript/shared-state/streaming": {
+      "file": "claude-sdk-typescript__shared-state__streaming.md",
+      "sha256": "5c16a105ab1f5c8a9ae5971175d364b05f0e986fc71a1be8d47f6dc9703f6a36",
+      "bytes": 7629,
+      "lines": 224,
+      "routes": [
+        "/shared-state/streaming"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:55 GMT"
+    },
+    "/claude-sdk-typescript/voice": {
+      "file": "claude-sdk-typescript__voice.md",
+      "sha256": "c314befd9f7ff0b57645f1333c2b8df68eadf663a71f2fd0f722e256d696a7e5",
+      "bytes": 10842,
+      "lines": 250,
+      "routes": [
+        "/voice"
+      ],
+      "status": "ok",
+      "age": 0,
+      "date": "Mon, 17 Aug 2026 13:22:55 GMT"
+    }
+  },
+  "sitemap": {
+    "fetchedAt": "2026-08-17T13:22:53.222Z",
+    "urlsUnderRoot": 123,
+    "knownUnmapped": [
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agent-spec",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agent-spec/human-in-the-loop",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agent-spec/langgraph",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agent-spec/quickstart",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agent-spec/wayflow",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agentic-chat-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agentic-protocols",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agentic-protocols/a2a",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agentic-protocols/ag-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agentic-protocols/ag-ui-middleware",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/agentic-protocols/mcp",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/auth",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/backend/ag-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/backend/agent-runner",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/backend/copilot-runtime",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/backend/custom-agent",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/backend/runtime-endpoints",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/backend/self-managed-agents",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/build-with-agents",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/built-in-agent",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/cli",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/concepts/architecture",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/concepts/generative-ui-overview",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/concepts/oss-vs-enterprise",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/concepts/which-hook",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/contributing/code-contributions",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/contributing/code-contributions/package-linking",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/contributing/docs-contributions",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/cookbook",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/cookbook/angular-adk-agentic-app",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/cookbook/arcade",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/cookbook/daytona",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/cookbook/openbox-governed-copilotkit",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/cookbook/oracle-agent-spec-memory",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/deepagents",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/deploy/agentcore",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/examples",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/faq",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/display",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/interactive",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-generative-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-json-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/headless",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/headless-threads",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/inspector",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/migrate/1.10.X",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/migrate/1.8.2",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/migrate/v2",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/premium/headless-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/premium/intelligence-platform",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/premium/managed-intelligence-platform",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/premium/overview",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/premium/self-hosting",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/premium/threads-explained",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/reference/v2/hooks/useCapabilities",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/runtime-server-adapter",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/telemetry",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/threads",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/threads-import",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/threads-lifecycle",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/troubleshooting/common-issues",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/troubleshooting/debug-mode",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/troubleshooting/error-debugging",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/troubleshooting/error-reference",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/troubleshooting/event-inspector",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/troubleshooting/hook-explorer",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/troubleshooting/inspector-dev-console",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-powered-textarea/next-steps",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-powered-textarea/overview",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-powered-textarea/step-1-checkout-repo",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-powered-textarea/step-2-setup-copilotkit",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-powered-textarea/step-3-copilot-textarea",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-powered-textarea/step-4-copilot-readable-state",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-todo-app/next-steps",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-todo-app/overview",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-todo-app/step-1-checkout-repo",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-todo-app/step-2-setup-copilotkit",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-todo-app/step-3-copilot-readable-state",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-todo-app/step-4-frontend-tools",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/multi-conversation-chat",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/vs-code-extension",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/a2a-mcp-handshake",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/a2ui-launch",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/generative-ui-spec-support",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/langgraph-deep-agents",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/mcp-apps-support",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/v1-50"
+    ]
+  }
+}

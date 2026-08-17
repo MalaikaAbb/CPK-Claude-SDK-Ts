@@ -3,6 +3,10 @@ import Link from "next/link";
 import { StatusBadge } from "@/components/route-header";
 import { Callout, KeyValue, Panel } from "@/components/ui";
 import { ALL_ROUTES, DOCS_ROOT, type RouteStatus } from "@/lib/nav-config";
+import { DocDriftPanel } from "@/components/doc-drift-panel";
+
+/** Dynamic: the doc-sync readouts below read the snapshot off disk. */
+export const dynamic = "force-dynamic";
 
 const COUNT_ORDER: RouteStatus[] = ["working", "partial", "broken", "reference"];
 
@@ -37,6 +41,9 @@ export default function Page() {
           its page teaches rather than describing it.
         </p>
       </header>
+
+
+      <DocDriftPanel />
 
       <Panel title="How to read this harness">
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">

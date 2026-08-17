@@ -8,7 +8,13 @@
  * mounted at — so a route, its doc page, and its agent line up in one place.
  */
 
-export const DOC_SYNC_DATE = "2026-08-07";
+/**
+ * There is exactly one doc-sync date in this repo, and it is not here: it is
+ * `syncedAt` in `doc-snapshot/manifest.json`, written every time the sync
+ * button runs. A hand-maintained date alongside it only ever drifted out of
+ * agreement with the machine one, so it was removed — `/doc-sync` is the
+ * single place that answers "how current are these docs".
+ */
 export const DOCS_ROOT = "https://docs.copilotkit.ai/claude-sdk-typescript";
 
 export type RouteStatus =
@@ -415,6 +421,19 @@ export const NAV: NavGroup[] = [
         offNav: true,
         statusNote:
           "Not a doc page of its own for this framework — the runtime route is published inside the Quickstart. Kept as a debug surface.",
+      },
+    ],
+  },
+  {
+    title: "Doc Sync",
+    routes: [
+      {
+        path: "/doc-sync",
+        title: "Doc drift",
+        docPath: "/claude-sdk-typescript",
+        summary:
+          "Re-fetches the markdown behind every tracked doc page and diffs it against the stored snapshot, flagging changes inside code blocks.",
+        status: "reference",
       },
     ],
   },
