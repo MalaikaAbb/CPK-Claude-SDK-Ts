@@ -334,9 +334,9 @@ export const NAV: NavGroup[] = [
         docPath: "/claude-sdk-typescript/shared-state",
         summary:
           "The two-way channel: the agent writes notes into state, the UI writes preferences through setState.",
-        status: "broken",
+        status: "partial",
         statusNote:
-          "The demo holds only what the page publishes for page.tsx — a useAgent call and a handler — with no imports, types, latestNotesRef, component shell or export. It does not compile. set_notes is also a backend tool that cannot be registered. Nothing substituted. README §9.15.",
+          "Both published snippets are kept verbatim; the shell the page never publishes — imports, the Preferences and RWAgentState types, latestNotesRef, the form, the export — is supplied here, so the preferences half of the channel works. The backend set_notes tool is written and verified but commented out in the registry for now, so the notes card stays empty. README §9.16.",
       },
       {
         path: "/shared-state/rendering-in-app",

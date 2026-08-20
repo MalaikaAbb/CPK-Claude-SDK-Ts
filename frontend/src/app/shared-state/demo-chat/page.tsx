@@ -3,11 +3,9 @@
 import {
   CopilotSidebar,
   useAgent,
-  useFrontendTool,
   UseAgentUpdate,
 } from "@copilotkit/react-core/v2";
 import { useEffect, useRef } from "react";
-import { z } from "zod";
 
 import { DemoFrame } from "@/components/demo-frame";
 
@@ -28,19 +26,21 @@ import { NotesCard } from "../notes-card";
  * tracks the agent's notes so the WRITE snippet has something to preserve, and
  * the doc's own `NotesCard` for the read side.
  *
- * ── One substitution, and it is visible ──────────────────────────────────
- * The doc has the agent write notes with a *backend* `set_notes` tool, and
- * publishes `SET_NOTES_TOOL_SCHEMA` for it. Registering a backend tool needs
- * `buildBackendToolServer`, which the Quickstart calls and no page in these
- * docs defines (README §9.1), so that route to the tool is still closed.
+ * ── Where `set_notes` lives ──────────────────────────────────────────────
+ * On the agent server, as the doc describes: an in-process MCP tool built
+ * from `SET_NOTES_TOOL_SCHEMA` and registered through `buildBackendToolServer`
+ * — a function the Quickstart calls and no doc page defines, so this repo
+ * writes it (`backend/src/agents/backend-tool-server.ts`).
  *
- * Here `set_notes` is registered as a *frontend* tool instead, with the doc's
- * name, description and parameter shape. The agent calls the same tool by the
- * same name; the difference is where the handler runs — in the browser, where
- * it writes the notes back through `agent.setState` — rather than on the agent
- * server. `ClaudeAgentAdapter` bridges frontend tools itself (it turns
- * `input.tools` into an in-process `ag_ui` MCP server), so this needs no
- * backend change at all. See `/shared-state` for the trade-off.
+ * Nothing about the tool appears in this file, which is the point: the write
+ * arrives as an AG-UI `STATE_SNAPSHOT` and the `useAgent` subscription above
+ * re-renders the card. The frontend never learns that a tool ran.
+ *
+ * It is switched off at the moment. The `backendTools` entry for this agent in
+ * `backend/src/agents/registry.ts` is commented out, so no `set_notes` is
+ * registered anywhere and the scratch pad stays empty however the agent is
+ * asked. The preferences half of the channel — this page writing through
+ * `agent.setState`, the agent reading it back — works either way.
  */
 
 /** The page's backend snippet publishes this type; the frontend needs it too. */
@@ -89,6 +89,9 @@ function Demo() {
   });
   // #endregion doc-snippet-1
 
+  // READ: the whole surface renders off agent state. `set_notes` runs on the
+  // agent server, so a note reaches here as a state snapshot mid-run and the
+  // subscription above turns that into a re-render.
   const state = (agent.state ?? {}) as Partial<RWAgentState>;
   const preferences = state.preferences ?? DEFAULT_PREFERENCES;
   const notes = state.notes ?? [];
@@ -101,23 +104,6 @@ function Demo() {
   useEffect(() => {
     latestNotesRef.current = state.notes ?? [];
   }, [state.notes]);
-
-  useEffect(() => {
-    const sub = agent.subscribe({
-      onStateChanged: ({ state }) => {
-        console.log(
-          "[dbg onStateChanged] notified=",
-          JSON.stringify(state),
-          "live=",
-          JSON.stringify(agent.state),
-        );
-      },
-      onRunInitialized: () => console.log("[dbg run] initialized"),
-      onRunFinalized: () =>
-        console.log("[dbg run] finalized live=", JSON.stringify(agent.state)),
-    });
-    return () => sub.unsubscribe();
-  }, [agent]);
 
   // Seed the channel so the agent has preferences to respect on turn one.
   // `ClaudeAgentAdapter` only offers its state tooling — and only prints the
@@ -145,43 +131,6 @@ function Demo() {
     } as RWAgentState);
   };
   // #endregion doc-snippet-2
-
-  // #region set-notes — the doc's tool, registered on the client
-  // Name, description and parameter shape are `SET_NOTES_TOOL_SCHEMA` from the
-  // page's backend snippet, translated from JSON Schema to Zod. The handler is
-  // ours: it is the write-back the backend tool would have done server-side.
-  useFrontendTool({
-    name: "set_notes",
-    description:
-      "Replace the notes array in shared state with the full updated list. " +
-      "Use whenever the user asks you to 'remember' something, or when you " +
-      "have an observation worth surfacing in the UI's notes panel. " +
-      "Always pass the FULL notes list (existing + new), not a diff. " +
-      "Keep each note short (< 120 chars).",
-    parameters: z.object({
-      notes: z
-        .array(z.string())
-        .describe(
-          "The complete updated notes array. Replaces the current notes.",
-        ),
-    }),
-    handler: async ({ notes: next }) => {
-      console.log("[dbg set_notes] called", next);
-      const current = (agent.state ?? {}) as Partial<RWAgentState>;
-      agent.setState({
-        preferences: current.preferences ?? DEFAULT_PREFERENCES,
-        notes: next,
-      } as RWAgentState);
-      latestNotesRef.current = next;
-      console.log("[dbg set_notes] after setState", JSON.stringify(agent.state));
-      setTimeout(
-        () => console.log("[dbg set_notes] +2s", JSON.stringify(agent.state)),
-        2000,
-      );
-      return { status: "success", count: next.length };
-    },
-  });
-  // #endregion set-notes
 
   // A second write-back, from the doc's `NotesCard` Clear button. Same channel
   // as the preferences form, opposite direction to `set_notes`: the UI wiping

@@ -1,7 +1,27 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -n 'dbg ' /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript/frontend/src/app/shared-state/demo-chat/page.tsx)"
+      "Bash(grep -n 'dbg ' /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript/frontend/src/app/shared-state/demo-chat/page.tsx)",
+      "Bash(python3 -)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(curl -s -m 2 http://localhost:8000/health)",
+      "Bash(curl -s -m 2 -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(printenv ANTHROPIC_API_KEY)",
+      "Bash(npm run *)",
+      "Bash(node /tmp/claude-1000/-home-malaika-fiqros-copilotkit-optimizations-claude-sdk-typescript/8540c830-af90-43f4-95ec-a52507bb64af/scratchpad/verify5.mjs /tmp/claude-1000/-home-malaika-fiqros-copilotkit-optimizations-claude-sdk-typescript/8540c830-af90-43f4-95ec-a52507bb64af/scratchpad/shot5.png)",
+      "Bash(curl -s -m 120 -o /tmp/claude-1000/-home-malaika-fiqros-copilotkit-optimizations-claude-sdk-typescript/8540c830-af90-43f4-95ec-a52507bb64af/scratchpad/notes.html -w '%{http_code}\\\\n' http://localhost:3000/shared-state)",
+      "Bash(git -C /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript status --short)",
+      "Bash(git -C /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript log --oneline -3)",
+      "Bash(git -C /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript show --stat --oneline HEAD)",
+      "Bash(curl -s -m 3 -o /dev/null -w \"frontend=%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(pkill -f \"tsx watch src/agent-server.ts\")",
+      "Bash(curl -s -m 5 -o /dev/null -w \"frontend=%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(node /tmp/claude-1000/-home-malaika-fiqros-copilotkit-optimizations-claude-sdk-typescript/8540c830-af90-43f4-95ec-a52507bb64af/scratchpad/verify5.mjs /tmp/claude-1000/-home-malaika-fiqros-copilotkit-optimizations-claude-sdk-typescript/8540c830-af90-43f4-95ec-a52507bb64af/scratchpad/shot-mcp.png)",
+      "Bash(sed -n 17,45p /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript/backend/src/agents/registry.ts)",
+      "Bash(echo \"...\")",
+      "Bash(grep -n shared-state-read-write -A 10 /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript/backend/src/agents/registry.ts)",
+      "Bash(curl -s -m 3 http://localhost:8000/health)"
     ]
   }
 }
