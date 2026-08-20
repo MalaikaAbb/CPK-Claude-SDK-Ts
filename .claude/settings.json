@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n 'dbg ' /home/malaika-fiqros/copilotkit/optimizations/claude-sdk-typescript/frontend/src/app/shared-state/demo-chat/page.tsx)"
+    ]
+  }
+}

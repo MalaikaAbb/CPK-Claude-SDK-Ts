@@ -25,7 +25,7 @@
  */
 
 // #region server
-import { ClaudeAgentAdapter } from "@ag-ui/claude-agent-sdk";
+import { ClaudeAgentAdapter } from "@malaika.abbasi.fiqros/claude-agent-sdk";
 import { EventType, type RunAgentInput } from "@ag-ui/core";
 import { EventEncoder } from "@ag-ui/encoder";
 import dotenv from "dotenv";
