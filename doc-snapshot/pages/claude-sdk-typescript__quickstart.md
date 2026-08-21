@@ -2,6 +2,7 @@
 
 > Run a Claude Agent SDK TypeScript agent behind CopilotKit.
 
+
 This quickstart gives you two working paths:
 
 - **Start from scratch** to scaffold the full Claude Agent SDK TypeScript showcase.
@@ -330,6 +331,20 @@ Before you begin, you'll need the following:
       </Accordion>
     </Accordions>
   </Step>
+
+    <Step>
+        ### Open Inspector and confirm setup
+
+On localhost, click the Inspector button in the corner of the app.
+
+1. Open **Agents**, then **Agent**. Your agent is listed.
+2. Send a chat message. Open **Agents**, then **AG-UI Events**. Events are moving.
+3. Open **Threads**. The list is unlocked (Intelligence is on), or locked with Enable Intelligence (Intelligence is off).
+
+More detail: [Inspector](/claude-sdk-typescript/inspector).
+
+    </Step>
+
 </Steps>
 
 ## Backend tools and state
@@ -351,6 +366,47 @@ The minimal server above is enough for text chat. To support backend tools, shar
     Use `ClaudeAgentAdapter` from `@ag-ui/claude-agent-sdk`. The adapter
     receives the AG-UI run input, emits AG-UI events back to CopilotKit, and can
     expose backend tools through an in-process Claude SDK MCP server.
+
+    
+~~~~typescript title="claude-agent-sdk-adapter.ts"
+function createClaudeAgentAdapter({
+  toolSchemas,
+  emit,
+  getState,
+  setState,
+  executeTool,
+  model,
+  systemPrompt,
+}: {
+  toolSchemas: Anthropic.Tool[];
+  emit: Emit;
+  getState: () => Record<string, unknown>;
+  setState: (state: Record<string, unknown>) => void;
+  executeTool: ExecuteTool;
+  model: string;
+  systemPrompt: string;
+}) {
+  const backendToolServer = buildBackendToolServer({
+    toolSchemas,
+    emit,
+    getState,
+    setState,
+    executeTool,
+  });
+
+  return new ClaudeAgentAdapter({
+    agentId: "claude-sdk-typescript",
+    model: normalizeClaudeAgentSdkModel(model),
+    systemPrompt,
+    tools: [],
+    mcpServers: backendToolServer.mcpServers,
+    allowedTools: backendToolServer.allowedTools,
+    permissionMode: "dontAsk",
+    maxTurns: 10,
+  });
+}
+~~~~
+
 
     
 ~~~~typescript title="claude-agent-sdk-adapter.ts"
@@ -379,7 +435,7 @@ export async function runWithClaudeAgentSdk({
 }): Promise<void> {
   let state = { ...initialState };
   const pendingStateSnapshots: Record<string, unknown>[] = [];
-  const backendToolServer = buildBackendToolServer({
+  const adapter = createClaudeAgentAdapter({
     toolSchemas,
     emit,
     getState: () => state,
@@ -388,17 +444,8 @@ export async function runWithClaudeAgentSdk({
       pendingStateSnapshots.push(state);
     },
     executeTool,
-  });
-
-  const adapter = new ClaudeAgentAdapter({
-    agentId: "claude-sdk-typescript",
-    model: normalizeClaudeAgentSdkModel(model),
     systemPrompt,
-    tools: [],
-    mcpServers: backendToolServer.mcpServers,
-    allowedTools: backendToolServer.allowedTools,
-    permissionMode: "dontAsk",
-    maxTurns: 10,
+    model,
   });
 
   if (forwardedHeaders && Object.keys(forwardedHeaders).length > 0) {
