@@ -8,7 +8,7 @@ import {
 import { z } from "zod";
 
 import { DemoFrame } from "@/components/demo-frame";
-
+import { useEffect } from "react";
 import {
   CustomCatchallRenderer,
   type CatchallToolStatus,
@@ -46,6 +46,8 @@ interface WeatherResult {
 }
 
 function Chat() {
+
+  
   // Per-tool renderer: get_weather → branded WeatherCard.
   useRenderTool(
     {

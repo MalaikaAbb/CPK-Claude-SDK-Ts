@@ -3,6 +3,7 @@
 > Render your agent's tool calls with custom UI components.
 
 
+
 <!-- interactive demo: tool-rendering -->
 
 
@@ -16,7 +17,11 @@ result). This is the **Generative UI** variant CopilotKit calls **tool
 rendering**.
 
 <Callout type="info">
-  **Free course:** See this pattern built end-to-end in [Build Interactive Agents with Generative UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/) — a free DeepLearning.AI short course taught by CopilotKit's CEO covering the full Generative UI spectrum (Controlled, Declarative, and Open-Ended).
+  **Free course:** See this pattern built end-to-end in [Build Interactive
+  Agents with Generative
+  UI](https://www.deeplearning.ai/short-courses/build-interactive-agents-with-generative-ui/)
+  — a free DeepLearning.AI short course taught by CopilotKit's CEO covering the
+  full Generative UI spectrum (Controlled, Declarative, and Open-Ended).
 </Callout>
 
 ## When should I use this?
@@ -95,114 +100,122 @@ The most expressive path is one renderer per tool name. The primary
 receives the tool's parsed arguments, a live `status`, and (once the agent
 returns) the `result`:
 
-```typescript
-// src/app/demos/tool-rendering/page.tsx
-import React from "react";
-import {
-  CopilotKit,
-  CopilotChat,
-  useRenderTool,
-  useDefaultRenderTool,
-} from "@copilotkit/react-core/v2";
-import { z } from "zod";
-import { WeatherCard } from "./weather-card";
-import { FlightListCard, type Flight } from "./flight-list-card";
-import { StockCard } from "./stock-card";
-import { D20Card } from "./d20-card";
-import {
-  CustomCatchallRenderer,
-  type CatchallToolStatus,
-} from "./custom-catchall-renderer";
-import { parseJsonResult } from "../_shared/parse-json-result";
-import { useSuggestions } from "./suggestions";
+The frontend pattern is the same for every backend. This shared, docs-only
+example includes every component, type, and helper that its renderers use:
 
-interface WeatherResult {
-  city?: string;
+```tsx title="components/weather-card.tsx"
+export interface WeatherCardProps {
+  loading: boolean;
+  location: string;
   temperature?: number;
   humidity?: number;
-  wind_speed?: number;
+  windSpeed?: number;
   conditions?: string;
 }
 
-interface FlightSearchResult {
-  origin?: string;
-  destination?: string;
-  flights?: Flight[];
-}
-
-interface StockResult {
-  ticker?: string;
-  price_usd?: number;
-  change_pct?: number;
-}
-
-interface D20Result {
-  value?: number;
-  result?: number;
-  sides?: number;
-}
-
-export default function ToolRenderingDemo() {
+export function WeatherCard({
+  loading,
+  location,
+  temperature,
+  humidity,
+  windSpeed,
+  conditions,
+}: WeatherCardProps) {
   return (
-    <CopilotKit runtimeUrl="/api/copilotkit" agent="tool-rendering">
-      <div className="flex justify-center items-center h-screen w-full">
-        <div className="h-full w-full max-w-4xl">
-          <Chat />
-        </div>
-      </div>
-    </CopilotKit>
+    <article className="rounded-xl border p-4">
+      <h3 className="font-semibold">{location || "Weather"}</h3>
+      {loading ? (
+        <p>Fetching weather...</p>
+      ) : (
+        <dl>
+          <div>
+            <dt>Conditions</dt>
+            <dd>{conditions ?? "--"}</dd>
+          </div>
+          <div>
+            <dt>Temperature</dt>
+            <dd>{temperature ?? "--"}&deg;F</dd>
+          </div>
+          <div>
+            <dt>Humidity</dt>
+            <dd>{humidity ?? "--"}%</dd>
+          </div>
+          <div>
+            <dt>Wind</dt>
+            <dd>{windSpeed ?? "--"} mph</dd>
+          </div>
+        </dl>
+      )}
+    </article>
   );
 }
-
-function Chat() {
-  // Per-tool renderer #1: get_weather → branded WeatherCard.
-  useRenderTool(
-    {
-      name: "get_weather",
-      parameters: z.object({
-        location: z.string(),
-      }),
-      render: ({ parameters, result, status }) => {
-        const loading = status !== "complete";
-        const parsed = parseJsonResult<WeatherResult>(result);
-        return (
-          <WeatherCard
-            loading={loading}
-            location={parameters?.location ?? parsed.city ?? ""}
-            temperature={parsed.temperature}
-            humidity={parsed.humidity}
-            windSpeed={parsed.wind_speed}
-            conditions={parsed.conditions}
-          />
-        );
-      },
-    },
-    [],
-  );
 ```
 
-The flight renderer follows the same pattern with a different component and schema:
+```tsx title="components/flight-list-card.tsx"
+export interface Flight {
+  airline?: string;
+  flight?: string;
+  depart?: string;
+  arrive?: string;
+  price_usd?: number;
+}
 
-```typescript
-// src/app/demos/tool-rendering/page.tsx
-import React from "react";
-import {
-  CopilotKit,
-  CopilotChat,
-  useRenderTool,
-  useDefaultRenderTool,
-} from "@copilotkit/react-core/v2";
+export interface FlightListCardProps {
+  loading: boolean;
+  origin: string;
+  destination: string;
+  flights: Flight[];
+}
+
+export function FlightListCard({
+  loading,
+  origin,
+  destination,
+  flights,
+}: FlightListCardProps) {
+  return (
+    <article className="rounded-xl border p-4">
+      <h3 className="font-semibold">
+        {origin || "?"} → {destination || "?"}
+      </h3>
+      {loading ? (
+        <p>Searching...</p>
+      ) : (
+        <ul>
+          {flights.map((flight, index) => (
+            <li key={`${flight.flight ?? "flight"}-${index}`}>
+              {flight.airline ?? "--"} {flight.flight ?? ""}:{" "}
+              {flight.depart ?? "?"} → {flight.arrive ?? "?"}
+              {flight.price_usd !== undefined ? ` ($${flight.price_usd})` : ""}
+            </li>
+          ))}
+        </ul>
+      )}
+    </article>
+  );
+}
+```
+
+```ts title="lib/parse-json-result.ts"
+export function parseJsonResult<T>(result: unknown): T {
+  if (!result) return {} as T;
+
+  try {
+    return (typeof result === "string" ? JSON.parse(result) : result) as T;
+  } catch {
+    return {} as T;
+  }
+}
+```
+
+```tsx title="app/tool-renderers.tsx"
+"use client";
+
+import { useRenderTool } from "@copilotkit/react-core/v2";
 import { z } from "zod";
-import { WeatherCard } from "./weather-card";
-import { FlightListCard, type Flight } from "./flight-list-card";
-import { StockCard } from "./stock-card";
-import { D20Card } from "./d20-card";
-import {
-  CustomCatchallRenderer,
-  type CatchallToolStatus,
-} from "./custom-catchall-renderer";
-import { parseJsonResult } from "../_shared/parse-json-result";
-import { useSuggestions } from "./suggestions";
+import { WeatherCard } from "../components/weather-card";
+import { FlightListCard, type Flight } from "../components/flight-list-card";
+import { parseJsonResult } from "../lib/parse-json-result";
 
 interface WeatherResult {
   city?: string;
@@ -218,44 +231,16 @@ interface FlightSearchResult {
   flights?: Flight[];
 }
 
-interface StockResult {
-  ticker?: string;
-  price_usd?: number;
-  change_pct?: number;
-}
-
-interface D20Result {
-  value?: number;
-  result?: number;
-  sides?: number;
-}
-
-export default function ToolRenderingDemo() {
-  return (
-    <CopilotKit runtimeUrl="/api/copilotkit" agent="tool-rendering">
-      <div className="flex justify-center items-center h-screen w-full">
-        <div className="h-full w-full max-w-4xl">
-          <Chat />
-        </div>
-      </div>
-    </CopilotKit>
-  );
-}
-
-function Chat() {
-  // Per-tool renderer #1: get_weather → branded WeatherCard.
+export function ToolRenderers() {
   useRenderTool(
     {
       name: "get_weather",
-      parameters: z.object({
-        location: z.string(),
-      }),
+      parameters: z.object({ location: z.string() }),
       render: ({ parameters, result, status }) => {
-        const loading = status !== "complete";
         const parsed = parseJsonResult<WeatherResult>(result);
         return (
           <WeatherCard
-            loading={loading}
+            loading={status !== "complete"}
             location={parameters?.location ?? parsed.city ?? ""}
             temperature={parsed.temperature}
             humidity={parsed.humidity}
@@ -268,7 +253,6 @@ function Chat() {
     [],
   );
 
-  // Per-tool renderer #2: search_flights → branded FlightListCard.
   useRenderTool(
     {
       name: "search_flights",
@@ -277,11 +261,10 @@ function Chat() {
         destination: z.string(),
       }),
       render: ({ parameters, result, status }) => {
-        const loading = status !== "complete";
         const parsed = parseJsonResult<FlightSearchResult>(result);
         return (
           <FlightListCard
-            loading={loading}
+            loading={status !== "complete"}
             origin={parameters?.origin ?? parsed.origin ?? ""}
             destination={parameters?.destination ?? parsed.destination ?? ""}
             flights={parsed.flights ?? []}
@@ -291,7 +274,31 @@ function Chat() {
     },
     [],
   );
+
+  return null;
+}
 ```
+
+Mount the renderers anywhere beneath the same `CopilotKit` provider as your
+chat. The renderer component returns no layout of its own; it registers the
+two named renderers for tool calls in the chat:
+
+```tsx title="app/page.tsx"
+"use client";
+
+import { CopilotChat, CopilotKit } from "@copilotkit/react-core/v2";
+import { ToolRenderers } from "./tool-renderers";
+
+export default function Page() {
+  return (
+    <CopilotKit runtimeUrl="/api/copilotkit" agent="tool-rendering">
+      <ToolRenderers />
+      <CopilotChat agentId="tool-rendering" />
+    </CopilotKit>
+  );
+}
+```
+
 
 <Callout type="info">
   The `name` you pass to `useRenderTool` must match the tool name the agent
@@ -360,5 +367,146 @@ export function getWeather(location: string): Record<string, unknown> {
   };
 }
 ```
+
+The agent must also register this schema as an executable backend tool. This
+setup shows the connection.
+
+<Steps>
+  <Step>
+    ### Connect the adapter to the MCP server
+
+    `buildBackendToolServer` converts the tool schemas from the agent. The
+    `ClaudeAgentAdapter` receives the resulting `mcpServers` and
+    `allowedTools` values.
+
+    
+~~~~typescript title="claude-agent-sdk-adapter.ts"
+function createClaudeAgentAdapter({
+  toolSchemas,
+  emit,
+  getState,
+  setState,
+  executeTool,
+  model,
+  systemPrompt,
+}: {
+  toolSchemas: Anthropic.Tool[];
+  emit: Emit;
+  getState: () => Record<string, unknown>;
+  setState: (state: Record<string, unknown>) => void;
+  executeTool: ExecuteTool;
+  model: string;
+  systemPrompt: string;
+}) {
+  const backendToolServer = buildBackendToolServer({
+    toolSchemas,
+    emit,
+    getState,
+    setState,
+    executeTool,
+  });
+
+  return new ClaudeAgentAdapter({
+    agentId: "claude-sdk-typescript",
+    model: normalizeClaudeAgentSdkModel(model),
+    systemPrompt,
+    tools: [],
+    mcpServers: backendToolServer.mcpServers,
+    allowedTools: backendToolServer.allowedTools,
+    permissionMode: "dontAsk",
+    maxTurns: 10,
+  });
+}
+~~~~
+
+  </Step>
+
+  <Step>
+    ### Register the executable tool handlers
+
+    Each schema becomes an `sdkTool` that calls its executable CopilotKit
+    handler. `createSdkMcpServer` registers these tools. The allowlist uses
+    their fully qualified `mcp__copilotkit__*` names.
+
+    
+~~~~typescript title="claude-agent-sdk-adapter.ts"
+const COPILOTKIT_MCP_SERVER_NAME = "copilotkit";
+const COPILOTKIT_TOOL_PREFIX = `mcp__${COPILOTKIT_MCP_SERVER_NAME}__`;
+
+function buildBackendToolServer({
+  toolSchemas,
+  emit,
+  getState,
+  setState,
+  executeTool,
+}: {
+  toolSchemas: Anthropic.Tool[];
+  emit: Emit;
+  getState: () => Record<string, unknown>;
+  setState: (state: Record<string, unknown>) => void;
+  executeTool: ExecuteTool;
+}): {
+  mcpServers?: Record<string, McpServerConfig>;
+  allowedTools: string[];
+} {
+  if (toolSchemas.length === 0) {
+    return { allowedTools: [] };
+  }
+
+  const tools = toolSchemas.map((schema) =>
+    sdkTool(
+      schema.name,
+      schema.description ?? "",
+      zodShapeFromJsonSchema(schema.input_schema),
+      async (args) => {
+        try {
+          const result = await executeTool(
+            schema.name,
+            args as Record<string, unknown>,
+            getState(),
+            emit,
+          );
+          if (result.state) {
+            setState(result.state);
+          }
+          return {
+            content: [{ type: "text" as const, text: result.resultText }],
+          };
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          return {
+            content: [{ type: "text" as const, text: message }],
+            isError: true,
+          };
+        }
+      },
+    ),
+  );
+
+  return {
+    mcpServers: {
+      [COPILOTKIT_MCP_SERVER_NAME]: createSdkMcpServer({
+        name: COPILOTKIT_MCP_SERVER_NAME,
+        version: "1.0.0",
+        tools,
+      }),
+    },
+    allowedTools: toolSchemas.map(
+      (schema) => `${COPILOTKIT_TOOL_PREFIX}${schema.name}`,
+    ),
+  };
+}
+~~~~
+
+  </Step>
+</Steps>
+
+<Callout type="info">
+  This MCP path handles compatible requests that use backend tools only.
+  Requests with frontend tools, structured user content, or extended thinking
+  use the direct Anthropic path. Requests with aimock transport also use this
+  fallback.
+</Callout>
 
 <IntegrationGrid path="generative-ui/tool-rendering" />
