@@ -233,9 +233,9 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 
 ### Shared State
 
-**`/shared-state`** — the two-way channel. **Partial.**
+**`/shared-state`** — the two-way channel. **Working.**
 *Try:* set tone to playful and name to Ada, then "Explain recursion." Then "Remember that I prefer TypeScript."
-*Pass:* the reply uses your name and tone; a note appears in the right-hand card mid-stream. *Caveat:* writes land through `ag_ui_update_state`, not the doc's `set_notes` — see §9.
+*Pass:* the reply uses your name and tone, and "What do you know about me so far?" in a later turn repeats them back — the UI writing shared state and the agent reading it. *Caveat:* the backend `set_notes` tool is written and verified but **commented out for now** (`backendTools` in `backend/src/agents/registry.ts`), so nothing registers it and the Agent Scratch pad stays empty. §9.16 has the switch and what it does.
 
 **`/shared-state/rendering-in-app`** — the same state as a main-view canvas. **Partial**, inherits the above.
 *Try:* "Make me a 4-item packing list for a weekend trip," then tick boxes and ask "Which have I ticked off?"
@@ -293,7 +293,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
-| [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ❌ Broken | Demo holds only the two published snippets — no imports, types, `latestNotesRef`, shell or export. Does not compile. §9.15. |
+| [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Both published snippets kept verbatim; the shell the page never publishes is supplied here, so the preferences direction works. The backend `set_notes` tool is written and verified but commented out for now — §9.16. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
 | [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) | `/shared-state/streaming` | ❌ Broken | The page publishes 5 lines of frontend code. Demo holds exactly that, so it does not compile. §9.15. |
 | [shared-state/agent-readonly](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/agent-readonly) | `/shared-state/agent-readonly` | ✅ Working | Adapter injects context itself. |
@@ -324,7 +324,9 @@ const adapter = new ClaudeAgentAdapter({
 
 `buildBackendToolServer` is not defined on that page or on any other page in the framework's docs. Nor are `normalizeClaudeAgentSdkModel`, `Emit`, or `ExecuteTool`. Without it there is **no published way to register a server-side tool**.
 
-This repo does not write one. Affected: `/generative-ui/tool-rendering` (❌), `/generative-ui/a2ui/fixed-schema` (❌), `/shared-state` (⚠️), `/shared-state/rendering-in-app` (⚠️), `/shared-state/streaming` (⚠️), `/multi-agent/subagents` (⚠️).
+One is written here now — `backend/src/agents/backend-tool-server.ts`, against the call site the Quickstart does publish — and proved out on `set_notes` (§9.16). It is generic over `Anthropic.Tool` schemas, so the routes below could be wired to it; none of them are yet, and `set_notes` itself is commented out for the moment.
+
+Still unwired: `/generative-ui/tool-rendering` (❌), `/generative-ui/a2ui/fixed-schema` (❌), `/shared-state` (⚠️), `/shared-state/rendering-in-app` (⚠️), `/shared-state/streaming` (⚠️), `/multi-agent/subagents` (⚠️).
 
 The published backend halves are kept in `backend/src/agents/*.snippet.ts` and `*-prompt.ts`, unmodified, each with a header saying why it is inert.
 
@@ -447,22 +449,33 @@ To get a green build locally without editing the snippet, either delete `fronten
 
 ### 9.15 Shared State and State Streaming publish snippets, not pages
 
-Both routes were rebuilt to hold **only** the code their doc pages actually publish. Neither compiles, and that is the finding.
+**[shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state)** publishes exactly two frontend snippets for `page.tsx` — the `useAgent` subscription and the `handlePreferencesChange` handler — plus the full body of `notes-card.tsx`. Absent: imports for `useAgent`/`UseAgentUpdate`; the `Preferences` type (it lives only in the page's *backend* snippet); the `RWAgentState` type; `latestNotesRef`, which the handler reads; `NotesCardProps`; and the `Card`/`CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`Button` imports `NotesCard` depends on. There is no component shell, JSX, layout or default export — and no preferences form anywhere on the page, despite the published handler being named for one. Both snippets are kept verbatim in `#region` blocks and the rest is supplied here, so the route runs; §9.16 covers the backend tool that fills the notes card and why it is parked.
 
-**[shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state)** publishes exactly two frontend snippets for `page.tsx` — the `useAgent` subscription and the `handlePreferencesChange` handler — plus the full body of `notes-card.tsx`. Absent: imports for `useAgent`/`UseAgentUpdate`; the `Preferences` type (it lives only in the page's *backend* snippet); the `RWAgentState` type; `latestNotesRef`, which the handler reads; `NotesCardProps`; and the `Card`/`CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`Button` imports `NotesCard` depends on. There is no component shell, JSX, layout or default export — and no preferences form anywhere on the page, despite the published handler being named for one.
+**[shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming)** and **[generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)** were left as published, and neither compiles — that is the finding for those two.
 
 **[shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming)** publishes **five lines** of frontend code: one `useAgent` call. Its only other frontend content is a sentence of prose describing a `LIVE` indicator whose markup is never shown. No imports, no typing of `agent.state`, no document view, no component, no export.
-
-**[generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)** shares the streaming cell and republishes the same five lines, so its demo redirects there and inherits the same state.
 
 Backend halves are unavailable too, and for `streaming` twice over:
 
 - `set_notes` and `write_document` are **backend tools**, blocked by the missing `buildBackendToolServer` (§9.1).
 - `emitStreamingDocumentState` consumes raw Anthropic `content_block_delta` / `input_json_delta` events. `ClaudeAgentAdapter` emits AG-UI events only; the "direct Messages API path" that would produce raw deltas is named and never published (§9.2).
 
-Earlier revisions of this repo carried working demos around these snippets — a `Demo()` component, a `PreferencesPanel` form, a `handleClearNotes` write-back, a document panel with a LIVE badge and char counter, and writes routed through the adapter's built-in `ag_ui_update_state`. All of that was invented here, not published, so it has been removed. `preferences-panel.tsx` is deleted outright; the docs never mention such a component.
+Earlier revisions of this repo carried working demos around the streaming snippets too — a document panel with a LIVE badge and char counter. That was invented here, not published, so it has been removed.
 
 ---
+
+### 9.16 `/shared-state`'s backend tool: written, verified, parked
+
+The missing piece for this route was never the frontend — it was `buildBackendToolServer` (§9.1). It is implemented in `backend/src/agents/backend-tool-server.ts`: an in-process Claude SDK MCP server (`createSdkMcpServer` + `tool`) whose tools convert their published JSON Schema to Zod and call `executeTool` against the run's state box. `agent-server.ts` puts agents that declare `backendTools` on the Quickstart's `runWithClaudeAgentSdk` path, including its snapshot queue — every `setState` a tool makes is emitted as a `STATE_SNAPSHOT` immediately before the matching `TOOL_CALL_RESULT`.
+
+Verified against the running server: `mcp__backend_tools__set_notes` shows up in the agent's tool list, the model calls it, the snapshot carrying the note reaches the UI mid-run, and the model then finishes the *same* run ("Got it, Atai — cortado it is!") rather than halting the way a frontend tool does.
+
+**It is switched off right now.** The `backendTools` entry for `shared-state-read-write` in `backend/src/agents/registry.ts` is commented out, so no `set_notes` is registered and the notes card stays empty. Uncommenting that entry and its import turns it back on; nothing else changes.
+
+Two things worth knowing before re-enabling:
+
+- **Session resume is this repo's addition, not the doc's.** The doc builds a fresh adapter per request, and the adapter only sends the newest message — it relies on a CLI session cached *per adapter instance* for the rest of the conversation, which a per-request instance never has. `agent-server.ts` therefore captures the session id off the run's own `system:init` event and passes it back as `forwardedProps.resume` on the next turn of that thread. Without that, a backend-tool agent forgets everything between turns.
+- **The agent server's runs inherit the machine's own MCP servers.** The Claude Agent SDK spawns the CLI, which loads whatever MCP servers are configured for the user — they appear alongside `backend_tools` and `ag_ui` in the agent's tool list. Harmless here, but it is not a clean-room tool set.
 
 ---
 

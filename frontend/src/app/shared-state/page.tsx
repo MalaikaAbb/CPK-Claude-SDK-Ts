@@ -17,15 +17,15 @@ export default function Page() {
         </p>
       </Panel>
 
-      <Panel title="This route has no runnable demo">
-        <Callout tone="warn" title="The page publishes two snippets and a card — not a page">
+      <Panel title="What the page publishes, and what it leaves out">
+        <Callout tone="warn" title="Two snippets and a card — not a page">
           <p>
-            The demo file holds only what this page actually publishes for{" "}
-            <code>page.tsx</code>: the <code>useAgent</code> subscription and
-            the <code>handlePreferencesChange</code> handler. Nothing else on
-            the page is frontend page code.
+            All this page publishes for <code>page.tsx</code> is the{" "}
+            <code>useAgent</code> subscription and the{" "}
+            <code>handlePreferencesChange</code> handler. Both are kept verbatim
+            in the demo, in <code>#region</code> blocks. Everything around them
+            had to be supplied for the route to run:
           </p>
-          <p className="mt-2">What is missing, and left missing:</p>
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>
               imports for <code>useAgent</code> and{" "}
@@ -39,51 +39,61 @@ export default function Page() {
               the <code>RWAgentState</code> type the handler casts to
             </li>
             <li>
-              <code>latestNotesRef</code>, which the handler reads
+              <code>latestNotesRef</code>, which the handler reads and never
+              sets
             </li>
             <li>
-              any component shell, JSX, layout or default export — so there is
-              no surface to render, and no preferences form anywhere on the page
-              despite the handler being named for one
+              the component shell, the preferences form the handler is named
+              for, the layout and the default export
             </li>
           </ul>
           <p className="mt-2">
-            <code>NotesCard</code> <em>is</em> published in full, and is
-            reproduced verbatim — including its <code>NotesCardProps</code> type
-            and its <code>Card</code> / <code>Button</code> imports, none of
-            which the page shows. Those come from the showcase&apos;s own
-            shadcn/ui library, which is not a dependency here.
-          </p>
-          <p className="mt-2">
-            The result does not compile. That is the honest state of what this
-            page hands you.
+            <code>NotesCard</code> <em>is</em> published in full and is
+            reproduced with its markup intact. Its <code>NotesCardProps</code>{" "}
+            type is added, and its <code>Card</code> / <code>Button</code>{" "}
+            imports — shadcn/ui components from the showcase&apos;s own library,
+            not a dependency here — are inlined as the plain elements they wrap.
           </p>
         </Callout>
 
         <div className="mt-4">
           <TryIt
-            prompts={["Nothing — the route has no rendering surface."]}
-            expect="`npx tsc --noEmit` reports errors in the demo files, and requesting the demo route returns 500 in dev."
-            fail="A working two-panel demo would mean the missing half had been invented — which is what this route is here to avoid."
+            prompts={[
+              "Explain recursion.",
+              "Remember that I drink my espresso as a cortado.",
+              "What do you know about me so far?",
+            ]}
+            expect="The first reply follows the name and tone in the form, and the third repeats them back — that is the UI writing shared state and the agent reading it. The second only produces prose today: with the backend tool commented out there is no `set_notes` to call, so the Agent Scratch pad stays empty."
+            fail="The reply ignores the name and tone in the form, or the third turn cannot repeat them back — the preferences never reached the agent."
           />
         </div>
       </Panel>
 
-      <Panel title="The backend tool cannot be registered either">
-        <Callout tone="warn" title="set_notes needs buildBackendToolServer">
+      <Panel title="set_notes: written, verified, currently switched off">
+        <Callout tone="warn" title="The bridge the docs never define is in this repo now">
           <p>
-            The page has the agent write notes by calling a backend{" "}
-            <code>set_notes</code> tool, and publishes{" "}
-            <code>SET_NOTES_TOOL_SCHEMA</code> for it. Registering a backend
-            tool requires <code>buildBackendToolServer</code>, which the
-            Quickstart calls and which no page in this framework&apos;s docs
-            defines.
+            The page has the agent write notes with a backend{" "}
+            <code>set_notes</code> tool and publishes{" "}
+            <code>SET_NOTES_TOOL_SCHEMA</code> for it. Registering one requires{" "}
+            <code>buildBackendToolServer</code>, which the Quickstart calls and
+            no doc page defines. It is written here, against the call site the
+            Quickstart does publish — an in-process Claude SDK MCP server whose
+            tools run <code>executeTool</code> over the run&apos;s state box,
+            with a snapshot emitted just before each{" "}
+            <code>TOOL_CALL_RESULT</code>.
           </p>
           <p className="mt-2">
-            So the tool does not exist at runtime. The adapter does ship a
-            built-in <code>ag_ui_update_state</code> tool that would produce the
-            same observable effect, but that is not what this page documents, so
-            it is not substituted in.
+            It works: the agent calls <code>set_notes</code>, the note reaches
+            the card mid-run, and the model finishes the same run rather than
+            halting the way a frontend tool would.
+          </p>
+          <p className="mt-2">
+            The <code>backendTools</code> entry for this agent is commented out
+            in <code>backend/src/agents/registry.ts</code> for now, so nothing
+            registers the tool today and the scratch pad stays empty. The
+            preferences direction — this page writing through{" "}
+            <code>agent.setState</code>, the agent reading it back on its next
+            turn — is unaffected.
           </p>
         </Callout>
       </Panel>

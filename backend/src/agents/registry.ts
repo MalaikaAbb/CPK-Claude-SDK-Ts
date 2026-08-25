@@ -15,8 +15,16 @@
  * doc never described.
  */
 
+import type Anthropic from "@anthropic-ai/sdk";
+
 import { AGENT_CONFIG_DEFAULT_SYSTEM_PROMPT } from "./agent-config-prompt";
 import { A2UI_FIXED_SYSTEM_PROMPT } from "./a2ui-fixed-prompt";
+import type { ExecuteTool } from "./backend-tool-server";
+// Commented out with the `backendTools` entry below — see there.
+// import {
+//   executeSharedStateTool,
+//   SHARED_STATE_TOOL_SCHEMAS,
+// } from "./shared-state-backend-tools";
 import { SHARED_STATE_READ_WRITE_BASE_SYSTEM } from "./shared-state-read-write-prompt";
 import { SUPERVISOR_SYSTEM_PROMPT } from "./subagents-prompts";
 
@@ -28,6 +36,16 @@ export interface AgentDefinition {
   systemPrompt: string;
   /** Why this agent exists — surfaced on /backend/copilot-runtime. */
   note?: string;
+  /**
+   * Server-side tools for this agent. An entry here switches the agent onto
+   * the per-request path in `agent-server.ts`, which is the Quickstart's
+   * `runWithClaudeAgentSdk` shape — a tool server, a state box and snapshots
+   * emitted alongside tool results.
+   */
+  backendTools?: {
+    schemas: Anthropic.Tool[];
+    execute: ExecuteTool;
+  };
 }
 
 export const REGISTRY: Record<string, AgentDefinition> = {
@@ -85,7 +103,18 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   // ── Shared State ─────────────────────────────────────────────────────────
   "shared-state-read-write": {
     systemPrompt: SHARED_STATE_READ_WRITE_BASE_SYSTEM,
-    note: "Prompt names `set_notes`; writes actually land via the adapter's built-in `ag_ui_update_state`.",
+    note: "Prompt names `set_notes`; the backend tool that answers it is commented out for now, so nothing registers it.",
+    // Declaring backend tools here is what puts an agent on the per-request
+    // path in `agent-server.ts` — the Quickstart's `runWithClaudeAgentSdk`,
+    // with a tool server, a state box and a snapshot emitted per tool result.
+    // Verified working (the agent calls `set_notes`, the notes reach the UI
+    // mid-run), and parked for now. Uncomment this and the import above to
+    // turn it back on; nothing else has to change.
+    //
+    // backendTools: {
+    //   schemas: SHARED_STATE_TOOL_SCHEMAS,
+    //   execute: executeSharedStateTool,
+    // },
   },
   "shared-state-streaming": {
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
