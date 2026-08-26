@@ -49,7 +49,7 @@ Before you begin, you'll need the following:
 
           ```plaintext title=".env"
           ANTHROPIC_API_KEY=your_anthropic_api_key
-          CLAUDE_MODEL=claude-sonnet-4-6
+          CLAUDE_MODEL=claude-opus-4-8
           ```
 
           The runtime route defaults to `AGENT_URL=http://localhost:8000`, which is where the starter's agent server listens.
@@ -135,7 +135,7 @@ Before you begin, you'll need the following:
 
           ```plaintext title=".env"
           ANTHROPIC_API_KEY=your_anthropic_api_key
-          CLAUDE_MODEL=claude-sonnet-4-6
+          CLAUDE_MODEL=claude-opus-4-8
           AGENT_PORT=8000
           ```
         </Step>
@@ -160,7 +160,7 @@ Before you begin, you'll need the following:
 
           const agent = new ClaudeAgentAdapter({
             agentId: "claude_agent",
-            model: process.env.CLAUDE_MODEL ?? "claude-sonnet-4-6",
+            model: process.env.CLAUDE_MODEL ?? "claude-opus-4-8",
             systemPrompt: "You are a helpful assistant embedded in a CopilotKit app.",
             tools: [],
             permissionMode: "dontAsk",
@@ -234,10 +234,9 @@ Before you begin, you'll need the following:
           import { HttpAgent } from "@ag-ui/client";
           import {
             CopilotRuntime,
-            ExperimentalEmptyAdapter,
-            copilotRuntimeNextJSAppRouterEndpoint,
-          } from "@copilotkit/runtime";
-          import { NextRequest } from "next/server";
+            createCopilotRuntimeHandler,
+          } from "@copilotkit/runtime/v2";
+          import type { NextRequest } from "next/server";
 
           const runtime = new CopilotRuntime({
             agents: {
@@ -247,15 +246,13 @@ Before you begin, you'll need the following:
             },
           });
 
-          export const POST = async (req: NextRequest) => {
-            const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
-              endpoint: "/api/copilotkit",
-              runtime,
-              serviceAdapter: new ExperimentalEmptyAdapter(),
-            });
+          const handler = createCopilotRuntimeHandler({
+            runtime,
+            basePath: "/api/copilotkit",
+            mode: "single-route",
+          });
 
-            return handleRequest(req);
-          };
+          export const POST = (req: NextRequest) => handler(req);
           ```
         </Step>
 
@@ -281,6 +278,14 @@ Before you begin, you'll need the following:
             );
           }
           ```
+
+          <Callout type="info" title="This relative runtimeUrl assumes Next.js serves the runtime">
+            `/api/copilotkit` resolves only because Next.js serves your app and the runtime from the
+            same origin. A client-only frontend has no shared origin, so it needs a standalone runtime
+            server of its own and an absolute `runtimeUrl` such as
+            `http://localhost:8200/api/copilotkit`. The per-frontend guides at `/react-spa`, `/vue`,
+            `/angular` and `/react-native` each show that setup.
+          </Callout>
 
           Add a chat surface:
 
