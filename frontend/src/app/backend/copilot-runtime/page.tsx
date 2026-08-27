@@ -100,8 +100,8 @@ export default async function Page() {
       >
         <SourceCodeGroup
           files={[
-            { file: "frontend/src/app/api/copilotkit/route.ts" },
-            { file: "frontend/src/app/api/copilotkit-declarative-gen-ui/route.ts" },
+            { file: "frontend/src/app/api/copilotkit/[[...slug]]/route.ts" },
+            { file: "frontend/src/app/api/copilotkit-declarative-gen-ui/[[...slug]]/route.ts" },
             { file: "frontend/src/app/api/copilotkit-voice/[[...slug]]/route.ts" },
           ]}
         />

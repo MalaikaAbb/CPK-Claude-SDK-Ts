@@ -8,7 +8,7 @@ A navigable, working test harness for the CopilotKit ↔ Claude Agent SDK (TypeS
 | **Docs tracked** | <https://docs.copilotkit.ai/claude-sdk-typescript> |
 | **Frontend** | `@copilotkit/react-core` 1.66.4 (v2 surface), `@copilotkit/runtime` 1.66.4, Next.js 16.3.0, React 19.2.8 |
 | **Backend** | `@ag-ui/claude-agent-sdk` 0.0.3, `@anthropic-ai/claude-agent-sdk` ^0.2.58, `@ag-ui/core` / `@ag-ui/encoder` 0.0.57, Express 5 |
-| **Status** | 28 routes — 18 working · 3 partial · 6 broken · 1 reference. See §8; the live count is computed from `nav-config.ts` on `/status`. |
+| **Status** | 32 routes — 21 working · 3 partial · 6 broken · 2 reference. See §8; the live count is computed from `nav-config.ts` on `/status`. |
 | **Build** | ⚠️ `next build` fails type checking on purpose — one route holds a doc snippet that does not compile. See §9.14. |
 | **CI** | none configured |
 
@@ -31,17 +31,26 @@ Browser
   │  AG-UI over HTTP
   ▼
 Next.js frontend (port 3000)
-  ├─ /api/copilotkit                     ← CopilotRuntime, all 24 agents
-  ├─ /api/copilotkit-declarative-gen-ui  ← second runtime, A2UI tool injection ON
-  └─ /api/copilotkit-voice/[[...slug]]   ← v2 runtime handler + TranscriptionService
+  ├─ /api/copilotkit/[[...slug]]                    ← v2 runtime, all 24 agents
+  │                                                   + CopilotKit Intelligence (threads)
+  ├─ /api/copilotkit-declarative-gen-ui/[[...slug]] ← second runtime, A2UI injection ON
+  └─ /api/copilotkit-voice/[[...slug]]              ← v2 runtime + TranscriptionService
        │  HttpAgent → http://localhost:8000/<agent-id>
        ▼
 Node agent server (port 8000, Express 5)
   └─ one ClaudeAgentAdapter per registry entry
        │
        ▼
-Claude Agent SDK  →  Anthropic API (claude-sonnet-4-6)
+Claude Agent SDK  →  Anthropic API (claude-opus-4-8)
 ```
+
+All three runtimes are built on `@copilotkit/runtime/v2` and mounted at
+`[[...slug]]` in the handler's default multi-route mode. The Quickstart itself
+publishes the smaller `mode: "single-route"` form at a plain `route.ts`, which
+is correct for chat alone; Threads need `/info` plus the thread list, rename,
+archive and delete subtree, so a single-segment route would 404 everything
+except the bare URL. The Threads Lifecycle page publishes the `[[...slug]]`
+path directly, so the two doc pages agree.
 
 **Backend language: TypeScript on Node.** Unlike the Python integrations, both processes here are Node — but they are still two separate processes on two ports. The agent server is not a Next route.
 
@@ -58,7 +67,11 @@ Worth knowing, because it explains most of §9: `ClaudeAgentAdapter` does more t
 | Anthropic API key | — | Required. The Claude Agent SDK spawns a CLI child process that reads `ANTHROPIC_API_KEY` from its environment. |
 | OpenAI API key | — | Optional, and only for the mic on `/voice`. Every other route ignores it. |
 
-No CopilotKit Cloud key is needed — nothing here uses the Intelligence Platform.
+A CopilotKit Intelligence key is **optional but recommended**. Without one the
+runtime falls back to SSE with an in-memory runner: chat works on every route,
+but the three Rich Threads routes degrade and nothing persists across a
+restart. The free developer tier is enough. See §9.16 for the second
+credential the Threads Drawer additionally needs.
 
 No framework CLI is required. The Quickstart offers `npx copilotkit@latest init --framework claude-sdk-typescript` as a from-scratch path; this repo follows the *bring-your-own-agent* path instead, which is hand-wired and is what the brief asked for.
 
@@ -87,9 +100,13 @@ cp .env.example frontend/.env.local  # optional; every value has a default
 | Variable | Where | Required | What it does |
 |---|---|---|---|
 | `ANTHROPIC_API_KEY` | `backend/.env` | **yes** | Authenticates the Claude Agent SDK. Nothing runs without it. |
-| `CLAUDE_MODEL` | `backend/.env` | no | Model for every agent. Defaults to `claude-sonnet-4-6`, the value the Quickstart publishes. |
+| `CLAUDE_MODEL` | `backend/.env` | no | Model for every agent. Defaults to `claude-opus-4-8`, the value the Quickstart publishes. |
 | `AGENT_PORT` | `backend/.env` | no | Agent server port. Defaults to `8000`. |
 | `AGENT_URL` | `frontend/.env.local` | no | Where the runtime forwards runs. Defaults to `http://localhost:8000`. Change together with `AGENT_PORT`. |
+| `INTELLIGENCE_API_KEY` | `frontend/.env.local` | no | Project key for CopilotKit Intelligence. Puts the runtime in Intelligence mode so threads persist. Server-side only — never prefix it `NEXT_PUBLIC_`. |
+| `COPILOTKIT_LICENSE_TOKEN` | `frontend/.env.local` | no | A **separate** credential that advertises a license. Without it the Threads Drawer shows its locked Upgrade view even when threads work. §9.16. |
+| `NEXT_PUBLIC_DEMO_USER_ID` / `_NAME` | `frontend/.env.local` | no | The identity `identifyUser` reads off request headers, so threads scope per user. Override in a second browser profile to watch two lists diverge. |
+| `NEXT_PUBLIC_SITE_ORIGIN` | `frontend/.env.local` | no | Origin the Quickstart page's server-side `/info` probe calls back into. Only needed if the app is not on `http://127.0.0.1:$PORT`. |
 | `NEXT_PUBLIC_COPILOTKIT_INSPECTOR` | `frontend/.env.local` | no | Set to `off` to disable the Inspector overlay app-wide. Otherwise on for localhost only. |
 | `OPENAI_API_KEY` | `frontend/.env.local` | no | Whisper transcription for the `/voice` mic only. |
 
@@ -111,7 +128,7 @@ Successful startup looks like:
 
 ```
 Claude Agent SDK listening on http://localhost:8000
-  model:  claude-sonnet-4-6
+  model:  claude-opus-4-8
   agents: 24 mounted at /<agent-id>
 ```
 
@@ -131,9 +148,14 @@ Open **<http://localhost:3000>**.
 Quick health check without the browser:
 
 ```bash
-curl http://localhost:8000/health    # {"status":"ok"}
-curl http://localhost:8000/agents    # the full agent roster + model
+curl http://localhost:8000/health          # {"status":"ok"}
+curl http://localhost:8000/agents          # the full agent roster + model
+curl http://localhost:3000/api/copilotkit/info   # runtime mode, licenseStatus, threadEndpoints
 ```
+
+The `/info` call is the one that answers "is Intelligence actually on". The
+Quickstart page renders the same probe as a connection panel, split into the
+three axes that fail independently.
 
 `/backend/copilot-runtime` in the app does the same check and reports any drift between the frontend's agent list and the server's.
 
@@ -166,6 +188,20 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/prebuilt-components/chat-controls`** — driving modal state from your own button, and capturing thumbs up/down.
 *Try:* "Say something worth rating," then use the thumbs controls.
 *Pass:* the button label flips in step with the sidebar; each rating appends a line with the message id. *Fail:* no button at all means `setModalOpen` was undefined — see §9.
+
+### Rich Threads
+
+**`/prebuilt-components/copilot-threads-drawer`** — the drop-in conversation sidebar, with no active-thread state of your own.
+*Try:* send a message, press New Conversation, send another, then click back to the first row.
+*Pass:* two rows in the drawer (auto-named by the LLM after the first message); clicking one replays that conversation. *Fail:* a locked "Threads are a CopilotKit Intelligence feature" panel is the **license** gate, not the key gate — see §9.16. An empty list with chat working means the runtime is in SSE mode.
+
+**`/headless-threads`** — the same thread data through `useThreads`, with a list you build yourself.
+*Try:* send a message, press Rename on its row. Then open the route in a second tab and send a message there.
+*Pass:* the row retitles to "Renamed"; the thread created in the other tab appears here on its own, which is the WebSocket sync. *Fail:* buttons that do nothing mean SSE mode — `/info` reports `mutations: false`, so there is no endpoint to call.
+
+**`/threads-lifecycle`** — where a `threadId` comes from, how history replays, and how switching differs from starting fresh.
+*Try:* send a message, press New chat and watch `threadId` change. Then pick the first conversation and press Open conversation, then Set id, no replay.
+*Pass:* Open conversation flips `explicit` to true and replays history; Set id, no replay sets the same id but shows the welcome screen. *Fail:* a console warning about a prop-controlled `threadId` means a `threadId` prop crept onto the chat — this route must not pass one.
 
 ### Custom Look and Feel
 
@@ -278,6 +314,9 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [prebuilt-components/sidebar](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/sidebar) | `/prebuilt-components/sidebar` | ✅ Working | |
 | [prebuilt-components/popup](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/popup) | `/prebuilt-components/popup` | ✅ Working | |
 | [prebuilt-components/chat-controls](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/chat-controls) | `/prebuilt-components/chat-controls` | ✅ Working | Needed the doc's own `CopilotChatConfigurationProvider` workaround — §9. |
+| [prebuilt-components/copilot-threads-drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer) | `/prebuilt-components/copilot-threads-drawer` | ✅ Working | Needs Intelligence mode **and** a license token — the two gates fail differently. §9.16. |
+| [headless-threads](https://docs.copilotkit.ai/claude-sdk-typescript/headless-threads) | `/headless-threads` | ✅ Working | Needs Intelligence mode; in SSE mode `/info` reports `mutations: false`. |
+| [threads-lifecycle](https://docs.copilotkit.ai/claude-sdk-typescript/threads-lifecycle) | `/threads-lifecycle` | ✅ Working | Switch/start work in any mode; history replay needs a server-side store. |
 | [custom-look-and-feel/css](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/css) | `/custom-look-and-feel/css` | ✅ Working | `theme.css` is the published subset only — the page shows it in excerpt. |
 | [custom-look-and-feel/slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots) | `/custom-look-and-feel/slots` | ✅ Working | Override components are this repo's; the doc only `declare`s them. |
 | [custom-look-and-feel/headless-ui](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui) | `/custom-look-and-feel/headless-ui` | ✅ Working | `headless-complete` half lives on `/programmatic-control`. |
@@ -464,6 +503,40 @@ Earlier revisions of this repo carried working demos around these snippets — a
 
 ---
 
+### 9.16 Intelligence mode and the feature license are two different credentials
+
+Threads have **two** independent gates, and conflating them is the easiest way to lose an afternoon.
+
+`INTELLIGENCE_API_KEY` authorizes the runtime against the platform. It is what makes `/info` report `mode: "intelligence"` and what makes the thread endpoints return real rows. It does **not** advertise a license.
+
+`COPILOTKIT_LICENSE_TOKEN` is what does. The runtime builds a license checker from it and `/info` reports `licenseStatus` off that checker. `<CopilotThreadsDrawer>` gates its UI on *that field* — so a runtime can serve threads perfectly while every drawer in the app shows an Upgrade button. Set both.
+
+A third trap: **the SSE fallback already reports two of the four thread flags as true.** With no key at all, `/info` on this repo returns:
+
+```json
+{ "mode": "sse",
+  "threadEndpoints": { "list": true, "inspect": true,
+                       "mutations": false, "realtimeMetadata": false } }
+```
+
+`list` and `inspect` are answered locally by the `InMemoryAgentRunner`, so reading the flags alone gives a false positive. `mode` is the honest signal, and `mutations` / `realtimeMetadata` are the two only an Intelligence-backed runtime turns on. The Quickstart connection panel reports all three axes separately for exactly this reason.
+
+Intelligence mode also requires `identifyUser`: `CopilotRuntimeOptions` is a union, not one object with optional fields, so the SSE and Intelligence shapes have to be built separately rather than spread conditionally into one literal.
+
+---
+
+### 9.17 The Quickstart publishes a single-route runtime; Threads need the catch-all
+
+The [Quickstart](https://docs.copilotkit.ai/claude-sdk-typescript/quickstart) now builds its route with `createCopilotRuntimeHandler({ ..., mode: "single-route" })` at a plain `app/api/copilotkit/route.ts`, exporting `POST` only. That is correct for chat.
+
+It is not enough for Threads, which add `/info`, thread list, rename, archive and delete — a subtree. This repo therefore drops `mode` (defaulting to `multi-route`), moves the file to `app/api/copilotkit/[[...slug]]/route.ts`, and exports `GET`, `POST`, `PATCH` and `DELETE`. A single-segment route would 404 everything except the bare URL while `/info` still failed, so the app would look connected and break on send.
+
+The [Threads Lifecycle](https://docs.copilotkit.ai/claude-sdk-typescript/threads-lifecycle#scope-rich-threads-to-the-signed-in-user) page publishes the `[[...slug]]` path itself, so the two doc pages do agree — the Quickstart is simply showing the smaller of the two shapes without saying that Threads outgrow it.
+
+Related: the v1 `copilotRuntimeNextJSAppRouterEndpoint` / `ExperimentalEmptyAdapter` pair the Quickstart used to publish is gone from the v2 surface entirely, and there is no `serviceAdapter` option at all. All three runtimes in this repo were migrated.
+
+---
+
 ---
 
 ## 10. Troubleshooting
@@ -553,7 +626,8 @@ claude-sdk-typescript/
         │   ├── nav-sidebar.tsx · route-header.tsx · demo-frame.tsx
         │   └── source-code.tsx · code-figure.tsx · ui.tsx
         └── lib/
-            ├── nav-config.ts   routes, doc links, statuses — the single source
+            ├── health.ts       server-side agent + /info probe for the connection panel
+        ├── nav-config.ts   routes, doc links, statuses — the single source
             ├── agents.ts       agent ids, mirrors the backend registry
             ├── inspector.ts    which provider owns the Inspector
             └── source.ts · highlight.ts   reads repo files for the source panels
@@ -575,6 +649,11 @@ Grouped as the doc nav groups them.
 - [Sidebar](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/sidebar)
 - [Popup](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/popup)
 - [Chat controls](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/chat-controls)
+
+**Rich Threads**
+- [Threads Drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer)
+- [Headless Threads](https://docs.copilotkit.ai/claude-sdk-typescript/headless-threads)
+- [Thread & History Lifecycle](https://docs.copilotkit.ai/claude-sdk-typescript/threads-lifecycle)
 
 **Custom Look and Feel**
 - [CSS](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/css)

@@ -80,8 +80,10 @@ export const NAV: NavGroup[] = [
         title: "Quickstart",
         docPath: "/claude-sdk-typescript/quickstart?agent=bring-your-own",
         summary:
-          "The bring-your-own-agent path: a ClaudeAgentAdapter behind Express, reached over HTTP by the Copilot Runtime.",
+          "The bring-your-own-agent path: a ClaudeAgentAdapter behind Express, reached over HTTP by the v2 Copilot Runtime.",
         status: "working",
+        statusNote:
+          "The runtime moved to @copilotkit/runtime/v2 and createCopilotRuntimeHandler. This harness mounts it at [[...slug]] in multi-route mode rather than the doc's single-route form, because Threads need the /info + thread subtree. Live connection status is on the route page.",
       },
     ],
   },
@@ -127,6 +129,47 @@ export const NAV: NavGroup[] = [
         summary:
           "Driving modal state from your own UI with useCopilotChatConfiguration, and capturing thumbs up/down.",
         status: "working",
+      },
+    ],
+  },
+  {
+    title: "Rich Threads",
+    routes: [
+      {
+        path: "/prebuilt-components/copilot-threads-drawer",
+        hasDemo: true,
+        agentId: "agentic_chat",
+        title: "Threads Drawer",
+        docPath: "/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer",
+        summary:
+          "The drop-in conversation sidebar, wired with no active-thread state of its own.",
+        status: "working",
+        statusNote:
+          "Needs the runtime in Intelligence mode, and a separate license token to unlock the UI. Without either the drawer renders a locked view instead of the list — the two gates fail differently, see the route page.",
+      },
+      {
+        path: "/headless-threads",
+        hasDemo: true,
+        agentId: "agentic_chat",
+        title: "Headless Threads",
+        docPath: "/claude-sdk-typescript/headless-threads",
+        summary:
+          "The same thread data through useThreads, with a hand-built list — including rename, which the drawer omits.",
+        status: "working",
+        statusNote:
+          "Needs Intelligence mode. In SSE mode /info reports mutations: false, so rename/archive/delete have no endpoint to call.",
+      },
+      {
+        path: "/threads-lifecycle",
+        hasDemo: true,
+        agentId: "agentic_chat",
+        title: "Thread & History Lifecycle",
+        docPath: "/claude-sdk-typescript/threads-lifecycle",
+        summary:
+          "Where a threadId comes from, how history replays, and how switching differs from starting fresh.",
+        status: "working",
+        statusNote:
+          "Switch/start are live regardless of mode; history replay needs a server-side store to replay from, so it is Intelligence-only.",
       },
     ],
   },

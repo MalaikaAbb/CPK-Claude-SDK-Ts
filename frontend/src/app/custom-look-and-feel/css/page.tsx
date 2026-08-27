@@ -87,7 +87,7 @@ export default function Page() {
       </Panel>
 
       <Panel title="The route this all hangs off">
-        <SourceCode file="frontend/src/app/api/copilotkit/route.ts" />
+        <SourceCode file="frontend/src/app/api/copilotkit/[[...slug]]/route.ts" />
       </Panel>
     </>
   );
