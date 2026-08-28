@@ -57,10 +57,12 @@ export function Providers({ children }: { children: ReactNode }) {
         "x-user-id": DEMO_USER_ID,
         "x-user-name": DEMO_USER_NAME,
       }}
+      // `inspectorDefaultAnchor` used to follow this line, pinning the
+      // inspector button bottom-left so it would not cover the prebuilt Popup
+      // and Sidebar launchers. 1.69.3 removed the prop with no replacement —
+      // the provider exposes no positioning control at all now — so on routes
+      // that mount those launchers the button overlaps them again.
       showDevConsole={rootInspectorSetting(pathname)}
-      // Bottom-left, because the prebuilt Popup and Sidebar launchers both
-      // live bottom-right and would sit under the inspector button.
-      inspectorDefaultAnchor={{ horizontal: "left", vertical: "bottom" }}
       onError={(event) => {
         console.error(`[CopilotKit ${event.code}]`, event.error);
       }}
