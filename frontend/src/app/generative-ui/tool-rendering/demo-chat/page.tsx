@@ -8,7 +8,6 @@ import {
 import { z } from "zod";
 
 import { DemoFrame } from "@/components/demo-frame";
-import { useEffect } from "react";
 import {
   CustomCatchallRenderer,
   type CatchallToolStatus,

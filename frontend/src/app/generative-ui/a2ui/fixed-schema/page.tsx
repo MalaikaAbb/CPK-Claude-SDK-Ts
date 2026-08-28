@@ -78,7 +78,7 @@ export default function Page() {
         <CodeBlock
           code={RUNTIME_CONFIG}
           language="ts"
-          filename="from the doc page — applied in frontend/src/app/api/copilotkit/route.ts"
+          filename="from the doc page — applied in frontend/src/app/api/copilotkit/[[...slug]]/route.ts"
         />
       </Panel>
 

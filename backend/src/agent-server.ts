@@ -39,7 +39,7 @@ dotenv.config();
 const app = express();
 app.use(express.json({ limit: "10mb" }));
 
-const MODEL = process.env.CLAUDE_MODEL ?? "claude-sonnet-4-6";
+const MODEL = process.env.CLAUDE_MODEL ?? "claude-opus-4-8";
 
 for (const agentId of AGENT_IDS) {
   const agent = new ClaudeAgentAdapter({
