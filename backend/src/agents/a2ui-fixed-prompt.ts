@@ -4,12 +4,13 @@
  *
  * Live: `A2UI_FIXED_SYSTEM_PROMPT` is the agent's system prompt.
  *
- * Inert: `DISPLAY_FLIGHT_TOOL_SCHEMA` and `buildDisplayFlightOperations`.
- * `display_flight` is a backend tool, so it needs the unpublished
- * `buildBackendToolServer` bridge, and the runtime is configured with
- * `injectA2UITool: false` per the page — meaning nothing puts a drawing tool
- * in front of the model. The agent will answer about flights in prose and the
- * surface never mounts. See README §9.
+ * Live, via a repo-authored bridge: `DISPLAY_FLIGHT_TOOL_SCHEMA` and
+ * `buildDisplayFlightOperations`. `display_flight` is a backend tool and the
+ * page never shows how to hand one to the adapter (the unpublished
+ * `buildBackendToolServer`). `display-flight-mcp-server.ts` (not doc code)
+ * wraps both exports unchanged in an in-process MCP server, so with the
+ * page's `injectA2UITool: false` the agent still has a drawing tool and the
+ * surface mounts. See README §9.1.
  *
  * `flight_schema.json` / `booked_schema.json` are also never published on any
  * page; the copies in `a2ui_schemas/` are the Google ADK repo's, which the

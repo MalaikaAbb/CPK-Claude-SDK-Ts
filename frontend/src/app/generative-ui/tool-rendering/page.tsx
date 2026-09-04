@@ -29,8 +29,8 @@ export default function Page() {
         </p>
       </Panel>
 
-      <Panel title="This route does not work, and why">
-        <Callout tone="warn" title="get_weather is a backend tool, and backend tools cannot be registered">
+      <Panel title="How get_weather is registered, and why that is not doc code">
+        <Callout tone="warn" title="get_weather is a backend tool, and the docs publish no way to register one">
           <p>
             The page publishes the complete backend half —{" "}
             <code>GET_WEATHER_TOOL</code> and a <code>getWeather()</code>{" "}
@@ -43,18 +43,24 @@ export default function Page() {
             on no page in this framework&apos;s docs.
           </p>
           <p className="mt-2">
-            This repo does not write one. So the model is never offered{" "}
-            <code>get_weather</code>, never calls it, and neither renderer
-            fires. Both are left wired: if a bridge is ever published, the demo
-            file should work unchanged.
+            This repo writes its own, clearly marked as repo code:{" "}
+            <code>backend/src/agents/weather-mcp-server.ts</code> wraps the
+            published <code>GET_WEATHER_TOOL</code> / <code>getWeather</code>{" "}
+            in an in-process MCP server via the SDK&apos;s{" "}
+            <code>createSdkMcpServer</code> + <code>tool()</code>, and the
+            registry passes it to the adapter as <code>mcpServers</code> plus{" "}
+            <code>allowedTools: [&quot;mcp__weather__get_weather&quot;]</code>.
+            The adapter strips the MCP prefix on the way out, so the
+            published renderers match without change. If a bridge is ever
+            published, swap that one file.
           </p>
         </Callout>
 
         <div className="mt-4">
           <TryIt
             prompts={["What's the weather in Lisbon?"]}
-            expect="Currently: a prose answer and no card. That is the documented-gap behaviour, and it is what this route is here to record."
-            fail="A rendered WeatherCard would mean a backend tool got registered somehow — which would make this status table entry wrong, not right."
+            expect="A WeatherCard for Lisbon showing 68°, 55% humidity, 10 wind, Sunny (the executor's fixed values), then a short prose reply."
+            fail="A prose-only answer means the tool was never offered or was denied — check the backend log for the weather MCP server and the mcp__weather__get_weather grant."
           />
         </div>
       </Panel>

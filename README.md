@@ -239,9 +239,9 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Chart last quarter's revenue: Jan 40, Feb 65, Mar 52."
 *Pass (today):* a rendered bar chart inline with those values, **followed by a 400 error banner** — the chart is the part that works. *Fail:* a markdown table instead of a chart means the model answered in prose. See §9.13.
 
-**`/generative-ui/tool-rendering`** — named renderers plus a wildcard catch-all. **Broken.**
+**`/generative-ui/tool-rendering`** — named renderers plus a wildcard catch-all. **Partial.**
 *Try:* "What's the weather in Lisbon?"
-*Pass (today):* a prose answer and **no card** — that is the documented-gap behaviour this route records. A rendered card would mean a backend tool got registered, which would make this entry wrong. See §9.
+*Pass:* a `WeatherCard` for Lisbon with the executor's fixed values (68°, 55% humidity, wind 10, Sunny), then a short prose reply. *Fail:* a prose-only answer means the model was never offered `get_weather`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
 
 **`/generative-ui/state-rendering`** — rendering agent state reactively. **Partial.** Shares its cell with State Streaming; the demo link redirects there.
 
@@ -249,9 +249,9 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Show me a dashboard for our API health: uptime 99.95%, p95 latency 240 ms, 3 open incidents."
 *Pass:* a composed surface of cards, metrics and badges, streaming in progressively. *Fail:* a plain markdown answer means `generate_a2ui` was never injected.
 
-**`/generative-ui/a2ui/fixed-schema`** — a flight card whose tree is authored as JSON up front. **Broken.**
+**`/generative-ui/a2ui/fixed-schema`** — a flight card whose tree is authored as JSON up front. **Partial.**
 *Try:* "Find me a flight from SFO to JFK."
-*Pass (today):* a one-sentence prose reply and **no card**. Both paths to a drawing tool are closed here — see §9.
+*Pass:* a flight card on the fixed-schema surface with SFO, JFK, an airline and a price, plus a one-sentence reply. *Fail:* a prose-only answer means the model was never offered `display_flight`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
 
 ### App Control
 
@@ -271,7 +271,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 
 **`/shared-state`** — the two-way channel. **Partial.**
 *Try:* set tone to playful and name to Ada, then "Explain recursion." Then "Remember that I prefer TypeScript."
-*Pass:* the reply uses your name and tone; a note appears in the right-hand card mid-stream. *Caveat:* writes land through `ag_ui_update_state`, not the doc's `set_notes` — see §9.
+*Pass:* the reply uses your name and tone; a note appears in the scratch pad while the run is still going, and Clear empties it. *Fail:* no note means `set_notes` was never called or its result never became a snapshot. Partial because the tool bridge, the write-back, and the preferences form are repo code — see §9.1 and §9.15.
 
 **`/shared-state/rendering-in-app`** — the same state as a main-view canvas. **Partial**, inherits the above.
 *Try:* "Make me a 4-item packing list for a weekend trip," then tick boxes and ask "Which have I ticked off?"
@@ -325,14 +325,14 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [voice](https://docs.copilotkit.ai/claude-sdk-typescript/voice) | `/voice` | ✅ Working | Mic needs `OPENAI_API_KEY`; sample-audio button works without. |
 | [generative-ui/reasoning](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/reasoning) | `/generative-ui/reasoning` | ✅ Working | Same reasoning stream; replaces the whole card instead of its sub-slots. |
 | [generative-ui/tool-based](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based) | `/generative-ui/tool-based` | ⚠️ Partial | Chart renders, then the follow-up run 400s. Adapter bug — §9.13. |
-| [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ❌ Broken | `get_weather` is a backend tool; the MCP bridge is never published. |
+| [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Shares a cell with State Streaming and redirects there; inherits its non-compiling demo. §9.15. |
 | [generative-ui/a2ui/dynamic-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema) | `/generative-ui/a2ui/dynamic-schema` | ✅ Working | `generate_a2ui` is injected as a frontend tool. |
-| [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ❌ Broken | Backend `display_flight` unregisterable **and** injection off per the page. |
+| [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
-| [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ❌ Broken | Demo holds only the two published snippets — no imports, types, `latestNotesRef`, shell or export. Does not compile. §9.15. |
+| [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Published snippets kept; imports, types, form and layout are repo code. `set_notes` works via this repo's MCP bridge (`backend/src/agents/set-notes-mcp-server.ts`) with a server-side state write-back — §9.1, §9.15. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
 | [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) | `/shared-state/streaming` | ❌ Broken | The page publishes 5 lines of frontend code. Demo holds exactly that, so it does not compile. §9.15. |
 | [shared-state/agent-readonly](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/agent-readonly) | `/shared-state/agent-readonly` | ✅ Working | Adapter injects context itself. |
@@ -345,7 +345,11 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 
 ## 9. Known issues / doc-vs-implementation discrepancies
 
-### 9.1 `buildBackendToolServer` is called by the docs and defined by none of them — **the root cause of most rows above**
+### 9.1 `buildBackendToolServer` — now published, but still not runnable as shown
+
+**Update (2026-09-04):** the [Shared State](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) page now publishes the full body of `buildBackendToolServer` under its "Expose set_notes through MCP" step, and the Quickstart publishes `createClaudeAgentAdapter` and `runWithClaudeAgentSdk` in full. The earlier claim below that it is defined on no page is out of date. What remains undefined on every page: `sdkTool`, `zodShapeFromJsonSchema` (no installed package provides it), the `Emit` and `ExecuteTool` types, `normalizeClaudeAgentSdkModel`, `hasHeader`, `hasStructuredUserContent`, `runAgenticLoop`, `executeBackendTool`, and every import line. So the published bridge still cannot be dropped in. The Quickstart's wrapper does show the state write-back design: `setState` queues snapshots and a `STATE_SNAPSHOT` is emitted after each `TOOL_CALL_RESULT`; this repo's server does the same per request via the registry's `stateFromToolResult` hook.
+
+*Original finding, kept for the record:*
 
 The [Quickstart](https://docs.copilotkit.ai/claude-sdk-typescript/quickstart)'s "Backend tools and state" section publishes `runWithClaudeAgentSdk`, which contains:
 
@@ -363,7 +367,9 @@ const adapter = new ClaudeAgentAdapter({
 
 `buildBackendToolServer` is not defined on that page or on any other page in the framework's docs. Nor are `normalizeClaudeAgentSdkModel`, `Emit`, or `ExecuteTool`. Without it there is **no published way to register a server-side tool**.
 
-This repo does not write one. Affected: `/generative-ui/tool-rendering` (❌), `/generative-ui/a2ui/fixed-schema` (❌), `/shared-state` (⚠️), `/shared-state/rendering-in-app` (⚠️), `/shared-state/streaming` (⚠️), `/multi-agent/subagents` (⚠️).
+This repo writes one per tool it needs, and marks each as repo code. `backend/src/agents/weather-mcp-server.ts` wraps the published `GET_WEATHER_TOOL` / `getWeather` in an in-process MCP server using the Claude Agent SDK's own `createSdkMcpServer` + `tool()` (the JSON `input_schema` is translated to a zod shape by hand), and the registry passes it to `ClaudeAgentAdapter` as `mcpServers` plus `allowedTools: ["mcp__weather__get_weather"]`. The adapter merges it alongside its own `ag_ui` server and strips the `mcp__weather__` prefix from tool-call events, so the frontend's `useRenderTool({ name: "get_weather" })` matches unchanged. `backend/src/agents/display-flight-mcp-server.ts` does the same for the fixed-schema page's `DISPLAY_FLIGHT_TOOL_SCHEMA` / `buildDisplayFlightOperations`; its handler returns the `a2ui_operations` payload as the tool result, which the A2UI middleware already parses. `backend/src/agents/set-notes-mcp-server.ts` does it for the Shared State page's `SET_NOTES_TOOL_SCHEMA`, and adds the write-back: the handler returns the validated notes in its result, and `agent-server.ts` emits a `STATE_SNAPSHOT` after that result through the registry's `stateFromToolResult` hook. That takes `/generative-ui/tool-rendering`, `/generative-ui/a2ui/fixed-schema` and `/shared-state` to ⚠️.
+
+Still affected, because their tools are not bridged: `/shared-state/streaming` (⚠️), `/multi-agent/subagents` (⚠️).
 
 The published backend halves are kept in `backend/src/agents/*.snippet.ts` and `*-prompt.ts`, unmodified, each with a header saying why it is inert.
 
@@ -488,7 +494,7 @@ To get a green build locally without editing the snippet, either delete `fronten
 
 Both routes were rebuilt to hold **only** the code their doc pages actually publish. Neither compiles, and that is the finding.
 
-**[shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state)** publishes exactly two frontend snippets for `page.tsx` — the `useAgent` subscription and the `handlePreferencesChange` handler — plus the full body of `notes-card.tsx`. Absent: imports for `useAgent`/`UseAgentUpdate`; the `Preferences` type (it lives only in the page's *backend* snippet); the `RWAgentState` type; `latestNotesRef`, which the handler reads; `NotesCardProps`; and the `Card`/`CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`Button` imports `NotesCard` depends on. There is no component shell, JSX, layout or default export — and no preferences form anywhere on the page, despite the published handler being named for one.
+**[shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state)** publishes exactly two frontend snippets for `page.tsx` — the `useAgent` subscription and the `handlePreferencesChange` handler — plus the full body of `notes-card.tsx`. Absent: imports for `useAgent`/`UseAgentUpdate`; the `Preferences` type (it lives only in the page's *backend* snippet); the `RWAgentState` type; `latestNotesRef`, which the handler reads; `NotesCardProps`; and the `Card`/`CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`Button` imports `NotesCard` depends on. There is no component shell, JSX, layout or default export — and no preferences form anywhere on the page, despite the published handler being named for one. **As of 2026-09-04 the demo fills those gaps with repo code** (`frontend/src/app/shared-state/demo-chat/page.tsx`, `notes-card.tsx`, `preferences-panel.tsx`); the published lines are kept verbatim and marked, and the route is ⚠️ rather than ✅ because of how much around them is not the doc's.
 
 **[shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming)** publishes **five lines** of frontend code: one `useAgent` call. Its only other frontend content is a sentence of prose describing a `LIVE` indicator whose markup is never shown. No imports, no typing of `agent.state`, no document view, no component, no export.
 
@@ -496,7 +502,7 @@ Both routes were rebuilt to hold **only** the code their doc pages actually publ
 
 Backend halves are unavailable too, and for `streaming` twice over:
 
-- `set_notes` and `write_document` are **backend tools**, blocked by the missing `buildBackendToolServer` (§9.1).
+- `write_document` is a **backend tool** with no bridge in this repo (§9.1). `set_notes` now has one.
 - `emitStreamingDocumentState` consumes raw Anthropic `content_block_delta` / `input_json_delta` events. `ClaudeAgentAdapter` emits AG-UI events only; the "direct Messages API path" that would produce raw deltas is named and never published (§9.2).
 
 Earlier revisions of this repo carried working demos around these snippets — a `Demo()` component, a `PreferencesPanel` form, a `handleClearNotes` write-back, a document panel with a LIVE badge and char counter, and writes routed through the adapter's built-in `ag_ui_update_state`. All of that was invented here, not published, so it has been removed. `preferences-panel.tsx` is deleted outright; the docs never mention such a component.

@@ -42,34 +42,41 @@ export default function Page() {
         </p>
       </Panel>
 
-      <Panel title="This route does not work, and why">
-        <Callout tone="warn" title="Both paths to a drawing tool are closed here">
+      <Panel title="How display_flight is registered, and why that is not doc code">
+        <Callout tone="warn" title="The page gives the tool but not the way to hand it to the adapter">
           <p>
             The page prescribes two things together:{" "}
             <code>injectA2UITool: false</code> on the runtime, and a backend{" "}
             <code>display_flight</code> tool the agent owns instead. The first
-            is applied. The second cannot be — backend tool definition is given but it is incomplete.
-            Its integration with ClaudeAgentAdapter is NOT provided in docs
+            is applied as published. For the second the page gives the schema
+            and the <code>a2ui_operations</code> builder, but never shows how
+            they reach <code>ClaudeAgentAdapter</code>.
           </p>
           <p className="mt-2">
-            The net effect is an agent with no drawing tool at all. Injection
-            was left off rather than flipped on, because flipping it would
-            demonstrate the{" "}
+            This repo writes that piece itself, clearly marked as repo code:{" "}
+            <code>backend/src/agents/display-flight-mcp-server.ts</code> wraps
+            the published schema and builder in an in-process MCP server via
+            the SDK&apos;s <code>createSdkMcpServer</code> + <code>tool()</code>,
+            and the registry passes it as <code>mcpServers</code> plus{" "}
+            <code>allowedTools: [&quot;mcp__flights__display_flight&quot;]</code>.
+            The handler returns the operations as the tool result, which the
+            A2UI middleware picks up. Injection stays off, so the surface is
+            the fixed schema and not the{" "}
             <a
               href="/generative-ui/a2ui/dynamic-schema"
               className="text-[var(--accent)] underline underline-offset-4"
             >
               dynamic-schema
             </a>{" "}
-            path under this page&apos;s name.
+            path.
           </p>
         </Callout>
 
         <div className="mt-4">
           <TryIt
             prompts={["Find me a flight from SFO to JFK."]}
-            expect="Currently: a one-sentence prose reply and no card. That is the documented-gap behaviour this route records."
-            fail="A rendered flight card would mean a drawing tool got registered — which would make this status entry wrong."
+            expect="A flight card on the fixed-schema surface showing SFO → JFK, an airline and a price, plus a one-sentence reply."
+            fail="A prose-only answer means the tool was never offered or was denied — check the backend log for the flights MCP server and the mcp__flights__display_flight grant. A card with empty fields means the operations shape did not match the catalog."
           />
         </div>
       </Panel>
