@@ -98,11 +98,6 @@ export default function Page() {
       subtitle="agent: tool-rendering · no backend tools registered"
     >
       <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
-        <p className="shrink-0 border-b border-rose-200 bg-rose-50 px-4 py-2 text-xs text-rose-800 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-200">
-          The agent has no <code>get_weather</code> tool — the docs never
-          publish the bridge that would register one. Expect a prose answer and
-          no card.
-        </p>
         <div className="min-h-0 flex-1">
           <Chat />
         </div>

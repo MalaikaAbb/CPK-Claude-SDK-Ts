@@ -2,16 +2,16 @@
  * Verbatim from the Tool Call Rendering doc page.
  * https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering
  *
- * Inert. This is the complete backend half of the page — a tool schema and
- * its executor — and it is exactly the case the missing bridge blocks: the
- * quickstart's `runWithClaudeAgentSdk` would hand `toolSchemas` and
- * `executeTool` to `buildBackendToolServer({...})` to get the `mcpServers` /
- * `allowedTools` pair `ClaudeAgentAdapter` needs, and that function is never
- * published on any page.
+ * Live, via a repo-authored bridge. This is the complete backend half of the
+ * page — a tool schema and its executor. The quickstart's
+ * `runWithClaudeAgentSdk` would hand them to `buildBackendToolServer({...})`
+ * to get the `mcpServers` / `allowedTools` pair `ClaudeAgentAdapter` needs,
+ * and that function is never published on any page.
  *
- * With no way to register it, `get_weather` never reaches the model, so the
- * `useRenderTool({ name: "get_weather" })` renderer on the frontend never
- * fires. See README §9.
+ * `weather-mcp-server.ts` (not doc code) does that job with the Claude Agent
+ * SDK's `createSdkMcpServer` + `tool()`, wrapping the two exports below
+ * unchanged, so `useRenderTool({ name: "get_weather" })` on the frontend does
+ * fire. See README §9.1.
  *
  * The page also names `search_flights`, `get_stock_price` and `roll_dice` in
  * its frontend renderers, but publishes a backend definition for `get_weather`

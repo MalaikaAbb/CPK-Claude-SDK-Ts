@@ -8,8 +8,9 @@
  * fixed by the doc even though the component body is never published. The
  * body below is this repo's, kept minimal.
  *
- * In this repo it never renders, because `get_weather` is a backend tool and
- * no bridge to register one is published. See the route's notes page.
+ * `get_weather` is a backend tool. The docs publish no bridge to register
+ * one, so this repo registers it through its own MCP server
+ * (`backend/src/agents/weather-mcp-server.ts`). See the route's notes page.
  */
 export function WeatherCard({
   loading,

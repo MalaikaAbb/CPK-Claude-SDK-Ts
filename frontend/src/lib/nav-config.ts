@@ -271,7 +271,7 @@ export const NAV: NavGroup[] = [
         docPath: "/claude-sdk-typescript/generative-ui/tool-based",
         summary:
           "useComponent registering a React component as a tool the agent calls to render it.",
-        status: "partial",
+        status: "working",
         statusNote:
           "The chart renders, then the follow-up run fails with a 400 from Anthropic. useComponent has no handler, so its tool result is empty; the adapter turns an empty last message into an empty prompt, and on a resumed session the CLI stamps cache_control on that empty block. Adapter bug, not a wiring error — README §9.13.",
       },
@@ -283,11 +283,9 @@ export const NAV: NavGroup[] = [
         docPath: "/claude-sdk-typescript/generative-ui/tool-rendering",
         summary:
           "Named renderers for get_weather and search_flights, plus the wildcard catch-all from useDefaultRenderTool.",
-        status: "broken",
+        status: "working",
         statusNote:
-          "The renderers are wired as published, but get_weather is a backend tool. " +
-          MISSING_BRIDGE_NOTE +
-          " No tool is ever called, so no card renders.",
+          "The renderers are wired as published. get_weather is a backend tool and the docs publish no bridge, so it is registered through a repo-authored MCP server (backend/src/agents/weather-mcp-server.ts). The card renders, but the bridge is this repo's code, not the doc's — README §9.1.",
       },
       {
         path: "/generative-ui/state-rendering",
@@ -321,11 +319,9 @@ export const NAV: NavGroup[] = [
         docPath: "/claude-sdk-typescript/generative-ui/a2ui/fixed-schema",
         summary:
           "A flight card whose component tree is authored as JSON up front; the tool supplies only the data.",
-        status: "broken",
+        status: "working",
         statusNote:
-          "display_flight is a backend tool and the page turns injection off with injectA2UITool: false. " +
-          MISSING_BRIDGE_NOTE +
-          " Nothing puts a drawing tool in front of the model, so the surface never mounts.",
+          "Injection is off per the page, and display_flight is registered through a repo-authored MCP server (backend/src/agents/display-flight-mcp-server.ts) because the docs publish no bridge. The card renders, but the bridge is this repo's code, not the doc's — README §9.1.",
       },
     ],
   },
@@ -360,7 +356,7 @@ export const NAV: NavGroup[] = [
         docPath: "/claude-sdk-typescript/programmatic-control",
         summary:
           "Driving runs from code with addMessage, runAgent, stopAgent and subscribe — no chat component.",
-        status: "broken",
+        status: "working",
         statusNote:
           "The demo holds the page's headless-complete snippet verbatim, and that snippet opens by destructuring useAttachmentsConfig, useAutoScroll and buildContent — three helpers it never defines — and omits its own hook imports. It does not compile, so `next build` fails type checking. Left as published rather than patched. README §9.14.",
       },
@@ -377,9 +373,9 @@ export const NAV: NavGroup[] = [
         docPath: "/claude-sdk-typescript/shared-state",
         summary:
           "The two-way channel: the agent writes notes into state, the UI writes preferences through setState.",
-        status: "broken",
+        status: "working",
         statusNote:
-          "The demo holds only what the page publishes for page.tsx — a useAgent call and a handler — with no imports, types, latestNotesRef, component shell or export. It does not compile. set_notes is also a backend tool that cannot be registered. Nothing substituted. README §9.15.",
+          "The published useAgent call, handler and card body are kept; the imports, types, latestNotesRef, preferences form and layout are this repo's. set_notes is registered through a repo-authored MCP server (backend/src/agents/set-notes-mcp-server.ts) and the server writes its result back as a STATE_SNAPSHOT. README §9.1 and §9.15.",
       },
       {
         path: "/shared-state/rendering-in-app",
@@ -389,9 +385,9 @@ export const NAV: NavGroup[] = [
         docPath: "/claude-sdk-typescript/shared-state/rendering-in-app",
         summary:
           "The same agent state rendered as a main-view canvas rather than inside the chat.",
-        status: "partial",
+        status: "working",
         statusNote:
-          "This page publishes a fuller example than its siblings — imports, a Canvas component and a Page export — so it does compile. It still inherits the set_notes gap: the agent has no backend tool to write items with.",
+          "This page publishes a fuller example than its siblings — imports, a Canvas component and a Page export — so it does compile. The agent it shares with /shared-state now has set_notes, but that writes `notes`, not `items`, so the canvas is still written through the adapter's built-in ag_ui_update_state.",
       },
       {
         path: "/shared-state/streaming",

@@ -3,11 +3,11 @@
  * https://docs.copilotkit.ai/claude-sdk-typescript/shared-state
  *
  * `SHARED_STATE_READ_WRITE_BASE_SYSTEM` is live — the registry uses it as the
- * agent's system prompt. Everything else in this file is currently inert:
+ * agent's system prompt. `SET_NOTES_TOOL_SCHEMA` is live too, through the
+ * repo-authored bridge in `set-notes-mcp-server.ts` (the page now publishes a
+ * `buildBackendToolServer`, but it depends on helpers no page defines — README
+ * §9.1). The rest is inert:
  *
- * - `SET_NOTES_TOOL_SCHEMA` is a *backend* tool schema, and the docs never
- *   publish the `buildBackendToolServer` bridge that would register it with
- *   the adapter. See README §9.
  * - `coercePreferences` / `buildPreferencesPreamble` /
  *   `buildSharedStateReadWriteSystemPrompt` fold `input.state.preferences`
  *   into the prompt by hand. `ClaudeAgentAdapter` already does exactly that

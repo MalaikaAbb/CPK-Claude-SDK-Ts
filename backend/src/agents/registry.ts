@@ -15,10 +15,28 @@
  * doc never described.
  */
 
+import type { McpServerConfig } from "@anthropic-ai/claude-agent-sdk";
+
 import { AGENT_CONFIG_DEFAULT_SYSTEM_PROMPT } from "./agent-config-prompt";
 import { A2UI_FIXED_SYSTEM_PROMPT } from "./a2ui-fixed-prompt";
+import {
+  DISPLAY_FLIGHT_ALLOWED_TOOLS,
+  FLIGHTS_MCP_SERVER_NAME,
+  displayFlightMcpServer,
+} from "./display-flight-mcp-server";
+import {
+  SET_NOTES_ALLOWED_TOOLS,
+  NOTES_MCP_SERVER_NAME,
+  applySetNotesResult,
+  setNotesMcpServer,
+} from "./set-notes-mcp-server";
 import { SHARED_STATE_READ_WRITE_BASE_SYSTEM } from "./shared-state-read-write-prompt";
 import { SUPERVISOR_SYSTEM_PROMPT } from "./subagents-prompts";
+import {
+  WEATHER_ALLOWED_TOOLS,
+  WEATHER_MCP_SERVER_NAME,
+  weatherMcpServer,
+} from "./weather-mcp-server";
 
 /** The Quickstart's prompt, verbatim. */
 export const DEFAULT_SYSTEM_PROMPT =
@@ -28,6 +46,21 @@ export interface AgentDefinition {
   systemPrompt: string;
   /** Why this agent exists — surfaced on /backend/copilot-runtime. */
   note?: string;
+  /** Backend tools, as in-process MCP servers passed straight to the SDK. */
+  mcpServers?: Record<string, McpServerConfig>;
+  /** `mcp__<server>__<tool>` names the agent may call without asking. */
+  allowedTools?: string[];
+  /**
+   * State write-back for backend tools. Called by the server on every
+   * `TOOL_CALL_RESULT` with the bare tool name, the result text, and the
+   * run's current state. Return the next state to emit a `STATE_SNAPSHOT`,
+   * or `null` to leave state alone.
+   */
+  stateFromToolResult?: (
+    toolName: string,
+    resultContent: string,
+    state: Record<string, unknown>,
+  ) => Record<string, unknown> | null;
 }
 
 export const REGISTRY: Record<string, AgentDefinition> = {
@@ -67,7 +100,9 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   },
   "tool-rendering": {
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
-    note: "Needs backend tools. No bridge is published, so it has none — README §9.",
+    note: "`get_weather` is registered through a repo-authored MCP bridge, not doc code — README §9.1.",
+    mcpServers: { [WEATHER_MCP_SERVER_NAME]: weatherMcpServer },
+    allowedTools: WEATHER_ALLOWED_TOOLS,
   },
   "declarative-gen-ui": {
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
@@ -75,7 +110,9 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   },
   "a2ui-fixed-schema": {
     systemPrompt: A2UI_FIXED_SYSTEM_PROMPT,
-    note: "Prompt tells it to call `display_flight`, which cannot be registered — README §9.",
+    note: "`display_flight` is registered through a repo-authored MCP bridge, not doc code — README §9.1.",
+    mcpServers: { [FLIGHTS_MCP_SERVER_NAME]: displayFlightMcpServer },
+    allowedTools: DISPLAY_FLIGHT_ALLOWED_TOOLS,
   },
 
   // ── App Control ──────────────────────────────────────────────────────────
@@ -85,7 +122,10 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   // ── Shared State ─────────────────────────────────────────────────────────
   "shared-state-read-write": {
     systemPrompt: SHARED_STATE_READ_WRITE_BASE_SYSTEM,
-    note: "Prompt names `set_notes`; writes actually land via the adapter's built-in `ag_ui_update_state`.",
+    note: "`set_notes` is registered through a repo-authored MCP bridge; its result is written back to state by the server — README §9.1.",
+    mcpServers: { [NOTES_MCP_SERVER_NAME]: setNotesMcpServer },
+    allowedTools: SET_NOTES_ALLOWED_TOOLS,
+    stateFromToolResult: applySetNotesResult,
   },
   "shared-state-streaming": {
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
