@@ -24,7 +24,7 @@ function Chat() {
     name: "render_bar_chart",
     description: "Display a bar chart with labeled numeric values.",
     parameters: barChartPropsSchema,
-    render: BarChart,
+    render: BarChart
   });
 
   return <CopilotChat agentId="gen-ui-tool-based" />;

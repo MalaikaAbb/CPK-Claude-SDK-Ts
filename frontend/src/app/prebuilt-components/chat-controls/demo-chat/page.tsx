@@ -2,6 +2,7 @@
 
 import {
   CopilotChatConfigurationProvider,
+  CopilotPopup,
   CopilotSidebar,
   useCopilotChatConfiguration,
 } from "@copilotkit/react-core/v2";
@@ -36,18 +37,32 @@ import { DemoFrame } from "@/components/demo-frame";
 // The doc's snippet, unchanged apart from styling.
 function OpenChatButton() {
   const config = useCopilotChatConfiguration();
+  const [chatOpen, setChatOpen] = useState(false);
 
   // setModalOpen is only present when a provider in the tree owns modal state
   // (the prebuilt CopilotPopup / CopilotSidebar create it for you).
   if (!config?.setModalOpen) return null;
 
   return (
-    <button
-      onClick={() => config.setModalOpen(!config.isModalOpen)}
-      className="rounded-md bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-white"
-    >
-      {config.isModalOpen ? "Close chat" : "Open chat"}
-    </button>
+    <>
+    <div className="flex gap-2">
+
+      <button
+        onClick={() => config.setModalOpen(!config.isModalOpen)}
+        className="rounded-md bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-white"
+      >
+        {config.isModalOpen ? "Close Sidebar" : "Open Sidebar"}
+      </button>
+      <nav>
+          <button className="rounded-md bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-white"
+          onClick={() => setChatOpen(!chatOpen)}>
+            Ask the assistant (Popup)
+          </button>
+          <CopilotPopup open={chatOpen} onOpenChange={setChatOpen} />
+      </nav>
+    </div>
+   
+    </>
   );
 }
 
@@ -71,6 +86,8 @@ export default function Page() {
             The button below is the doc&apos;s <code>OpenChatButton</code>. It
             reads <code>isModalOpen</code> from the chat configuration context
             and flips it — no ref, no imperative handle.
+            <br/>
+            <b>RATINGS/FEEDBACK CONFIGURATION IS IN SIDEBAR</b>
           </p>
 
           <div className="mt-5">
@@ -103,6 +120,7 @@ export default function Page() {
 
         <CopilotSidebar
           agentId="chat-controls"
+          position="left"
           messageView={{
             assistantMessage: {
               onThumbsUp: (message: { id: string }) =>
