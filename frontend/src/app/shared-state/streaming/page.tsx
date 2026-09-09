@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { RouteHeader } from "@/components/route-header";
 import { SourceCode } from "@/components/source-code";
 import { Callout, Panel, TryIt } from "@/components/ui";
@@ -7,77 +9,89 @@ export default function Page() {
     <>
       <RouteHeader path="/shared-state/streaming" />
 
-      <Panel title="What it demonstrates">
+      <Callout tone="warn" title="Two things are missing, not one">
+        <ul className="mt-1 list-disc space-y-1 pl-5 leading-relaxed">
+          <li>
+            <code>write_document</code> is a <strong>backend</strong> tool.
+            Registering one needs <code>buildBackendToolServer</code>, which the
+            Quickstart calls and which no page defines runnably — README §9.1.
+          </li>
+          <li>
+            Even given the tool, <code>emitStreamingDocumentState</code> walks
+            raw <code>content_block_start</code> /{" "}
+            <code>content_block_delta</code> events with{" "}
+            <code>input_json_delta</code> payloads.{" "}
+            <code>ClaudeAgentAdapter</code> consumes the SDK stream internally
+            and emits AG-UI events only, so there is no raw stream to hand it.
+            The page names &ldquo;the direct Messages API path&rdquo; that would
+            produce those deltas and never publishes that run loop.
+          </li>
+        </ul>
+      </Callout>
+
+      <Panel title="What it would demonstrate">
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-          By default agent state only updates between checkpoints, so a
-          long-running tool call lands as one burst at the end. State streaming
-          forwards a specific tool argument into a state key{" "}
-          <em>while it is still being generated</em>, so the UI can watch the
-          answer assemble. The mapping is always one tool argument to one state
-          key — here <code>write_document.document</code> to{" "}
-          <code>state.document</code>.
+          Agent state normally only updates <em>between</em> backend
+          checkpoints, so a long tool call lands as one burst at the end. State
+          streaming forwards one tool argument into one state key{" "}
+          <em>while the argument is still being generated</em>, so a subscribed
+          UI re-renders every token. Middleware-backed frameworks express this
+          as a declarative mapping; a direct SDK adapter does it by parsing
+          partial tool arguments in its own streaming loop, which is what the
+          published snippet does — here{" "}
+          <code>write_document.document</code> to <code>state.document</code>.
         </p>
-      </Panel>
-
-      <Panel title="This route has no runnable demo">
-        <Callout tone="warn" title="The page publishes five lines of frontend code">
-          <p>
-            The entire frontend half of this page is one{" "}
-            <code>useAgent</code> call. Its only other frontend content is a
-            sentence of prose: <em>&ldquo;From there,</em>{" "}
-            <code>agent.state.document</code>{" "}
-            <em>is just a string that grows on every token, and</em>{" "}
-            <code>agent.isRunning</code>{" "}
-            <em>tells you whether to show a streaming indicator.&rdquo;</em>
-          </p>
-          <p className="mt-2">
-            No imports, no typing of <code>agent.state</code>, no document view,
-            no indicator markup, no component, no export. The demo file holds
-            the five published lines and nothing else, so it does not compile.
-          </p>
-        </Callout>
-
         <div className="mt-4">
           <TryIt
-            prompts={["Nothing — the route has no rendering surface."]}
-            expect="`npx tsc --noEmit` reports errors in the demo file, and requesting the demo route returns 500 in dev."
-            fail="A document panel with a LIVE badge would mean the markup had been invented — the page describes an indicator but never shows one."
+            prompts={["Write a short essay about why small teams ship faster."]}
+            expect="Currently: the canvas stays empty with a LIVE badge, then the whole document appears at once when the turn ends. The subscription works; the streaming does not."
+            fail="Nothing in the canvas at all after the turn — that would mean the agent never wrote state, not just that it wrote it late."
           />
         </div>
       </Panel>
 
-      <Panel title="The backend half is blocked twice over">
-        <Callout tone="warn" title="A backend tool, and an event stream the adapter does not emit">
-          <ol className="list-decimal space-y-2 pl-5">
-            <li>
-              <code>write_document</code> is a backend tool. Registering one
-              requires <code>buildBackendToolServer</code>, which the Quickstart
-              calls and which no page in this framework&apos;s docs defines.
-            </li>
-            <li>
-              <code>emitStreamingDocumentState</code> consumes raw Anthropic
-              stream events — <code>content_block_start</code> and{" "}
-              <code>content_block_delta</code> with{" "}
-              <code>input_json_delta</code> — and hand-parses the partial JSON
-              buffer to pull the in-flight argument value out mid-token.{" "}
-              <code>ClaudeAgentAdapter</code> never surfaces those; it consumes
-              the SDK stream internally and emits AG-UI events. The page refers
-              to &ldquo;the direct Messages API path&rdquo; that would produce
-              raw deltas, and never publishes that run loop.
-            </li>
-          </ol>
-          <p className="mt-3">
-            Two independent blockers, neither worked around.
-          </p>
-        </Callout>
-      </Panel>
-
-      <Panel title="What the page publishes, as published">
+      <Panel
+        title="The demo"
+        description="The page's five published lines kept verbatim; the imports, the typing of agent.state, the layout and the canvas are this repo's — README §9.15."
+      >
         <SourceCode file="frontend/src/app/shared-state/streaming/demo-chat/page.tsx" />
       </Panel>
 
-      <Panel title="The backend half, as published and unused">
+      <Panel
+        title="The canvas"
+        description="Neither page publishes a component — they publish the subscription and describe in prose what it drives. This is that, minimally."
+      >
+        <SourceCode file="frontend/src/app/shared-state/streaming/document-canvas.tsx" />
+      </Panel>
+
+      <Panel
+        title="The backend half, as published"
+        description="Correct code for a run loop this integration does not expose."
+      >
         <SourceCode file="backend/src/agents/state-streaming-backend.snippet.ts" />
+      </Panel>
+
+      <Panel title="What runs instead">
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          The agent is the Quickstart&apos;s adapter with a prompt telling it to
+          write through <code>ag_ui_update_state</code> — the tool the adapter
+          ships automatically whenever the run carries state. That gets the
+          document into <code>agent.state.document</code> and the canvas renders
+          it, which is enough to prove the subscription half. It is not what
+          either page is about, so the route stays Broken rather than Partial:
+          the whole subject is the token-by-token fill, and one write at the end
+          of a turn is the thing state streaming exists to replace.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          <Link
+            href="/generative-ui/state-rendering"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            State Rendering
+          </Link>{" "}
+          is the same agent and the same gap, framed as a generative-UI concern
+          rather than a shared-state one.
+        </p>
       </Panel>
     </>
   );

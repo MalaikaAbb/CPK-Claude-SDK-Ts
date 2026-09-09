@@ -31,6 +31,7 @@ import {
   setNotesMcpServer,
 } from "./set-notes-mcp-server";
 import { SHARED_STATE_READ_WRITE_BASE_SYSTEM } from "./shared-state-read-write-prompt";
+import { STATE_STREAMING_SYSTEM_PROMPT } from "./state-streaming-prompt";
 import { SUPERVISOR_SYSTEM_PROMPT } from "./subagents-prompts";
 import {
   WEATHER_ALLOWED_TOOLS,
@@ -128,8 +129,8 @@ export const REGISTRY: Record<string, AgentDefinition> = {
     stateFromToolResult: applySetNotesResult,
   },
   "shared-state-streaming": {
-    systemPrompt: DEFAULT_SYSTEM_PROMPT,
-    note: "Token-by-token streaming needs the unpublished Messages API loop — README §9.",
+    systemPrompt: STATE_STREAMING_SYSTEM_PROMPT,
+    note: "`write_document` cannot be registered, so the prompt routes the document through the adapter's built-in `ag_ui_update_state` — one write at the end of the turn. Token-by-token streaming still needs the unpublished Messages API loop — README §9.15.",
   },
   "readonly-state-agent-context": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
 

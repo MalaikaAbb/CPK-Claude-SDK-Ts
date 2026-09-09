@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { RouteHeader } from "@/components/route-header";
 import { SourceCode } from "@/components/source-code";
 import { Callout, Panel, TryIt } from "@/components/ui";
@@ -7,61 +9,57 @@ export default function Page() {
     <>
       <RouteHeader path="/generative-ui/state-rendering" />
 
-      <Panel title="What it demonstrates">
+      <Callout tone="warn" title="Same cell, same gap as State Streaming">
+        <p className="leading-relaxed">
+          This page and{" "}
+          <Link
+            href="/shared-state/streaming"
+            className="text-[var(--accent)] underline underline-offset-4"
+          >
+            State Streaming
+          </Link>{" "}
+          embed the same demo (<code>shared-state-streaming</code>), publish the
+          same <code>useAgent</code> subscription, and carry the same backend
+          snippet. Only the framing differs — generative UI here, shared state
+          there — so both routes exist and share one agent.
+        </p>
+        <p className="mt-2 leading-relaxed">
+          The blockers are the same two: <code>write_document</code> is a
+          backend tool with no runnable registration path (README §9.1), and{" "}
+          <code>emitStreamingDocumentState</code> needs raw Anthropic deltas the
+          adapter never emits. The full write-up is on the State Streaming
+          route.
+        </p>
+      </Callout>
+
+      <Panel title="What it would demonstrate">
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-          Building UI that reflects agent state in real time — progress
-          counters, drafts that fill in, dashboards, structured output rendered
-          outside the chat. The frontend contract is one hook:{" "}
-          <code>useAgent</code> with <code>OnStateChanged</code>, and{" "}
-          <code>agent.state</code> as ordinary React data.
+          UI that reflects agent state in real time, outside the chat: progress
+          counters, drafts that fill in as the agent works, dashboards, any
+          structured output that does not belong in a message bubble. The
+          frontend contract is small — <code>useAgent</code> with{" "}
+          <code>OnStateChanged</code> gives you a reactive{" "}
+          <code>agent.state</code>, and <code>OnRunStatusChanged</code> gives
+          you the LIVE indicator.
         </p>
         <div className="mt-4">
           <TryIt
-            prompts={["Write a 200-word product announcement."]}
-            expect="The document panel updates as the agent writes state, with a LIVE badge during the run."
-            fail="Nothing rendering means no STATE_SNAPSHOT reached the client — check the Inspector's state tab."
+            prompts={["Draft a one-paragraph product brief for a habit tracker."]}
+            expect="Currently: an empty canvas with a LIVE badge during the turn, then the whole brief at once. The state channel works; the incremental fill does not."
+            fail="An empty canvas after the turn finishes — that would mean the state write never happened at all."
           />
         </div>
       </Panel>
 
-       <Panel title="Issue - Backend tool missing">
-        <Callout tone="warn" title="No backend tool integration">
-          <p>
-            The backend code has a write_document tool, however its integration with claudeAgentAdapter
-            using mcp_server is not implemented. The demo will not work as expected because the tool is not available to the agent.
-            
-          </p>
-        </Callout>
+      <Panel title="The demo">
+        <SourceCode file="frontend/src/app/generative-ui/state-rendering/demo-chat/page.tsx" />
       </Panel>
 
-      <Panel title="This page shares a cell with State Streaming">
-        <Callout tone="info" title="Same demo, same agent, deliberately">
-          <p>
-            The page&apos;s interactive cell is{" "}
-            <code>shared-state-streaming</code> and both of its code blocks are
-            the ones{" "}
-            <a
-              href="/shared-state/streaming"
-              className="text-[var(--accent)] underline underline-offset-4"
-            >
-              State Streaming
-            </a>{" "}
-            publishes — the same <code>useAgent</code> subscription and the same{" "}
-            <code>state-streaming-backend.snippet.ts</code>. This route&apos;s
-            demo link therefore redirects there rather than shipping a copy
-            that would drift.
-          </p>
-          <p className="mt-2">
-            The difference is emphasis, not code: this page is about{" "}
-            <em>rendering</em> state reactively, the other about the backend{" "}
-            <em>streaming</em> that makes the updates fine-grained. Both are
-            Partial for the same reason — see the sibling route for the detail.
-          </p>
-        </Callout>
-      </Panel>
-
-      <Panel title="The frontend subscription">
-        <SourceCode file="frontend/src/app/shared-state/streaming/demo-chat/page.tsx" />
+      <Panel
+        title="The backend half, as published"
+        description="Identical to the block on the State Streaming page."
+      >
+        <SourceCode file="backend/src/agents/state-streaming-backend.snippet.ts" />
       </Panel>
     </>
   );

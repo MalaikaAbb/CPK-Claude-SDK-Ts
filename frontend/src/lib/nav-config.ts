@@ -297,7 +297,7 @@ export const NAV: NavGroup[] = [
           "Rendering agent state as it changes, subscribed with useAgent + OnStateChanged.",
         status: "broken",
         statusNote:
-          "Shares its cell with State Streaming, and its demo redirects there — so it inherits that route's non-compiling demo. The subscription snippet it publishes is the same five lines. README §9.15.",
+          "Runs its own copy of the shared State Streaming cell. Same two blockers: write_document has no runnable registration path, and emitStreamingDocumentState needs raw Anthropic deltas the adapter never emits — so the document lands in one end-of-turn write instead of filling in. README §9.15.",
       },
       {
         path: "/generative-ui/a2ui/dynamic-schema",
@@ -399,7 +399,7 @@ export const NAV: NavGroup[] = [
           "Forwarding a tool argument into a state key while it is still being generated.",
         status: "broken",
         statusNote:
-          "The page publishes five lines of frontend code — one useAgent call — and no imports, types, markup, component or export. The demo holds exactly that, so it does not compile. The backend half is blocked twice: write_document is a backend tool, and emitStreamingDocumentState needs raw Anthropic deltas the adapter never emits. README §9.15.",
+          "The page's five published lines are kept verbatim; the imports, typing, canvas and layout are repo code. The backend half is blocked twice: write_document is a backend tool with no runnable bridge, and emitStreamingDocumentState needs raw Anthropic deltas the adapter never emits. The agent writes via the adapter's built-in ag_ui_update_state, so the document arrives in one end-of-turn write — the subscription proves out, the token-by-token fill does not. README §9.15.",
       },
       {
         path: "/shared-state/agent-readonly",

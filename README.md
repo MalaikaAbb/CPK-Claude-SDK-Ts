@@ -277,9 +277,9 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Make me a 4-item packing list for a weekend trip," then tick boxes and ask "Which have I ticked off?"
 *Pass:* a checklist in the page body, and an answer reflecting your ticks.
 
-**`/shared-state/streaming`** — one tool argument forwarded into a state key as it generates. **Partial.**
-*Try:* "Write a 200-word product announcement for a new coffee grinder."
-*Pass (today):* the panel fills in **one jump** with the LIVE badge on during the run — the subscription is right, the granularity is not what the page promises. *Fail:* no text at all is a different problem.
+**`/shared-state/streaming`** — one tool argument forwarded into a state key as it generates. **Broken.**
+*Try:* "Write a short essay about why small teams ship faster."
+*Pass (today):* the canvas is empty with the LIVE badge on during the run, then fills in **one jump** at the end — the subscription is right, the granularity is not what the page promises, which is the whole subject of the page. *Fail:* no text at all after the turn means the state write never happened.
 
 **`/shared-state/agent-readonly`** — `useAgentContext` as a one-way UI→agent channel.
 *Try:* "What's my name and what have I been doing?" Change the name, ask again in the same thread.
@@ -326,7 +326,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [generative-ui/reasoning](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/reasoning) | `/generative-ui/reasoning` | ✅ Working | Same reasoning stream; replaces the whole card instead of its sub-slots. |
 | [generative-ui/tool-based](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based) | `/generative-ui/tool-based` | ⚠️ Partial | Chart renders, then the follow-up run 400s. Adapter bug — §9.13. |
 | [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. |
-| [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Shares a cell with State Streaming and redirects there; inherits its non-compiling demo. §9.15. |
+| [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Runs its own copy of the shared State Streaming cell; same two blockers, so the document lands in one end-of-turn write. §9.15. |
 | [generative-ui/a2ui/dynamic-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema) | `/generative-ui/a2ui/dynamic-schema` | ✅ Working | `generate_a2ui` is injected as a frontend tool. |
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
@@ -334,7 +334,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
 | [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Published snippets kept; imports, types, form and layout are repo code. `set_notes` works via this repo's MCP bridge (`backend/src/agents/set-notes-mcp-server.ts`) with a server-side state write-back — §9.1, §9.15. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
-| [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) | `/shared-state/streaming` | ❌ Broken | The page publishes 5 lines of frontend code. Demo holds exactly that, so it does not compile. §9.15. |
+| [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) | `/shared-state/streaming` | ❌ Broken | The page's 5 published lines run inside a repo-built canvas. `write_document` has no bridge and the raw-delta loop is unpublished, so the document arrives in one end-of-turn write via `ag_ui_update_state`. §9.15. |
 | [shared-state/agent-readonly](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/agent-readonly) | `/shared-state/agent-readonly` | ✅ Working | Adapter injects context itself. |
 | [multi-agent/subagents](https://docs.copilotkit.ai/claude-sdk-typescript/multi-agent/subagents) | `/multi-agent/subagents` | ⚠️ Partial | Delegation log stays empty; the run loop is prose-only. |
 | [agent-config](https://docs.copilotkit.ai/claude-sdk-typescript/agent-config) | `/agent-config` | ✅ Working | Arrives as context, not `forwardedProps` — §9. |
@@ -496,16 +496,16 @@ Both routes were rebuilt to hold **only** the code their doc pages actually publ
 
 **[shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state)** publishes exactly two frontend snippets for `page.tsx` — the `useAgent` subscription and the `handlePreferencesChange` handler — plus the full body of `notes-card.tsx`. Absent: imports for `useAgent`/`UseAgentUpdate`; the `Preferences` type (it lives only in the page's *backend* snippet); the `RWAgentState` type; `latestNotesRef`, which the handler reads; `NotesCardProps`; and the `Card`/`CardHeader`/`CardTitle`/`CardDescription`/`CardContent`/`Button` imports `NotesCard` depends on. There is no component shell, JSX, layout or default export — and no preferences form anywhere on the page, despite the published handler being named for one. **As of 2026-09-04 the demo fills those gaps with repo code** (`frontend/src/app/shared-state/demo-chat/page.tsx`, `notes-card.tsx`, `preferences-panel.tsx`); the published lines are kept verbatim and marked, and the route is ⚠️ rather than ✅ because of how much around them is not the doc's.
 
-**[shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming)** publishes **five lines** of frontend code: one `useAgent` call. Its only other frontend content is a sentence of prose describing a `LIVE` indicator whose markup is never shown. No imports, no typing of `agent.state`, no document view, no component, no export.
+**[shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming)** publishes **five lines** of frontend code: one `useAgent` call. Its only other frontend content is a sentence of prose describing a `LIVE` indicator whose markup is never shown. No imports, no typing of `agent.state`, no document view, no component, no export. **As of 2026-09-09 the demo fills those gaps with repo code** (`frontend/src/app/shared-state/streaming/demo-chat/page.tsx`, `document-canvas.tsx`), matching how `/shared-state` was restored above and how the Python sibling repo handles the same two pages; the five published lines are kept verbatim and marked.
 
-**[generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)** shares the streaming cell and republishes the same five lines, so its demo redirects there and inherits the same state.
+**[generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)** shares the streaming cell and republishes the same five lines. It now runs its own copy of that cell against the same agent and canvas rather than redirecting, since the two doc pages are separate routes with different framing.
 
 Backend halves are unavailable too, and for `streaming` twice over:
 
 - `write_document` is a **backend tool** with no bridge in this repo (§9.1). `set_notes` now has one.
 - `emitStreamingDocumentState` consumes raw Anthropic `content_block_delta` / `input_json_delta` events. `ClaudeAgentAdapter` emits AG-UI events only; the "direct Messages API path" that would produce raw deltas is named and never published (§9.2).
 
-Earlier revisions of this repo carried working demos around these snippets — a `Demo()` component, a `PreferencesPanel` form, a `handleClearNotes` write-back, a document panel with a LIVE badge and char counter, and writes routed through the adapter's built-in `ag_ui_update_state`. All of that was invented here, not published, so it has been removed. `preferences-panel.tsx` is deleted outright; the docs never mention such a component.
+Both routes stay **❌ Broken** rather than Partial even with the demos restored. The agent writes its document through the adapter's built-in `ag_ui_update_state` (the tool the adapter adds whenever a run carries state), driven by a repo-written system prompt in `backend/src/agents/state-streaming-prompt.ts`. That proves the subscription half — `agent.state.document` renders, `agent.isRunning` drives the badge — but it produces **one write at the end of the turn**, which is precisely the behaviour state streaming exists to replace. The scaffolding around the published lines (`DocumentCanvas`, the `agent.state` typing, the layout, the prompt) is this repo's, not the doc's.
 
 ---
 

@@ -36,14 +36,6 @@ export default function Page() {
         </div>
       </Panel>
 
-      <Panel title="It is an issue - half the code is missing and imports are missing">
-        <Callout tone="warn" title="Missing code">
-          <p>
-           Missing imports and code 
-          </p>
-        </Callout>
-      </Panel>
-
       <Panel title="Two runAgent methods, and which to use">
         <CodeBlock
           code={TWO_RUNAGENTS}
