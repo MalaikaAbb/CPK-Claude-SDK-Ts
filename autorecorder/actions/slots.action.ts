@@ -1,63 +1,64 @@
 import { type Page } from 'playwright';
-import { humanClick, humanGlide, sleep } from '../core/overlays/cursor';
 import { type PageActionHandler, type PageRecordConfig } from '../core/types';
-import { promptsFor, sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
-import { waitForDomSettled } from './page-ready';
+import { sendPrompt, waitForAgentResponseCompletion } from '../core/actions';
+import { CPK, assertNoErrorBanner, requireVisible, restOn } from './_shared';
 
 /**
- * The three slot customization levels, in the order the page tabs them.
+ * Three slot overrides on one `<CopilotChat>`.
  *
- * Level 3 replaces the message view entirely (`messageView={CustomMessageView}`),
- * so it renders none of CopilotKit's own message classes -- its assistant
- * bubbles are plain `div.text-left` inside the custom view's wrapper. Detection
- * has to be told that, or the run reports "agent never responded" on a level
- * that is in fact working.
+ * This app's Slots demo is a single chat carrying `welcomeScreen`,
+ * `messageView.assistantMessage` and `input.disclaimer` at once -- not the
+ * tabbed, one-level-per-tab arrangement the reference implementation drove.
+ * Each override renders a labelled badge, which is what makes the override
+ * checkable rather than merely plausible.
+ *
+ * The ordering matters and is the reason this is a handler at all. The welcome
+ * screen *is* the entire chat while the message list is empty, so it can only
+ * be shown before the first prompt; the assistant-message override can only be
+ * shown after one. A single standard prompt would record the page in a state
+ * where two thirds of its subject had already gone.
  */
-const SLOT_LEVELS: {
-  tabLabel: string | null;
-  messageSelector?: string;
-}[] = [
-  { tabLabel: null },
-  { tabLabel: '2 · Props override' },
-  { tabLabel: '3 · Custom component', messageSelector: '.space-y-4 > div.text-left' },
-];
+const WELCOME_BADGE = 'text=welcomeScreen slot';
+const ASSISTANT_BADGE = 'text=assistantMessage slot';
+const DISCLAIMER_BADGE = 'text=disclaimer slot';
 
 export const runSlotsAction: PageActionHandler = async (
   page: Page,
   config: PageRecordConfig,
 ) => {
-  const prompts = promptsFor(config);
+  console.log(`   [Slots] 1/3: the welcomeScreen override owns the empty state...`);
+  const welcome = await requireVisible(
+    page,
+    WELCOME_BADGE,
+    'The custom welcome screen',
+    { timeoutMs: 15000 },
+  );
+  await restOn(page, welcome, 2200);
 
-  for (let level = 0; level < SLOT_LEVELS.length; level++) {
-    const { tabLabel, messageSelector } = SLOT_LEVELS[level];
-    console.log(`   [Slots] ${level + 1}/${SLOT_LEVELS.length}: Level ${level + 1}...`);
+  console.log(`   [Slots] 2/3: the disclaimer override, under the composer...`);
+  const disclaimer = await requireVisible(
+    page,
+    DISCLAIMER_BADGE,
+    'The custom disclaimer',
+    { timeoutMs: 10000 },
+  );
+  await restOn(page, disclaimer, 1800);
 
-    if (tabLabel) {
-      const tab = page.locator(`button:has-text("${tabLabel}")`).first();
-      const tBox = await tab.boundingBox();
-      if (tBox) {
-        await humanGlide(page, tBox.x + tBox.width / 2, tBox.y + tBox.height / 2, 20);
-        await humanClick(page);
-      }
-      // Each tab mounts a different CopilotChat. On a cold route the chunk for
-      // the newly shown level can still be compiling, so a fixed sleep is a
-      // guess -- wait for the swap to actually finish instead.
-      await sleep(400);
-      await waitForDomSettled(page, { settleMs: 800 });
-    }
+  console.log(`   [Slots] 3/3: prompting, so the assistantMessage override takes over...`);
+  const before = await sendPrompt(page, config.prompt);
+  await waitForAgentResponseCompletion(page, 1500, before);
+  await assertNoErrorBanner(page);
 
-    const prompt = prompts[level] ?? prompts[prompts.length - 1];
-    const msgCount = await sendPrompt(page, prompt, {
-      timeoutMs: level === 0 ? 8000 : 6000,
-      messageSelector,
-    });
+  // The override wraps CopilotKit's own assistant message rather than replacing
+  // it, so the default test id still resolves -- which is why the standard
+  // detector above works here and the badge below is a separate check.
+  const badge = await requireVisible(
+    page,
+    ASSISTANT_BADGE,
+    'The custom assistant-message wrapper',
+    { timeoutMs: 15000 },
+  );
+  await restOn(page, badge, 2000);
 
-    console.log(`   Waiting for Level ${level + 1} response...`);
-    await waitForAgentResponseCompletion(
-      page,
-      config.waitAfterPromptMs ?? 1500,
-      msgCount,
-      messageSelector,
-    );
-  }
+  await restOn(page, page.locator(CPK.assistantMessage).last(), config.waitAfterPromptMs ?? 3000);
 };

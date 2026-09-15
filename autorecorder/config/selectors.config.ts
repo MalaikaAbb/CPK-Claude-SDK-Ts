@@ -56,16 +56,25 @@ export interface SelectorContract {
 }
 
 export const SELECTORS: SelectorContract = {
-  chatInput: 'textarea, input[type="text"], [contenteditable="true"]',
+  // CopilotKit v2 tags every part of its chat surface with a `data-testid`.
+  // Targeting those rather than tag names is what makes one contract cover
+  // CopilotChat, CopilotSidebar and CopilotPopup without caring which one a
+  // route mounted -- all three render the same input, send button and message
+  // nodes underneath. Verified against every demo route in this repo; see the
+  // note in `actions/index.ts` about the two routes that render neither.
+  chatInput: '[data-testid="copilot-chat-textarea"], textarea',
 
-  chatSubmit:
-    'button[type="submit"], button:has-text("Send"), .copilotKitSendButton, button[aria-label*="Send"]',
+  // The send button does carry a testid, so the cursor visibly travels to it
+  // and clicks instead of falling back to the Enter key.
+  chatSubmit: '[data-testid="copilot-send-button"]',
 
+  // One node per assistant reply. The legacy class is kept as a fallback for
+  // any surface still rendering v1 markup.
   assistantMessage:
-    '.copilotKitAssistantMessage, [data-message-role="assistant"], .copilotKitMessage:not(:first-child), [class*="assistant"]',
+    '[data-testid="copilot-assistant-message"], .copilotKitAssistantMessage',
 
   chatReady:
-    'textarea, input[type="text"], input, [contenteditable="true"], .copilotKitChat, [class*="copilotKit"]',
+    '[data-testid="copilot-chat"], [data-testid="copilot-chat-textarea"], textarea, input, [contenteditable="true"]',
 
   docContentReady: 'h1, article, main, [class*="content"], pre',
 

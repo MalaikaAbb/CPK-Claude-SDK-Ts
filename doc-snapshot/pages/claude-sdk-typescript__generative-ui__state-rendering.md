@@ -46,6 +46,35 @@ that as middleware; direct SDK adapters can emit `STATE_SNAPSHOT` events from
 their streaming loop. Either way, the UI can watch the answer assemble
 token-by-token rather than appearing in one burst between checkpoints.
 
+<Steps>
+  <Step>
+    ### Stream partial state updates while Claude responds
+
+    For streaming state, parse the agent's structured deltas as they arrive and
+    emit CopilotKit state updates before the final message is complete. This
+    branch runs inside the streamed tool-argument handler.
+
+    
+~~~~typescript title="agent_server.ts"
+                if (activeToolCallName === "write_document") {
+                  const streamedDocument = partialJsonStringProperty(
+                    activeToolArgs,
+                    "document",
+                  );
+                  if (
+                    streamedDocument !== null &&
+                    streamedDocument !== lastStreamedDocument
+                  ) {
+                    state = { ...state, document: streamedDocument };
+                    lastStreamedDocument = streamedDocument;
+                    emit({ type: EventType.STATE_SNAPSHOT, snapshot: state });
+                  }
+                }
+~~~~
+
+  </Step>
+</Steps>
+
 ```typescript
 // src/app/demos/shared-state-streaming/state-streaming-backend.snippet.ts
 import { EventType } from "@ag-ui/core";

@@ -58,6 +58,23 @@ npm run record            # all pages, in order
 | `--filter=<query>` | Record every page whose id or name contains the query |
 | `--force` | Record even if the pre-flight health check fails |
 
+### Testing the actions without filming them
+
+```bash
+npm run dryrun                     # every page's action, headless, no video
+npm run dryrun -- shared-state     # substring match on the page id
+npm run dryrun -- slots --headed   # watch it drive
+```
+
+`dryrun` runs exactly what a recording runs on the demo page — the same
+`executePageAction`, the same selectors, the same assertions — and skips the doc
+page, the IDE simulator and the capture. That turns "did I break a selector?"
+from an hour of filming and ~140MB of footage into a few minutes and a pass/fail
+table, and it exits 1 on any failure, so it is the thing to gate CI on.
+
+It cannot tell you the cursor rested somewhere useful or the IDE highlighted the
+right lines. Run a real recording for that, and watch it.
+
 Videos land in `videos/` as `CLAUDESDK-TS-react-<NN>-<name>.webm`, 1920×1080, ~25fps
 (Playwright's capture rate; it is not configurable).
 
@@ -79,15 +96,69 @@ Registering one anyway would fail `doctor --online`, because `demoUrl` is always
 `route + demoSuffix` and there is no per-page way to say "this one has no demo".
 That is a gap in `core/`, not something to work around here — see ADAPT.md.
 
+**Two registered routes currently return 500** and therefore fail both
+`doctor --online` and their recording: `/shared-state/streaming/demo-chat` and
+`/generative-ui/state-rendering/demo-chat`, which redirects to it. The cause is in
+the frontend, not here — `shared-state/streaming/demo-chat/page.tsx` was reduced to
+the doc's published snippet and has no default export, so Next cannot render the
+route. They are left registered on purpose: dropping a page to make the doctor
+exit 0 hides the finding, which ADAPT.md is explicit about.
+
 **This list is derived, not hand-written.** `config/pages.config.ts` is generated
 from `frontend/src/lib/nav-config.ts` — the app's own source of truth for route →
 doc-page mapping — so the recorder cannot drift from the nav. Re-derive it when the
 nav changes, then re-check the line ranges.
 
-**Most pages use `runStandardAction`.** A specialised handler is wired only where
-this repo's demo page actually contains the DOM that handler drives. Pages that
-look similar but render differently are left on the standard action rather than
-wired optimistically — see the note at the top of `actions/index.ts`.
+**So are the prompts.** Every route's notes page carries a
+`<TryIt prompts={…} expect={…} fail={…} />` block — this repo's own declaration of
+what to send, what a pass looks like and what a failure looks like. Each entry in
+`pages.config.ts` is copied from that block, and each handler's assertion is the
+matching `expect`/`fail` line executed rather than described.
+
+That coupling is the point. A recorder with prompts of its own invention can film
+a page doing something the route never claimed, and a green run then means
+nothing. Where a `<TryIt>` entry is an instruction to the reader rather than
+chat text — "Drag a PNG onto the composer, then ask: what is in this image?",
+"Click “Try a sample audio”, then send" — the handler performs the action and the
+registry carries the typed half, with a comment saying so. **When you change a
+`<TryIt>` block, change the matching page entry.**
+
+**Most pages have a handler — 22 of the 27.** Three routes fall through to
+`runStandardAction`, the ones where sending a prompt genuinely *is* the whole
+demonstration: Quickstart, CopilotChat and CSS Customization. (The other two
+without a handler are the pair that 500 above.) Everywhere else a
+reply arriving and the feature working are different claims, and only the handler
+can tell them apart:
+
+| Page | What a prompt-and-wait handler would have missed |
+|---|---|
+| Frontend Tools | The agent answers in prose whether or not the browser-side handler ran. The handler reads the page state the tool is supposed to mutate. |
+| Human in the Loop | The run *suspends* on the tool call. Nothing further streams until a slot is clicked, so prompt-and-wait hangs and then reports the page dead. |
+| Slots | The `welcomeScreen` override **is** the chat while the message list is empty. Prompting first destroys two thirds of the page's subject. |
+| Headless UI, Copilot Runtime | Neither renders CopilotKit chrome, so the global selectors match nothing. Both get their own input selector, including for the readiness gate. |
+| Agent Config | One turn cannot distinguish a config being honoured from one being ignored. Two turns, with the form changed in between, can. |
+| A2UI dynamic schema | The drawn surface *is* the reply; the agent often emits no text at all, so the shared text detector times out on a working page. |
+| Multimodal, Voice | The `attachments` config and the transcription path are invisible until a file is attached or the sample clip fires. |
+
+One route **fails on purpose**: `/shared-state/rendering-in-app`. See § below —
+it is a real defect, not an unpublished bridge, and its own notes page lists it as
+a failure mode rather than as expected behaviour.
+
+Four routes are **documented gaps** rather than failures — Tool Call Rendering,
+A2UI fixed schema, Sub-Agents, and the scratch-pad half of Shared State. Each
+depends on a *backend* tool, and registering one needs `buildBackendToolServer`,
+which the Quickstart calls and no doc page defines. Their handlers look for the
+feature, say in the run log that it did not appear and why, and pass on the reply
+alone — so the recording shows the gap instead of either hiding it or failing a
+correctly wired page. The day a bridge is published they start reporting success
+without being edited.
+
+**Selectors come from CopilotKit's own test ids.** `copilot-chat-textarea`,
+`copilot-send-button`, `copilot-assistant-message` and friends are shipped by the
+library and are identical across `<CopilotChat>`, `<CopilotSidebar>` and
+`<CopilotPopup>` — which is why one contract in `selectors.config.ts` covers all
+three, and why the send button is now clicked rather than fallen back from to the
+Enter key. `actions/_shared.ts` collects them in one place as `CPK`.
 
 
 ---
@@ -217,6 +288,52 @@ Two details worth knowing, because both were bugs once:
   stop changing, the input to be genuinely enabled, and `runtimeWarmPath` to be
   built, before any handler types anything. Without it a cold route produces a
   video of a prompt that was never really sent.
+
+---
+
+## What the suite currently catches
+
+Two failures that are the harness doing its job, not the harness being wrong.
+
+### `/shared-state/rendering-in-app` — the agent cannot see the page's ticks
+
+Ask for a packing list, tick one of the items the agent wrote, then ask which
+items are ticked. It answers:
+
+> based on the current list, none of the items have been ticked off yet — all 4
+> are still unchecked.
+
+The frontend is not at fault, and it is worth being precise about that because
+the route's own notes page blames it ("ticks the agent cannot see means setState
+is not round-tripping"). Capturing the POST to `/api/copilotkit` on that turn
+shows the tick reaching the wire intact:
+
+```json
+"state": { "title": "Weekend Trip Packing List",
+           "items": [ { "id": "clothes", "label": "Clothes & extra layers", "done": true }, ... ] }
+```
+
+`toggleItem` → `agent.setState` → run input works end to end. What does not
+happen is the model being shown it. `ClaudeAgentAdapter` caches a Claude Code
+session per `threadId` and resumes it, sending only the newest message — so on a
+resumed turn the model reads the state that session already held rather than the
+state this request carried. It is the same session-cache behaviour the Components
+as Tools route documents from the other direction.
+
+The handler fails on it deliberately.
+
+### `/programmatic-control` — the demo and its notes page disagree
+
+The notes page's `<TryIt>` block drives four controls — `addMessage only`,
+`runAgent`, `addMessage + runAgent`, `stopAgent` — and an event log "on the
+right" showing `onRunStartedEvent → onRunFinalized` per turn. The demo renders
+two buttons (`Run agent`, `Stop`), a `<CopilotSidebar>`, and no event log; its
+own header says `PARTIAL CODE - AND IMPORTS ARE MISSING`.
+
+The handler drives what is actually there, so the route passes — but the
+recording shows less than the notes page promises. Either the demo needs the
+missing controls or the `<TryIt>` block needs trimming to match; that is a call
+for whoever owns the route, not for the recorder.
 
 ---
 
