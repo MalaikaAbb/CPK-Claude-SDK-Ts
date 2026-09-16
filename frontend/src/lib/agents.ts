@@ -31,6 +31,8 @@ export const AGENT_IDS = [
   "a2ui-fixed-schema",
   "frontend-tools",
   "hitl-in-chat",
+  "governed-actions-interrupt",
+  "governed-actions-hitl",
   "shared-state-read-write",
   "shared-state-streaming",
   "readonly-state-agent-context",

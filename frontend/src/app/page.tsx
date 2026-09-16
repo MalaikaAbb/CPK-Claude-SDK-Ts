@@ -173,6 +173,10 @@ export default function Page() {
             ["/prebuilt-components/chat", "The base chat surface"],
             ["/frontend-tools", "An agent that changes the page"],
             ["/human-in-the-loop", "An agent that stops and asks"],
+            [
+              "/human-in-the-loop/governed-actions",
+              "Policy-gated actions: approve, reject, audit",
+            ],
             ["/backend/copilot-runtime", "Raw AG-UI events, for debugging"],
           ].map(([path, label]) => (
             <li key={path}>

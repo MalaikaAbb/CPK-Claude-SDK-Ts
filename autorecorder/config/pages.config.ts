@@ -279,6 +279,38 @@ export const PAGES = definePages([
     waitAfterPromptMs: 4000,
   },
   {
+    id: "human-in-the-loop-governed-actions",
+    name: "Human in the Loop - Governed Actions",
+    videoName: "GovernedActions",
+    docPath: "human-in-the-loop/governed-actions",
+    route: "human-in-the-loop/governed-actions",
+    ideFile: "frontend/src/app/human-in-the-loop/governed-actions/demo-chat/page.tsx",
+    startLine: 46,
+    endLine: 84,
+    extraTabs: [
+      {
+        filePath: "frontend/src/app/human-in-the-loop/governed-actions/demo-chat/page.tsx",
+        startLine: 86,
+        endLine: 142,
+      },
+      {
+        filePath: "frontend/src/app/human-in-the-loop/governed-actions/governed-action-card.tsx",
+        startLine: 30,
+        endLine: 113,
+      },
+      { filePath: "backend/src/agents/governed-actions.ts", startLine: 153, endLine: 178 },
+    ],
+    // From the route's <TryIt> blocks. Prompt 1 runs on the useInterrupt tab
+    // and is approved; prompt 2 runs on the useHumanInTheLoop tab and is
+    // rejected. Both are require_approval under the server's policy.
+    prompt: "Apply a 20% discount for customer Globex.",
+    prompts: [
+      "Apply a 20% discount for customer Globex.",
+      "Email the Q3 pricing sheet to jane@globex.com.",
+    ],
+    waitAfterPromptMs: 4000,
+  },
+  {
     id: "programmatic-control",
     name: "App Control - Programmatic Control",
     videoName: "ProgrammaticControl",

@@ -310,6 +310,18 @@ export const NAV: NavGroup[] = [
         status: "working",
       },
       {
+        path: "/human-in-the-loop/governed-actions",
+        hasDemo: true,
+        agentId: "governed-actions-interrupt",
+        title: "Governed Actions",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/governed-actions",
+        summary:
+          "A server-side policy verdict in front of every side effect, settled through useInterrupt or useHumanInTheLoop, with an audit ledger.",
+        status: "working",
+        statusNote:
+          "Both published patterns run. useInterrupt needs interrupt plumbing the adapter lacks — agent-server.ts rewrites RUN_FINISHED and handles resume[] (README §9.17). Also uses agent governed-actions-hitl.",
+      },
+      {
         path: "/programmatic-control",
         hasDemo: true,
         agentId: "headless-complete",

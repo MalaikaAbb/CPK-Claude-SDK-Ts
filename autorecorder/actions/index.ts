@@ -19,6 +19,9 @@
  *
  *   - /frontend-tools answers in prose whether or not the browser-side handler
  *     ran, so the handler reads the page state it is supposed to mutate.
+ *   - /human-in-the-loop/governed-actions pauses twice -- on an AG-UI
+ *     interrupt, then on a HITL tool -- and passes on the audit ledger the
+ *     server writes, not on the model's prose.
  *   - /human-in-the-loop suspends the run on a tool call. Nothing further
  *     streams until a slot is clicked, so a prompt-and-wait handler hangs.
  *   - /custom-look-and-feel/slots renders its welcome-screen override only
@@ -64,6 +67,7 @@ import {
   runToolRenderingAction,
 } from './generative-ui.action';
 import { runHeadlessUiAction } from './headless-ui.action';
+import { runGovernedActionsAction } from './governed-actions.action';
 import { runHumanInTheLoopAction } from './human-in-the-loop.action';
 import { runMultimodalAction, runVoiceAction } from './multimodal.action';
 import {
@@ -108,6 +112,7 @@ export const ACTION_MAP: Record<string, PageActionHandler> = {
   // App control.
   'frontend-tools': runFrontendToolsAction,
   'human-in-the-loop': runHumanInTheLoopAction,
+  'human-in-the-loop-governed-actions': runGovernedActionsAction,
   'programmatic-control': runProgrammaticAction,
 
   // Shared state.

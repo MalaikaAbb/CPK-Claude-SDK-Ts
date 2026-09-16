@@ -8,7 +8,7 @@ A navigable, working test harness for the CopilotKit ↔ Claude Agent SDK (TypeS
 | **Docs tracked** | <https://docs.copilotkit.ai/claude-sdk-typescript> |
 | **Frontend** | `@copilotkit/react-core` 1.66.4 (v2 surface), `@copilotkit/runtime` 1.66.4, Next.js 16.3.0, React 19.2.8 |
 | **Backend** | `@ag-ui/claude-agent-sdk` 0.0.3, `@anthropic-ai/claude-agent-sdk` ^0.2.58, `@ag-ui/core` / `@ag-ui/encoder` 0.0.57, Express 5 |
-| **Status** | 28 routes — 18 working · 3 partial · 6 broken · 1 reference. See §8; the live count is computed from `nav-config.ts` on `/status`. |
+| **Status** | 29 routes — 19 working · 3 partial · 6 broken · 1 reference. See §8; the live count is computed from `nav-config.ts` on `/status`. |
 | **Build** | ⚠️ `next build` fails type checking on purpose — one route holds a doc snippet that does not compile. See §9.14. |
 | **CI** | none configured |
 
@@ -227,6 +227,11 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Please book an intro call with the sales team to discuss pricing."
 *Pass:* a slot picker appears and the chat stops; clicking a slot flips it to "Answered" and the agent's next message names your time. *Fail:* an invented time with no picker, or a click that does nothing.
 
+**`/human-in-the-loop/governed-actions`** — every side effect goes through a policy engine on the agent server, and the resulting envelope (id · reference · verdict) is settled in the UI. Two tabs, one per pattern on the page: `useInterrupt` (agent `governed-actions-interrupt`) and `useHumanInTheLoop` (agent `governed-actions-hitl`). An audit ledger beside the chat shows what the server recorded.
+*Try (either tab):* "Apply a 20% discount for customer Globex." → **Approve and run**. Then "Email the Q3 pricing sheet to jane@globex.com." → **Reject**. Then "Open a low-priority ticket titled 'Printer jam on floor 3'." and "Delete customer record CUST-42." with no click.
+*Pass:* the first two show a "User approval required" card (`POL-DISC-030`, `POL-EMAIL-002`) and the chat waits for you. Approve turns the ledger row into `approved · executed` with a receipt, which the agent quotes; Reject gives `rejected · skipped`. The ticket runs without a click (`auto-approved · executed`, `POL-TICKET-001`). The delete is blocked straight away (`blocked · skipped`, `POL-CRM-009`), and the agent suggests a safer option.
+*Fail:* the agent says an action happened when no ledger row reads `executed`; an `executed` row after Reject or on a `deny` verdict; or a card that never appears because the agent answered in prose.
+
 **`/programmatic-control`** — `addMessage`, `runAgent`, `stopAgent` and `subscribe` driven from code rather than a composer. **Broken — does not compile.**
 *Try:* nothing yet. The demo file holds the page's `headless-complete` snippet verbatim, and that snippet references three helpers it never defines. See §9.14.
 *Pass (today):* `npx tsc --noEmit` reports 6 errors in this one file, and `next build` fails type checking. Every other route still runs under `npm run dev`.
@@ -292,6 +297,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ❌ Broken | Backend `display_flight` unregisterable **and** injection off per the page. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
+| [human-in-the-loop/governed-actions](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions) | `/human-in-the-loop/governed-actions` | ✅ Working | Both published patterns run, with server-side policy, replay protection and an audit ledger. `useInterrupt` works only because `agent-server.ts` adds the interrupt plumbing the adapter lacks — §9.17. Verified live, including all four verdict paths. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
 | [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Both published snippets kept verbatim; the shell the page never publishes is supplied here, so the preferences direction works. The backend `set_notes` tool is written and verified but commented out for now — §9.16. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
@@ -477,6 +483,18 @@ Two things worth knowing before re-enabling:
 - **Session resume is this repo's addition, not the doc's.** The doc builds a fresh adapter per request, and the adapter only sends the newest message — it relies on a CLI session cached *per adapter instance* for the rest of the conversation, which a per-request instance never has. `agent-server.ts` therefore captures the session id off the run's own `system:init` event and passes it back as `forwardedProps.resume` on the next turn of that thread. Without that, a backend-tool agent forgets everything between turns.
 - **The agent server's runs inherit the machine's own MCP servers.** The Claude Agent SDK spawns the CLI, which loads whatever MCP servers are configured for the user — they appear alongside `backend_tools` and `ag_ui` in the agent's tool list. Harmless here, but it is not a clean-room tool set.
 
+### 9.17 Governed actions: `useInterrupt` needs interrupt support the adapter does not have
+
+[human-in-the-loop/governed-actions](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions) publishes two patterns. Neither needs changes on the frontend. The page also leaves out the whole backend.
+
+- **`useInterrupt` has no server to talk to.** The hook listens for the standard AG-UI interrupt: a `RUN_FINISHED` event carrying `outcome: { type: "interrupt", interrupts }`. Its `resolve()` / `cancel()` then start a new run carrying `resume[]`. `ClaudeAgentAdapter` 0.0.3 does neither: it always finishes with a plain `RUN_FINISHED` and ignores `resume`. The HITL overview page's claim that `useInterrupt` is LangGraph-only was accurate for that page's `interrupt()` API. On this page it is wrong only because this repo adds the missing half. `runWithBackendTools` in `backend/src/agent-server.ts`:
+  - lets a backend tool call `context.interrupt(...)`, then rewrites the adapter's `RUN_FINISHED` into an interrupt outcome;
+  - on a run carrying `resume[]`, calls the agent's `onResume` before the model runs. For governed actions, that runs the doc's `handleApproval`. It then prompts the model with the result through a hidden user message, which is filtered back out of `MESSAGES_SNAPSHOT`.
+- **Missing from the page: the policy engine, `executeSideEffect`, and anything that builds the envelope.** They live in `backend/src/agents/governed-actions.ts`: a small rule table (`POL-*` references), simulated side effects that return receipts, and an audit ledger in shared state (`governedActions`).
+- **The guardrails are enforced on the server, not by trusting the model.** Proposals are stored in server memory, so the browser can't rewrite a verdict. Each proposal can be settled once, so a replayed approval is refused. `deny` never executes. In the HITL pattern, `execute_governed_action` takes only an id and reads the user's answer from the thread's `approve_governed_action` tool message. A user message saying "I approve" is refused; this was checked by sending exactly that.
+- **Small drifts in the doc's frontend code:** its `render` returns `null`, but this `useInterrupt` types `render` to return an element, so the demo returns `<></>`. Its hooks have no `agentId`, and this app needs one per tab. `text-muted-foreground` / `bg-muted` are shadcn tokens this app doesn't define, so the card uses slate classes instead.
+- **Known quirk:** on the resumed run the model sometimes tried to "update shared state" through the adapter's built-in `ag_ui_update_state`. The prompts now forbid that, but the ledger is only trustworthy because the server writes it last.
+
 ---
 
 ## 10. Troubleshooting
@@ -539,6 +557,8 @@ claude-sdk-typescript/
 │       ├── agent-server.ts     the Quickstart's server, widened to the registry
 │       └── agents/
 │           ├── registry.ts     every agent id → system prompt
+│           ├── backend-tool-server.ts  the unpublished `buildBackendToolServer`
+│           ├── governed-actions.ts     policy engine, handleApproval, audit ledger
 │           ├── a2ui-fixed-prompt.ts              ┐
 │           ├── agent-config-prompt.ts            │ published doc code,
 │           ├── shared-state-read-write-prompt.ts │ verbatim — some live,
@@ -610,6 +630,7 @@ Grouped as the doc nav groups them.
 **App Control**
 - [Frontend tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools)
 - [Human in the loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop)
+- [Governed action approval UI](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions)
 - [Programmatic control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control)
 
 **Shared State**

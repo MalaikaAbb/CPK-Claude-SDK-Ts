@@ -16,7 +16,7 @@
  *
  * Agents that declare `backendTools` in the registry take a second path, in
  * `runWithBackendTools` below — the "Backend tools and state" section of the
- * same doc page. Only `shared-state-read-write` uses it today. See README §9.1
+ * same doc page. The two governed-actions agents use it today. See README §9.1
  * for the other routes that could be wired the same way and are not yet.
  */
 
@@ -25,7 +25,10 @@ import { ClaudeAgentAdapter } from "@ag-ui/claude-agent-sdk";
 import {
   EventType,
   type CustomEvent as AguiCustomEvent,
+  type Interrupt,
+  type MessagesSnapshotEvent,
   type RunAgentInput,
+  type RunFinishedEvent,
 } from "@ag-ui/core";
 import { EventEncoder } from "@ag-ui/encoder";
 import dotenv from "dotenv";
@@ -34,6 +37,7 @@ import { randomUUID } from "node:crypto";
 
 import {
   buildBackendToolServer,
+  type BackendToolContext,
   type Emit,
 } from "./agents/backend-tool-server";
 import { AGENT_IDS, REGISTRY, type AgentDefinition } from "./agents/registry";
@@ -120,7 +124,7 @@ for (const agentId of AGENT_IDS) {
  * `TOOL_CALL_RESULT`, so the state a tool wrote reaches the UI immediately
  * before the result the model sees.
  *
- * Two additions the doc's version has no need for:
+ * Three additions the doc's version has no need for:
  *
  *   - `buildBackendToolServer` itself, which no page defines. It lives in
  *     `agents/backend-tool-server.ts`.
@@ -132,6 +136,9 @@ for (const agentId of AGENT_IDS) {
  *     captured off the run's own `system:init` event here instead, and handed
  *     back through `forwardedProps.resume` on the next turn of that thread —
  *     which is exactly what the adapter does internally when it can.
+ *   - AG-UI interrupts, for the governed-actions page. A tool may raise one;
+ *     the run then finishes with `outcome: interrupt`, and the follow-up run
+ *     carrying `resume[]` goes through the agent's `onResume` first.
  */
 const sessionIdByThread = new Map<string, string>();
 
@@ -157,16 +164,25 @@ function runWithBackendTools({
 
   let state = { ...initialState };
   const pendingStateSnapshots: Record<string, unknown>[] = [];
+  // Interrupts a tool raised during this run. Non-empty means the run ends
+  // with `outcome: interrupt` instead of success — see RUN_FINISHED below.
+  const raisedInterrupts: Interrupt[] = [];
 
-  const backendToolServer = buildBackendToolServer({
-    toolSchemas: backendTools.schemas,
+  const context: BackendToolContext = {
     emit,
     getState: () => state,
     setState: (nextState) => {
       state = nextState;
       pendingStateSnapshots.push(state);
     },
+    interrupt: (interrupt) => raisedInterrupts.push(interrupt),
+    getInput: () => input,
+  };
+
+  const backendToolServer = buildBackendToolServer({
+    toolSchemas: backendTools.schemas,
     executeTool: backendTools.execute,
+    ...context,
   });
 
   const adapter = new ClaudeAgentAdapter({
@@ -183,46 +199,92 @@ function runWithBackendTools({
   const sessionKey = `${agentId}:${threadId}`;
   const resume = sessionIdByThread.get(sessionKey);
 
-  const runInput: RunAgentInput = {
-    ...input,
-    runId,
-    threadId,
-    state: input.state ?? state,
-    forwardedProps: {
-      ...((input.forwardedProps ?? {}) as Record<string, unknown>),
-      ...(resume ? { resume } : {}),
-    },
-  };
+  const start = async () => {
+    let messages = input.messages ?? [];
+    // A resumed interrupt carries no new user message. The agent's
+    // `onResume` settles it and returns the prompt the model continues from;
+    // that prompt is appended for the adapter and filtered back out of the
+    // MESSAGES_SNAPSHOT, so it never shows up as a user bubble.
+    let syntheticMessageId: string | undefined;
+    if (input.resume?.length && definition.onResume) {
+      const prompt = await definition.onResume(input.resume, context);
+      syntheticMessageId = randomUUID();
+      messages = [
+        ...messages,
+        { id: syntheticMessageId, role: "user", content: prompt },
+      ];
+      // The adapter opens with a snapshot of `runInput.state`, which already
+      // holds whatever `onResume` wrote — the queued copies would be stale
+      // by the time a tool result drained them.
+      pendingStateSnapshots.length = 0;
+    }
 
-  adapter.run(runInput).subscribe({
-    next: (event) => {
-      if (event.type === EventType.CUSTOM) {
-        const custom = event as AguiCustomEvent;
-        if (custom.name === "system:init") {
-          const sessionId = (custom.value as { session_id?: unknown } | undefined)
-            ?.session_id;
-          if (typeof sessionId === "string") {
-            sessionIdByThread.set(sessionKey, sessionId);
+    const runInput: RunAgentInput = {
+      ...input,
+      runId,
+      threadId,
+      messages,
+      state: syntheticMessageId ? state : (input.state ?? state),
+      forwardedProps: {
+        ...((input.forwardedProps ?? {}) as Record<string, unknown>),
+        ...(resume ? { resume } : {}),
+      },
+    };
+
+    adapter.run(runInput).subscribe({
+      next: (event) => {
+        if (event.type === EventType.CUSTOM) {
+          const custom = event as AguiCustomEvent;
+          if (custom.name === "system:init") {
+            const sessionId = (custom.value as { session_id?: unknown } | undefined)
+              ?.session_id;
+            if (typeof sessionId === "string") {
+              sessionIdByThread.set(sessionKey, sessionId);
+            }
           }
         }
-      }
 
-      if (event.type === EventType.TOOL_CALL_RESULT) {
-        const snapshot = pendingStateSnapshots.shift();
-        if (snapshot) {
-          emit({ type: EventType.STATE_SNAPSHOT, snapshot });
+        if (event.type === EventType.TOOL_CALL_RESULT) {
+          const snapshot = pendingStateSnapshots.shift();
+          if (snapshot) {
+            emit({ type: EventType.STATE_SNAPSHOT, snapshot });
+          }
         }
-      }
 
-      emit(event);
-    },
-    error: (error) => {
-      const message =
-        error instanceof Error ? error.stack || error.message : String(error);
-      emit({ type: EventType.RUN_ERROR, runId, threadId, message });
-      done();
-    },
-    complete: () => done(),
+        if (event.type === EventType.MESSAGES_SNAPSHOT && syntheticMessageId) {
+          const snapshot = event as MessagesSnapshotEvent;
+          emit({
+            ...snapshot,
+            messages: snapshot.messages.filter((m) => m.id !== syntheticMessageId),
+          } as MessagesSnapshotEvent);
+          return;
+        }
+
+        if (event.type === EventType.RUN_FINISHED && raisedInterrupts.length) {
+          emit({
+            ...(event as RunFinishedEvent),
+            outcome: { type: "interrupt", interrupts: raisedInterrupts },
+          } as RunFinishedEvent);
+          return;
+        }
+
+        emit(event);
+      },
+      error: (error) => {
+        const message =
+          error instanceof Error ? error.stack || error.message : String(error);
+        emit({ type: EventType.RUN_ERROR, runId, threadId, message });
+        done();
+      },
+      complete: () => done(),
+    });
+  };
+
+  start().catch((error) => {
+    const message =
+      error instanceof Error ? error.stack || error.message : String(error);
+    emit({ type: EventType.RUN_ERROR, runId, threadId, message });
+    done();
   });
 }
 // #endregion backend-tools

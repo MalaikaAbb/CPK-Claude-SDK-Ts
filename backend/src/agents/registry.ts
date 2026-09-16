@@ -15,11 +15,21 @@
  * doc never described.
  */
 
+import type { ResumeEntry } from "@ag-ui/core";
 import type Anthropic from "@anthropic-ai/sdk";
 
 import { AGENT_CONFIG_DEFAULT_SYSTEM_PROMPT } from "./agent-config-prompt";
 import { A2UI_FIXED_SYSTEM_PROMPT } from "./a2ui-fixed-prompt";
-import type { ExecuteTool } from "./backend-tool-server";
+import type { BackendToolContext, ExecuteTool } from "./backend-tool-server";
+import {
+  executeHitlTool,
+  executeInterruptTool,
+  GOVERNED_HITL_SYSTEM_PROMPT,
+  GOVERNED_INTERRUPT_SYSTEM_PROMPT,
+  HITL_TOOL_SCHEMAS,
+  INTERRUPT_TOOL_SCHEMAS,
+  resumeInterrupt,
+} from "./governed-actions";
 // Commented out with the `backendTools` entry below — see there.
 // import {
 //   executeSharedStateTool,
@@ -46,6 +56,15 @@ export interface AgentDefinition {
     schemas: Anthropic.Tool[];
     execute: ExecuteTool;
   };
+  /**
+   * Handles a run that arrives carrying AG-UI `resume[]` — the answer to an
+   * interrupt one of this agent's tools raised. Runs before the model does,
+   * may write state, and returns the text the model is prompted with next.
+   */
+  onResume?: (
+    entries: ResumeEntry[],
+    context: BackendToolContext,
+  ) => Promise<string> | string;
 }
 
 export const REGISTRY: Record<string, AgentDefinition> = {
@@ -99,6 +118,25 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   // ── App Control ──────────────────────────────────────────────────────────
   "frontend-tools": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
   "hitl-in-chat": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
+  // Governed actions — one agent per pattern the page publishes. Both check
+  // policy on this server; see `governed-actions.ts`.
+  "governed-actions-interrupt": {
+    systemPrompt: GOVERNED_INTERRUPT_SYSTEM_PROMPT,
+    note: "useInterrupt: the policy tool raises an AG-UI interrupt and the decision returns as resume[].",
+    backendTools: {
+      schemas: INTERRUPT_TOOL_SCHEMAS,
+      execute: executeInterruptTool,
+    },
+    onResume: resumeInterrupt,
+  },
+  "governed-actions-hitl": {
+    systemPrompt: GOVERNED_HITL_SYSTEM_PROMPT,
+    note: "useHumanInTheLoop: approve_governed_action is a frontend tool; execution re-checks the answer server-side.",
+    backendTools: {
+      schemas: HITL_TOOL_SCHEMAS,
+      execute: executeHitlTool,
+    },
+  },
 
   // ── Shared State ─────────────────────────────────────────────────────────
   "shared-state-read-write": {

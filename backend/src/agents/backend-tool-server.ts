@@ -34,7 +34,7 @@
  * rather than replacing it.
  */
 
-import type { BaseEvent } from "@ag-ui/core";
+import type { BaseEvent, Interrupt, RunAgentInput } from "@ag-ui/core";
 import type Anthropic from "@anthropic-ai/sdk";
 import {
   createSdkMcpServer,
@@ -57,6 +57,14 @@ export interface BackendToolContext {
   setState: (next: Record<string, unknown>) => void;
   /** Emit an AG-UI event mid-run, for anything state snapshots don't cover. */
   emit: Emit;
+  /**
+   * Raise an AG-UI interrupt. The run still finishes normally from the
+   * adapter's point of view; `agent-server.ts` rewrites its RUN_FINISHED into
+   * `outcome: { type: "interrupt" }`. Only the governed-actions agent uses it.
+   */
+  interrupt?: (interrupt: Interrupt) => void;
+  /** The request this run is serving — for tools that must read the thread. */
+  getInput?: () => RunAgentInput;
 }
 
 /** Runs one tool call. Named by the doc, defined here. */
@@ -139,14 +147,24 @@ export function buildBackendToolServer({
   getState,
   setState,
   executeTool,
+  interrupt,
+  getInput,
 }: {
   toolSchemas: Anthropic.Tool[];
   emit: Emit;
   getState: () => Record<string, unknown>;
   setState: (next: Record<string, unknown>) => void;
   executeTool: ExecuteTool;
+  interrupt?: BackendToolContext["interrupt"];
+  getInput?: BackendToolContext["getInput"];
 }): BackendToolServer {
-  const context: BackendToolContext = { getState, setState, emit };
+  const context: BackendToolContext = {
+    getState,
+    setState,
+    emit,
+    interrupt,
+    getInput,
+  };
 
   const tools = toolSchemas.map((schema) =>
     tool(
