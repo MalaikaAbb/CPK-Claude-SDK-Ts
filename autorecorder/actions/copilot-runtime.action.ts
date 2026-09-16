@@ -12,8 +12,8 @@ import { assertNoErrorBanner, clickLikeAPerson, restOn, sleep } from './_shared'
  * so every selector the shared helpers default to matches nothing here, and
  * `actions/index.ts` hands `waitForPageReady` this page's own input instead.
  *
- * The composer arrives pre-populated with the page's own suggestion, which has
- * to be cleared before typing or the two prompts concatenate.
+ * The composer arrives pre-populated with the page's own prompt, and the run
+ * sends that as-is: the handler only presses Run.
  *
  * The pass condition is the event stream, not the reply. A transcript can fill
  * from cached state; `RUN_STARTED` through `RUN_FINISHED` appearing in the left
@@ -40,20 +40,18 @@ export const runCopilotRuntimeAction: PageActionHandler = async (
   console.log(`   [Copilot Runtime] Both panes start empty -- events left, transcript right.`);
   await restOn(page, page.locator('h2').first(), 1800, { x: 400, y: 120 });
 
-  console.log(`   [Copilot Runtime] Replacing the suggested prompt...`);
-  await clickLikeAPerson(page, input, 'prompt field');
-  await page.keyboard.press('Control+A');
-  await page.keyboard.press('Backspace');
-  await page.keyboard.type(config.prompt, { delay: 30 });
-  await sleep(400);
-
-  const typed = (await input.inputValue().catch(() => '')).trim();
-  if (typed !== config.prompt.trim()) {
+  // Nothing is typed: the page pre-fills its own prompt and the run uses it
+  // as-is. Show it, then press Run.
+  const prefilled = (await input.inputValue().catch(() => '')).trim();
+  if (!prefilled) {
     throw new Error(
-      `The prompt field holds "${typed}" rather than the configured prompt. The ` +
-        'field arrives pre-populated, so it has to be cleared before typing.',
+      'The prompt field is empty. The page is supposed to pre-fill it, and ' +
+        'pressing Run on an empty field sends nothing (`if (!input.trim()) return`).',
     );
   }
+  console.log(`   [Copilot Runtime] Running the page's own prompt: "${prefilled}"`);
+  await restOn(page, input, 1800);
+  await sleep(200);
 
   await clickLikeAPerson(page, page.locator(RUN_BUTTON).first(), 'Run');
 

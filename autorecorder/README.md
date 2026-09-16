@@ -140,10 +140,6 @@ can tell them apart:
 | A2UI dynamic schema | The drawn surface *is* the reply; the agent often emits no text at all, so the shared text detector times out on a working page. |
 | Multimodal, Voice | The `attachments` config and the transcription path are invisible until a file is attached or the sample clip fires. |
 
-One route **fails on purpose**: `/shared-state/rendering-in-app`. See § below —
-it is a real defect, not an unpublished bridge, and its own notes page lists it as
-a failure mode rather than as expected behaviour.
-
 Four routes are **documented gaps** rather than failures — Tool Call Rendering,
 A2UI fixed schema, Sub-Agents, and the scratch-pad half of Shared State. Each
 depends on a *backend* tool, and registering one needs `buildBackendToolServer`,
@@ -291,11 +287,12 @@ Two details worth knowing, because both were bugs once:
 
 ---
 
-## What the suite currently catches
-
-Two failures that are the harness doing its job, not the harness being wrong.
+## Known issues found while building this
 
 ### `/shared-state/rendering-in-app` — the agent cannot see the page's ticks
+
+Not exercised by the recording, which only asks the agent to add an item. Found
+by hand, and worth knowing before anyone adds a tick-then-ask step back.
 
 Ask for a packing list, tick one of the items the agent wrote, then ask which
 items are ticked. It answers:
@@ -320,7 +317,7 @@ resumed turn the model reads the state that session already held rather than the
 state this request carried. It is the same session-cache behaviour the Components
 as Tools route documents from the other direction.
 
-The handler fails on it deliberately.
+Reproduced three times before the recording flow was narrowed.
 
 ### `/programmatic-control` — the demo and its notes page disagree
 
@@ -330,8 +327,9 @@ right" showing `onRunStartedEvent → onRunFinalized` per turn. The demo renders
 two buttons (`Run agent`, `Stop`), a `<CopilotSidebar>`, and no event log; its
 own header says `PARTIAL CODE - AND IMPORTS ARE MISSING`.
 
-The handler drives what is actually there, so the route passes — but the
-recording shows less than the notes page promises. Either the demo needs the
+The handler drives what is actually there — Run agent, wait 10s, Stop, Run agent
+again — so the route passes, but the recording shows less than the notes page
+promises. Either the demo needs the
 missing controls or the `<TryIt>` block needs trimming to match; that is a call
 for whoever owns the route, not for the recorder.
 

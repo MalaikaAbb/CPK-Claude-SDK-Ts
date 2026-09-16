@@ -27,10 +27,8 @@ import { CPK, assertNoErrorBanner, restOn, sleep } from './_shared';
  */
 const SELECTS = 'main select';
 
-/** [before, after] for each select this handler changes. */
+/** [before, after] for the one select this handler changes. */
 const TONE = ['professional', 'enthusiastic'] as const;
-const EXPERTISE = ['intermediate', 'beginner'] as const;
-const LENGTH = ['concise', 'detailed'] as const;
 
 async function latestReply(page: Page): Promise<string> {
   return ((await page.locator(CPK.assistantMessage).last().textContent()) ?? '')
@@ -44,9 +42,7 @@ export const runAgentConfigAction: PageActionHandler = async (
 ) => {
   const prompts = promptsFor(config);
 
-  console.log(
-    `   [Agent config] 1/2: "${prompts[0]}" on ${TONE[0]} / ${EXPERTISE[0]} / ${LENGTH[0]}...`,
-  );
+  console.log(`   [Agent config] 1/2: "${prompts[0]}" on tone ${TONE[0]}...`);
   await restOn(page, page.locator('main pre').first(), 1800, { x: 400, y: 620 });
 
   let before = await sendPrompt(page, prompts[0]);
@@ -56,17 +52,12 @@ export const runAgentConfigAction: PageActionHandler = async (
   const first = await latestReply(page);
   console.log(`   ✓ first answer: ${first.length} characters.`);
 
-  // All three selects, so tone, register and length all have to move. The page
-  // lists the selects in the order Tone / Expertise / Response length.
-  console.log(
-    `   [Agent config] Switching to ${TONE[1]} / ${EXPERTISE[1]} / ${LENGTH[1]}...`,
-  );
-  const selects = page.locator(SELECTS);
-  await selects.nth(0).selectOption(TONE[1]);
-  await sleep(400);
-  await selects.nth(1).selectOption(EXPERTISE[1]);
-  await sleep(400);
-  await selects.nth(2).selectOption(LENGTH[1]);
+  // Tone only -- the first of the page's three selects. Expertise and response
+  // length stay where they were, so any difference in the answer is the tone.
+  console.log(`   [Agent config] Switching tone to ${TONE[1]}...`);
+  const tone = page.locator(SELECTS).nth(0);
+  await restOn(page, tone, 800);
+  await tone.selectOption(TONE[1]);
   await sleep(800);
 
   // The JSON block under the form is the live config; resting on it makes the
@@ -83,7 +74,7 @@ export const runAgentConfigAction: PageActionHandler = async (
 
   if (second === first) {
     throw new Error(
-      'Both turns produced identical text after every select was changed. That ' +
+      `Both turns produced identical text after tone changed to ${TONE[1]}. That ` +
         "is this route's documented failure: \"Identical phrasing across " +
         'settings means the context never reached the prompt; check the ' +
         'Inspector\'s context tab."',

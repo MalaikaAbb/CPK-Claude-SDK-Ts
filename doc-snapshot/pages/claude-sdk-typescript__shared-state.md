@@ -141,6 +141,262 @@ export function buildSharedStateReadWriteSystemPrompt(
 ~~~~
 
   </Step>
+
+  <Step>
+    ### Pass the schema to the shared agent loop
+
+    The route reads the current preferences and notes, then registers
+    `SET_NOTES_TOOL_SCHEMA` with `runAgenticLoop`.
+
+    
+~~~~typescript title="agent_server.ts"
+app.post(
+  "/shared-state-read-write",
+  async (req: Request, res: Response): Promise<void> => {
+    const input = req.body as RunAgentInput;
+    const incomingState =
+      ((input as any).state as Record<string, unknown> | undefined) ?? {};
+    const prefs = coercePreferences(incomingState.preferences);
+    const notes = Array.isArray(incomingState.notes)
+      ? (incomingState.notes as unknown[]).filter(
+          (n): n is string => typeof n === "string",
+        )
+      : [];
+    await runAgenticLoop(req, res, {
+      systemPrompt: buildSharedStateReadWriteSystemPrompt(prefs),
+      toolSchemas: [SET_NOTES_TOOL_SCHEMA] as Anthropic.Tool[],
+      initialState: { preferences: prefs, notes },
+    });
+  },
+);
+~~~~
+
+  </Step>
+
+  <Step>
+    ### Select the Claude Agent SDK path
+
+    Compatible requests use `runWithClaudeAgentSdk`. Requests with aimock
+    transport, frontend/runtime tools, extended thinking, or structured user
+    content use the direct Anthropic Messages API fallback.
+
+    
+~~~~typescript title="claude-agent-sdk-adapter.ts"
+export function shouldUseClaudeAgentSdk({
+  input,
+  forwardedHeaders,
+  runtimeToolCount,
+  enableThinking,
+}: {
+  input: RunAgentInput;
+  forwardedHeaders: Record<string, string>;
+  runtimeToolCount: number;
+  enableThinking?: boolean;
+}): boolean {
+  if ((process.env.ANTHROPIC_BASE_URL ?? "").includes("aimock")) {
+    return false;
+  }
+  // The official adapter keeps a `headers` property for forward compatibility,
+  // but the Claude Agent SDK cannot forward per-request HTTP headers today.
+  if (hasHeader(forwardedHeaders, "x-aimock-context")) {
+    return false;
+  }
+  if (enableThinking) {
+    return false;
+  }
+  // The official Claude Agent SDK path can execute backend MCP tools, but it
+  // does not yet bridge CopilotKit frontend/runtime tools back through AG-UI.
+  if (runtimeToolCount > 0) {
+    return false;
+  }
+  if (hasStructuredUserContent(input)) {
+    return false;
+  }
+  return true;
+}
+~~~~
+
+
+    
+~~~~typescript title="agent_server.ts"
+  if (
+    shouldUseClaudeAgentSdk({
+      input,
+      forwardedHeaders,
+      runtimeToolCount: runtimeTools.length,
+      enableThinking: config.enableThinking,
+    })
+  ) {
+    await runWithClaudeAgentSdk({
+      input,
+      emit,
+      runId,
+      threadId,
+      systemPrompt,
+      toolSchemas: config.toolSchemas,
+      initialState: state,
+      model: config.model ?? CLAUDE_MODEL,
+      forwardedHeaders,
+      executeTool: (toolName, toolInput, currentState, toolEmit) =>
+        executeBackendTool(
+          toolName,
+          toolInput,
+          currentState,
+          toolEmit,
+          forwardedHeaders,
+          contextString,
+        ),
+    });
+    res.end();
+    return;
+  }
+~~~~
+
+  </Step>
+
+  <Step>
+    ### Expose `set_notes` through MCP
+
+    The adapter receives the in-process MCP server and its `allowedTools`
+    list. The schema becomes an executable SDK tool named
+    `mcp__copilotkit__set_notes`.
+
+    
+~~~~typescript title="claude-agent-sdk-adapter.ts"
+function createClaudeAgentAdapter({
+  toolSchemas,
+  emit,
+  getState,
+  setState,
+  executeTool,
+  model,
+  systemPrompt,
+}: {
+  toolSchemas: Anthropic.Tool[];
+  emit: Emit;
+  getState: () => Record<string, unknown>;
+  setState: (state: Record<string, unknown>) => void;
+  executeTool: ExecuteTool;
+  model: string;
+  systemPrompt: string;
+}) {
+  const backendToolServer = buildBackendToolServer({
+    toolSchemas,
+    emit,
+    getState,
+    setState,
+    executeTool,
+  });
+
+  return new ClaudeAgentAdapter({
+    agentId: "claude-sdk-typescript",
+    model: normalizeClaudeAgentSdkModel(model),
+    systemPrompt,
+    tools: [],
+    mcpServers: backendToolServer.mcpServers,
+    allowedTools: backendToolServer.allowedTools,
+    permissionMode: "dontAsk",
+    maxTurns: 10,
+  });
+}
+~~~~
+
+
+    
+~~~~typescript title="claude-agent-sdk-adapter.ts"
+const COPILOTKIT_MCP_SERVER_NAME = "copilotkit";
+const COPILOTKIT_TOOL_PREFIX = `mcp__${COPILOTKIT_MCP_SERVER_NAME}__`;
+
+function buildBackendToolServer({
+  toolSchemas,
+  emit,
+  getState,
+  setState,
+  executeTool,
+}: {
+  toolSchemas: Anthropic.Tool[];
+  emit: Emit;
+  getState: () => Record<string, unknown>;
+  setState: (state: Record<string, unknown>) => void;
+  executeTool: ExecuteTool;
+}): {
+  mcpServers?: Record<string, McpServerConfig>;
+  allowedTools: string[];
+} {
+  if (toolSchemas.length === 0) {
+    return { allowedTools: [] };
+  }
+
+  const tools = toolSchemas.map((schema) =>
+    sdkTool(
+      schema.name,
+      schema.description ?? "",
+      zodShapeFromJsonSchema(schema.input_schema),
+      async (args) => {
+        try {
+          const result = await executeTool(
+            schema.name,
+            args as Record<string, unknown>,
+            getState(),
+            emit,
+          );
+          if (result.state) {
+            setState(result.state);
+          }
+          return {
+            content: [{ type: "text" as const, text: result.resultText }],
+          };
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          return {
+            content: [{ type: "text" as const, text: message }],
+            isError: true,
+          };
+        }
+      },
+    ),
+  );
+
+  return {
+    mcpServers: {
+      [COPILOTKIT_MCP_SERVER_NAME]: createSdkMcpServer({
+        name: COPILOTKIT_MCP_SERVER_NAME,
+        version: "1.0.0",
+        tools,
+      }),
+    },
+    allowedTools: toolSchemas.map(
+      (schema) => `${COPILOTKIT_TOOL_PREFIX}${schema.name}`,
+    ),
+  };
+}
+~~~~
+
+  </Step>
+
+  <Step>
+    ### Replace the notes in shared state
+
+    The backend handler validates the tool arguments and returns the updated
+    state. The adapter emits that state as a snapshot after the tool result.
+
+    
+~~~~typescript title="agent_server.ts"
+  if (toolName === "set_notes") {
+    const notes = Array.isArray(toolInput.notes)
+      ? (toolInput.notes as unknown[]).filter(
+          (note): note is string => typeof note === "string",
+        )
+      : [];
+    return {
+      resultText: JSON.stringify({ status: "ok", count: notes.length }),
+      state: { ...state, notes },
+    };
+  }
+~~~~
+
+  </Step>
 </Steps>
 
 Subscribe a component to the agent's state with `useAgent`. Any time the agent

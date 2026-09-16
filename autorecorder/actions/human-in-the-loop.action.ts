@@ -68,36 +68,62 @@ export const runHumanInTheLoopAction: PageActionHandler = async (
   await waitForAgentResponseCompletion(page, config.waitAfterPromptMs ?? 4000, before);
   await assertNoErrorBanner(page);
 
-  // The route's `<TryIt>` block asks for one thing more than a reply: "the
-  // agent's next message references the specific time you chose". That is what
-  // separates `respond()` having delivered the choice from the run simply
-  // resuming -- without it a generic "all set!" would pass.
+  // Pass condition, second half: "the agent's next message references the
+  // specific time you chose". That is what separates `respond()` having
+  // delivered the choice from the run merely resuming -- without it a generic
+  // "all set!" would pass.
   //
-  // Matched on the clock time rather than the whole label, because the model
-  // rephrases "Tomorrow 10:00 AM" freely but cannot invent a different hour.
-  const time = chosen.match(/\d{1,2}:\d{2}/)?.[0];
-  const reply = (await page.locator(CPK.assistantMessage).last().textContent()) ?? '';
+  // Matched on the hour in any of the ways the model writes it ("10:00",
+  // "10 AM", "10am", "10 a.m."), because it rephrases the label freely but
+  // cannot name a different hour without having been told a different slot.
+  const clock = chosen.match(/(\d{1,2}):(\d{2})\s*([AP]M)?/i);
 
-  if (time && reply.includes(time)) {
-    console.log(`   ✓ the reply references the chosen slot (${time}).`);
-  } else {
-    // Warned, not failed, and the distinction is the point.
-    //
-    // The mechanism this page exists to prove is already established above and
-    // deterministically: the picker rendered (the run suspended on the tool
-    // call), and a reply arrived after the click (`respond` resolved it and the
-    // run resumed). Those are the page's own failure modes -- "the agent
-    // invents a time without showing the picker", "clicking does nothing".
-    //
-    // Whether the model then *echoes* the time is wording, not wiring. Asserting
-    // it made this page fail on one run and pass on the next with the same code,
-    // and a recorder that fails intermittently is worse than one that reports
-    // less: nobody trusts the red ones after the first false alarm.
-    console.warn(
-      `   ⚠ The reply does not repeat ${time ?? chosen} back. The interrupt and ` +
-        'the resume both worked; the model just did not restate the slot.\n' +
-        `        It said: "${reply.replace(/\s+/g, ' ').trim().slice(0, 200)}"`,
-    );
+  if (clock) {
+    const [, hour, minutes, meridiem = ''] = clock;
+    const m = meridiem ? `${meridiem[0]}\\.?\\s*m\\.?` : '';
+    const forms = [
+      `\\b${hour}:${minutes}`,
+      ...(minutes === '00' && m ? [`\\b${hour}\\s*${m}`] : []),
+    ];
+    const pattern = new RegExp(forms.join('|'), 'i');
+
+    // Poll rather than read once. The agent often writes "All set! Here's a
+    // summary of what was scheduled:" and then pauses before the summary --
+    // longer than the shared detector's stability window -- so a single read
+    // lands on the lead-in and misses the time that follows it.
+    let reply = '';
+    let mentioned = false;
+    const deadline = Date.now() + 20000;
+    while (Date.now() < deadline) {
+      // The agent's own words only. The picker lives inside an assistant
+      // message too, and its confirmation reads "Booked for <slot>" -- counting
+      // that text would pass this check without the model saying anything.
+      reply = await page
+        .evaluate((sel) => {
+          const msgs = Array.from(document.querySelectorAll(sel as string));
+          const last = msgs[msgs.length - 1];
+          if (!last) return '';
+          const copy = last.cloneNode(true) as HTMLElement;
+          copy.querySelectorAll('[data-testid^="time-picker"]').forEach((n) => n.remove());
+          return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
+        }, CPK.assistantMessage)
+        .catch(() => '');
+      if (pattern.test(reply)) {
+        mentioned = true;
+        break;
+      }
+      await sleep(500);
+    }
+
+    if (!mentioned) {
+      throw new Error(
+        `The agent's reply never mentions ${hour}:${minutes}${meridiem ? ' ' + meridiem : ''}, ` +
+          'the slot this run picked -- so the choice did not reach the model as ' +
+          'its tool result, and the run resumed without it.\n' +
+          `        It said: "${reply.slice(0, 240)}"`,
+      );
+    }
+    console.log(`   ✓ the reply references the chosen time (${chosen}).`);
   }
   await restOn(page, page.locator(CPK.assistantMessage).last(), 2000);
 };

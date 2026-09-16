@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "docsRoot": "https://docs.copilotkit.ai/claude-sdk-typescript",
-  "syncedAt": "2026-09-02T09:07:18.465Z",
+  "syncedAt": "2026-09-15T10:40:58.283Z",
   "pages": {
     "/claude-sdk-typescript": {
       "file": "claude-sdk-typescript.md",
@@ -14,19 +14,19 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:19 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:58 GMT"
     },
     "/claude-sdk-typescript/agent-config": {
       "file": "claude-sdk-typescript__agent-config.md",
-      "sha256": "9dd2553196c13f7e4a36580811b8fc7c62b660848db84ef9a85697e0788422fb",
-      "bytes": 6599,
-      "lines": 188,
+      "sha256": "60f02bb8b5975140e2841fa8d1eaa817d022561d13c0fd22243bf668c4fd1f7a",
+      "bytes": 5775,
+      "lines": 161,
       "routes": [
         "/agent-config"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:19 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/custom-look-and-feel/css": {
       "file": "claude-sdk-typescript__custom-look-and-feel__css.md",
@@ -38,7 +38,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:19 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:58 GMT"
     },
     "/claude-sdk-typescript/custom-look-and-feel/headless-ui": {
       "file": "claude-sdk-typescript__custom-look-and-feel__headless-ui.md",
@@ -50,7 +50,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:19 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:58 GMT"
     },
     "/claude-sdk-typescript/custom-look-and-feel/reasoning-messages": {
       "file": "claude-sdk-typescript__custom-look-and-feel__reasoning-messages.md",
@@ -62,7 +62,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:19 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:58 GMT"
     },
     "/claude-sdk-typescript/custom-look-and-feel/slots": {
       "file": "claude-sdk-typescript__custom-look-and-feel__slots.md",
@@ -74,7 +74,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:19 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/frontend-tools": {
       "file": "claude-sdk-typescript__frontend-tools.md",
@@ -86,7 +86,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema": {
       "file": "claude-sdk-typescript__generative-ui__a2ui__dynamic-schema.md",
@@ -98,19 +98,19 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/generative-ui/a2ui/fixed-schema": {
       "file": "claude-sdk-typescript__generative-ui__a2ui__fixed-schema.md",
-      "sha256": "c0be99dc67aaeb635cb8d22478422ca0b5e4e393e2d5721900344d9cc44fbb59",
-      "bytes": 26077,
+      "sha256": "ab9d8749b82e33c4c51e191d3baf84ce82f882cf0ae64b79cdeded412d629f22",
+      "bytes": 26118,
       "lines": 822,
       "routes": [
         "/generative-ui/a2ui/fixed-schema"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/generative-ui/reasoning": {
       "file": "claude-sdk-typescript__generative-ui__reasoning.md",
@@ -122,7 +122,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/generative-ui/state-rendering": {
       "file": "claude-sdk-typescript__generative-ui__state-rendering.md",
@@ -134,31 +134,31 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/generative-ui/tool-based": {
       "file": "claude-sdk-typescript__generative-ui__tool-based.md",
-      "sha256": "f4bd77ad0eb07baa9c938b34218cbe6db1ea75f66ee39a5df281c9fc65c682f8",
-      "bytes": 4031,
-      "lines": 115,
+      "sha256": "df3731998c9383e7c4f0d8e862e504a738c450b4438c8d05ebaccb8f3807e96a",
+      "bytes": 4287,
+      "lines": 123,
       "routes": [
         "/generative-ui/tool-based"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/generative-ui/tool-rendering": {
       "file": "claude-sdk-typescript__generative-ui__tool-rendering.md",
-      "sha256": "766e3d62cdc214687de5968bc88c5e5a350eaeba486a473dbc17b68f20d9d957",
-      "bytes": 13785,
-      "lines": 513,
+      "sha256": "994977fb3016d09f68ad306d44e78b96eb0aaf5ac486f4026333091e92c23ea2",
+      "bytes": 14674,
+      "lines": 529,
       "routes": [
         "/generative-ui/tool-rendering"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/human-in-the-loop": {
       "file": "claude-sdk-typescript__human-in-the-loop.md",
@@ -170,7 +170,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/multi-agent/subagents": {
       "file": "claude-sdk-typescript__multi-agent__subagents.md",
@@ -182,19 +182,19 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/multimodal-attachments": {
       "file": "claude-sdk-typescript__multimodal-attachments.md",
-      "sha256": "7237dfd40119e56ee3057445eaf61f34ef8328b32acd750c95f2857d9defc1ae",
-      "bytes": 6144,
-      "lines": 176,
+      "sha256": "0f30c04eb9353fdf6bee52d3bca85553072ce3e810debc37ce0b109e2e30d2cf",
+      "bytes": 7092,
+      "lines": 197,
       "routes": [
         "/multimodal-attachments"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/prebuilt-components/chat": {
       "file": "claude-sdk-typescript__prebuilt-components__chat.md",
@@ -206,19 +206,19 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/prebuilt-components/chat-controls": {
       "file": "claude-sdk-typescript__prebuilt-components__chat-controls.md",
-      "sha256": "e7d739fbbe0535f33e0b9d7282697be6eb57e36e0393007602f1a58ab03717a2",
-      "bytes": 4309,
-      "lines": 108,
+      "sha256": "98e7a80d0ba5d624ff827cf1bb57b088abd7e7dd7fb3d0284de8a76dab527faf",
+      "bytes": 6041,
+      "lines": 153,
       "routes": [
         "/prebuilt-components/chat-controls"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/prebuilt-components/popup": {
       "file": "claude-sdk-typescript__prebuilt-components__popup.md",
@@ -230,7 +230,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/prebuilt-components/sidebar": {
       "file": "claude-sdk-typescript__prebuilt-components__sidebar.md",
@@ -242,19 +242,19 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:40:59 GMT"
     },
     "/claude-sdk-typescript/programmatic-control": {
       "file": "claude-sdk-typescript__programmatic-control.md",
-      "sha256": "ef1ec84010ef710aaf22ac13ae8a640a374b385415e4ee6d2757aa56c80229f8",
-      "bytes": 5452,
-      "lines": 136,
+      "sha256": "928cf418e98c1e6d6cc9f988180e0d753d3422f1b864da5244049f257ef7986b",
+      "bytes": 5467,
+      "lines": 138,
       "routes": [
         "/programmatic-control"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:20 GMT"
+      "date": "Tue, 15 Sep 2026 10:41:00 GMT"
     },
     "/claude-sdk-typescript/quickstart": {
       "file": "claude-sdk-typescript__quickstart.md",
@@ -267,19 +267,19 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:41:00 GMT"
     },
     "/claude-sdk-typescript/shared-state": {
       "file": "claude-sdk-typescript__shared-state.md",
-      "sha256": "be0c7f32d32ef69736ee19c6a347888117334ffab9401e9f909a29855100d3ce",
-      "bytes": 14002,
-      "lines": 403,
+      "sha256": "8805f027947fbcb7b658709b95d6ac7cacdd156ed71e02b846201ff5758dcfd6",
+      "bytes": 20388,
+      "lines": 659,
       "routes": [
         "/shared-state"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:41:00 GMT"
     },
     "/claude-sdk-typescript/shared-state/agent-readonly": {
       "file": "claude-sdk-typescript__shared-state__agent-readonly.md",
@@ -291,7 +291,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:41:00 GMT"
     },
     "/claude-sdk-typescript/shared-state/rendering-in-app": {
       "file": "claude-sdk-typescript__shared-state__rendering-in-app.md",
@@ -303,7 +303,7 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:41:00 GMT"
     },
     "/claude-sdk-typescript/shared-state/streaming": {
       "file": "claude-sdk-typescript__shared-state__streaming.md",
@@ -315,24 +315,24 @@
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:41:00 GMT"
     },
     "/claude-sdk-typescript/voice": {
       "file": "claude-sdk-typescript__voice.md",
-      "sha256": "809cf66026ce08bcc42d5ad4cd1961840b7125708e45c874756629d9dbdb7601",
-      "bytes": 10316,
-      "lines": 248,
+      "sha256": "a42a50b4c704dc1dbb4555b5b1e78f03bf34520d740156e155205148ea066c11",
+      "bytes": 11760,
+      "lines": 272,
       "routes": [
         "/voice"
       ],
       "status": "ok",
       "age": 0,
-      "date": "Wed, 02 Sep 2026 09:07:21 GMT"
+      "date": "Tue, 15 Sep 2026 10:41:00 GMT"
     }
   },
   "sitemap": {
-    "fetchedAt": "2026-09-02T09:07:18.465Z",
-    "urlsUnderRoot": 128,
+    "fetchedAt": "2026-09-15T10:40:58.283Z",
+    "urlsUnderRoot": 135,
     "knownUnmapped": [
       "https://docs.copilotkit.ai/claude-sdk-typescript/agent-spec",
       "https://docs.copilotkit.ai/claude-sdk-typescript/agent-spec/human-in-the-loop",
@@ -378,6 +378,7 @@
       "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui",
       "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui",
       "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/display",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/frontend-cards",
       "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown",
       "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/interactive",
       "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render",
@@ -386,9 +387,21 @@
       "https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-json-ui",
       "https://docs.copilotkit.ai/claude-sdk-typescript/headless",
       "https://docs.copilotkit.ai/claude-sdk-typescript/headless-threads",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions",
       "https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless",
       "https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt",
       "https://docs.copilotkit.ai/claude-sdk-typescript/inspector",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/connect-your-runtime",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/headless-ui",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/intelligence-platform",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/learned-skills",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/managed-intelligence-platform",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/memories",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/overview",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/quickstart",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/self-hosting",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/intelligence/threads-explained",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/learning",
       "https://docs.copilotkit.ai/claude-sdk-typescript/migrate/1.10.X",
       "https://docs.copilotkit.ai/claude-sdk-typescript/migrate/1.8.2",
       "https://docs.copilotkit.ai/claude-sdk-typescript/migrate/v2",
@@ -429,6 +442,7 @@
       "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/ai-todo-app/step-4-frontend-tools",
       "https://docs.copilotkit.ai/claude-sdk-typescript/tutorials/multi-conversation-chat",
       "https://docs.copilotkit.ai/claude-sdk-typescript/vs-code-extension",
+      "https://docs.copilotkit.ai/claude-sdk-typescript/webmcp",
       "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new",
       "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/a2a-mcp-handshake",
       "https://docs.copilotkit.ai/claude-sdk-typescript/whats-new/a2ui-launch",

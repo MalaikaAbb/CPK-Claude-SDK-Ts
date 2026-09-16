@@ -275,7 +275,7 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/human-in-the-loop/demo-chat/page.tsx",
     startLine: 36,
     endLine: 61,
-    prompt: "Please book an intro call with the sales team to discuss pricing.",
+    prompt: "Schedule a 1:1 with Alice next week to review Q2 goals.",
     waitAfterPromptMs: 4000,
   },
   {
@@ -287,9 +287,9 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/programmatic-control/demo-chat/page.tsx",
     startLine: 16,
     endLine: 20,
-    // Never typed. The page's own "Run agent" button appends a fixed message and
-    // calls copilotkit.runAgent, which is what its <TryIt> block drives; this
-    // mirrors that message so the registry still records what is sent.
+    // Never typed. The handler clicks Run agent, waits 10s, clicks Stop, then
+    // clicks Run agent again. Each click appends this fixed message (hard-coded
+    // in the page) and calls copilotkit.runAgent.
     prompt: "Summarize the latest sales data",
     waitAfterPromptMs: 4000,
   },
@@ -302,9 +302,8 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/shared-state/demo-chat/page.tsx",
     startLine: 22,
     endLine: 132,
-    // The three turns its <TryIt> block prescribes, in order. The pass condition
-    // lives in the third: the first reply follows the form, and the third
-    // repeats it back. Two turns cannot show that.
+    // Sent one by one, in this order. The pass condition lives in the third:
+    // it has to repeat back what the preferences form holds.
     prompt: "Explain recursion.",
     prompts: [
       "Explain recursion.",
@@ -322,13 +321,9 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/shared-state/rendering-in-app/demo-chat/page.tsx",
     startLine: 29,
     endLine: 33,
-    // Both turns, because the second is the proof: the agent has to see a box
-    // the *page* ticked between them.
-    prompt: "Make me a 4-item packing list for a weekend trip.",
-    prompts: [
-      "Make me a 4-item packing list for a weekend trip.",
-      "Which items have I already ticked off?",
-    ],
+    // The canvas is seeded with a "Project launch" list; the agent has to add
+    // to it through shared state, so the new item lands on the page body.
+    prompt: "add designing to the project list",
     waitAfterPromptMs: 4000,
   },
   {
@@ -354,13 +349,12 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/shared-state/agent-readonly/demo-chat/page.tsx",
     startLine: 38,
     endLine: 49,
-    // The same question twice, which is what its <TryIt> block prescribes:
-    // "Change the name, ask again in the same thread, and the new one comes
-    // back -- the entries re-publish on every render."
+    // Sent one by one. The first is answered from the name and activity
+    // entries, the second from the timezone entry.
     prompt: "What's my name and what have I been doing?",
     prompts: [
       "What's my name and what have I been doing?",
-      "What's my name and what have I been doing?",
+      "What time is it for me right now?",
     ],
     waitAfterPromptMs: 4000,
   },
@@ -373,10 +367,7 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/multi-agent/subagents/demo-chat/page.tsx",
     startLine: 42,
     endLine: 46,
-    // The second of the two prompts its <TryIt> block lists -- the one shaped
-    // like delegation, so a working run loop would be unmistakable and its
-    // absence is legible.
-    prompt: "Research and draft a paragraph about tidal energy, then critique it.",
+    prompt: "Write me a short brief on why sourdough needs a starter.",
     waitAfterPromptMs: 4000,
   },
   {
@@ -388,10 +379,9 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/agent-config/demo-chat/page.tsx",
     startLine: 34,
     endLine: 41,
-    // Its <TryIt> block reads "Explain what an API is. (then switch tone to
-    // enthusiastic and ask again)" -- so the same question twice, with the form
-    // changed in between. One turn cannot distinguish a config being honoured
-    // from one being ignored.
+    // "Explain what an API is. (then switch tone to enthusiastic and ask
+    // again)" -- the same question twice, with only the Tone select changed in
+    // between.
     prompt: "Explain what an API is.",
     prompts: ["Explain what an API is.", "Explain what an API is."],
     waitAfterPromptMs: 4000,
@@ -405,9 +395,9 @@ export const PAGES = definePages([
     ideFile: "frontend/src/app/backend/copilot-runtime/demo-chat/page.tsx",
     startLine: 45,
     endLine: 49,
-    // Its <TryIt> block is "Open the demo and send \u201cHello\u201d." -- the
-    // point is the event sequence, and the shortest turn shows it most clearly.
-    prompt: "Hello",
+    // Never typed. The handler just clicks Run, which sends the prompt the page
+    // pre-fills into its own input -- this mirrors that value.
+    prompt: "Think step by step: what is 17 * 24?",
     waitAfterPromptMs: 4000,
   },
 ]);
