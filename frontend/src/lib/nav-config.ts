@@ -426,7 +426,7 @@ export const NAV: NavGroup[] = [
           "A supervisor delegating to research, writing and critique sub-agents, with a live delegation log.",
         status: "partial",
         statusNote:
-          "The supervisor prompt and the delegation log are as published, but the delegation tools are backend tools and the run loop that executes a sub-agent is described in prose and never shown. The log stays empty.",
+          "Delegation works: the prompts, tool schemas and invokeSubAgent are as published, registered through this repo's MCP bridge like the other backend tools. Entries appear once each sub-agent finishes; the doc's in-flight 'running' row isn't shown.",
       },
     ],
   },

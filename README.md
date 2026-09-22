@@ -289,7 +289,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 
 **`/multi-agent/subagents`** — a supervisor delegating to three specialists, with a live delegation log. **Partial.**
 *Try:* "Research and draft a paragraph about tidal energy, then critique it."
-*Pass (today):* the supervisor answers directly and the log stays **empty** with all three chips dimmed. Populated cards would mean the tools got registered, which would make this entry wrong. See §9.
+*Pass:* a **completed** `research_agent` card with a bulleted fact list appears, then `writing_agent` (a paragraph) and `critique_agent` (2–3 critiques). The chips light up as each fires, and the supervisor finishes with a short summary. *Fail:* an empty log with dimmed chips means the tools aren't registered or their results never became snapshots; **failed** shows only the error class, and the full error is in the backend terminal. Partial because the tool bridge is repo code and the doc's in-flight **running** row isn't shown (§9.3).
 
 ### Agent Config
 
@@ -336,7 +336,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
 | [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) | `/shared-state/streaming` | ❌ Broken | The page's 5 published lines run inside a repo-built canvas. `write_document` has no bridge and the raw-delta loop is unpublished, so the document arrives in one end-of-turn write via `ag_ui_update_state`. §9.15. |
 | [shared-state/agent-readonly](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/agent-readonly) | `/shared-state/agent-readonly` | ✅ Working | Adapter injects context itself. |
-| [multi-agent/subagents](https://docs.copilotkit.ai/claude-sdk-typescript/multi-agent/subagents) | `/multi-agent/subagents` | ⚠️ Partial | Delegation log stays empty; the run loop is prose-only. |
+| [multi-agent/subagents](https://docs.copilotkit.ai/claude-sdk-typescript/multi-agent/subagents) | `/multi-agent/subagents` | ⚠️ Partial | Delegation works via this repo's MCP bridge (`backend/src/agents/subagents-mcp-server.ts`) around the doc's `invokeSubAgent`. The in-flight `running` row isn't shown (§9.3). |
 | [agent-config](https://docs.copilotkit.ai/claude-sdk-typescript/agent-config) | `/agent-config` | ✅ Working | Arrives as context, not `forwardedProps` — §9. |
 | *(no dedicated page)* | `/backend/copilot-runtime` | ✅ Working | Debug surface; flagged "not in doc sidebar" in the nav. |
 | *(landing)* | `/` | 📄 Reference | Orientation and status overview. |
@@ -369,7 +369,7 @@ const adapter = new ClaudeAgentAdapter({
 
 This repo writes one per tool it needs, and marks each as repo code. `backend/src/agents/weather-mcp-server.ts` wraps the published `GET_WEATHER_TOOL` / `getWeather` in an in-process MCP server using the Claude Agent SDK's own `createSdkMcpServer` + `tool()` (the JSON `input_schema` is translated to a zod shape by hand), and the registry passes it to `ClaudeAgentAdapter` as `mcpServers` plus `allowedTools: ["mcp__weather__get_weather"]`. The adapter merges it alongside its own `ag_ui` server and strips the `mcp__weather__` prefix from tool-call events, so the frontend's `useRenderTool({ name: "get_weather" })` matches unchanged. `backend/src/agents/display-flight-mcp-server.ts` does the same for the fixed-schema page's `DISPLAY_FLIGHT_TOOL_SCHEMA` / `buildDisplayFlightOperations`; its handler returns the `a2ui_operations` payload as the tool result, which the A2UI middleware already parses. `backend/src/agents/set-notes-mcp-server.ts` does it for the Shared State page's `SET_NOTES_TOOL_SCHEMA`, and adds the write-back: the handler returns the validated notes in its result, and `agent-server.ts` emits a `STATE_SNAPSHOT` after that result through the registry's `stateFromToolResult` hook. That takes `/generative-ui/tool-rendering`, `/generative-ui/a2ui/fixed-schema` and `/shared-state` to ⚠️.
 
-Still affected, because their tools are not bridged: `/shared-state/streaming` (⚠️), `/multi-agent/subagents` (⚠️).
+Still affected, because its tool is not bridged: `/shared-state/streaming` (⚠️). `/multi-agent/subagents` is now bridged (§9.3).
 
 The published backend halves are kept in `backend/src/agents/*.snippet.ts` and `*-prompt.ts`, unmodified, each with a header saying why it is inert.
 
@@ -377,9 +377,24 @@ The published backend halves are kept in `backend/src/agents/*.snippet.ts` and `
 
 [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) publishes `emitStreamingDocumentState`, which parses `content_block_start` and `content_block_delta` / `input_json_delta` — raw Anthropic stream events. `ClaudeAgentAdapter` consumes the SDK stream internally and emits AG-UI events only (`TOOL_CALL_ARGS`, `STATE_SNAPSHOT`). The page acknowledges that "direct SDK adapters do the same work in their streaming loop" but never publishes that loop. A second, independent blocker on the same route to §9.1.
 
-### 9.3 The sub-agent run loop exists only as prose
+### 9.3 The sub-agent run loop is published, but can't be used as-is
 
-[multi-agent/subagents](https://docs.copilotkit.ai/claude-sdk-typescript/multi-agent/subagents) gives the supervisor prompt and three delegation tool schemas. What happens when the supervisor calls one is described in a single sentence — "the run loop in `agent_server.ts` runs the matching sub-agent synchronously, records the delegation into shared agent state, and returns the sub-agent's output as a tool_result" — with no code anywhere. The supervisor therefore runs with a prompt naming three sub-agents it has no tools for.
+**Update (2026-09-22):** [multi-agent/subagents](https://docs.copilotkit.ai/claude-sdk-typescript/multi-agent/subagents) used to describe the run loop in a single sentence. It now embeds the full `agent_server.ts` (~2,400 lines), including the `/subagents` route, `runAgenticLoop`, the sub-agent branch of `executeBackendTool`, and `invokeSubAgent`. It still can't be dropped in:
+
+- `runAgenticLoop` hands off to `runWithClaudeAgentSdk` in `./claude-agent-sdk-adapter`. This page doesn't show that module.
+- The file imports eleven more local modules that this page doesn't show either.
+
+This repo therefore registers the delegation tools like its other backend tools (§9.1). `backend/src/agents/subagents-mcp-server.ts` wraps the published `SUBAGENT_TOOL_SCHEMAS` in an in-process MCP server, and the registry passes it to `ClaudeAgentAdapter` as `mcpServers` / `allowedTools`. Each handler runs the doc's `invokeSubAgent` and returns the doc's `{status, result}` / `{status, error}`. Two additions:
+
+- The result also carries `task`.
+- `applyDelegationResult` is the registry's `stateFromToolResult` hook. It appends the finished entry to `state.delegations`, the same way `set_notes` writes back.
+
+Differences from the doc:
+
+- **No in-flight row.** `executeBackendTool` emits a `running` snapshot before each sub-agent call. The existing write-back only fires on `TOOL_CALL_RESULT`, so entries appear as `completed` / `failed` only.
+- The aimock/CVDIAG header forwarding and `normalizeAnthropicModel` are dropped.
+
+Verified 2026-09-22 against the backend alone (`POST /subagents`). The run delegated research → writing → critique, each result appended a `completed` entry, and the run ended with `RUN_FINISHED`.
 
 ### 9.4 The Agent Config backend example is Python, and it is LangGraph's
 
@@ -613,6 +628,8 @@ claude-sdk-typescript/
 │           ├── weather-tool-backend.snippet.ts   │ and why
 │           ├── build-tools.snippet.ts            │
 │           ├── context-addendum.snippet.ts       ┘
+│           ├── *-mcp-server.ts   repo bridges registering backend tools
+│           │                     (weather, flights, notes, subagents)
 │           └── a2ui_schemas/*.json
 │
 └── frontend/                   Next.js App Router (port 3000)

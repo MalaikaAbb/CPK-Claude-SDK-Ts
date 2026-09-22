@@ -2,15 +2,9 @@
  * Verbatim from the Sub-Agents doc page.
  * https://docs.copilotkit.ai/claude-sdk-typescript/multi-agent/subagents
  *
- * Live: `SUPERVISOR_SYSTEM_PROMPT` is the agent's system prompt.
- *
- * Inert: `SUBAGENT_TOOL_SCHEMAS`. The page says "the run loop in
- * `agent_server.ts` runs the matching sub-agent synchronously, records the
- * delegation into shared agent state, and returns the sub-agent's output as a
- * tool_result" — but that run loop is described in prose and never published,
- * and registering these backend tool schemas needs the same missing
- * `buildBackendToolServer` bridge. So the supervisor is told it has three
- * sub-agents it cannot actually call. See README §9.
+ * All live: `SUPERVISOR_SYSTEM_PROMPT` is the agent's system prompt, and
+ * `SUBAGENT_TOOL_SCHEMAS` / `SUBAGENT_SYSTEM_BY_NAME` become the supervisor's
+ * delegation tools in `subagents-mcp-server.ts`. See README §9.3.
  */
 
 // The supervisor delegates by calling tools. Each entry below is an

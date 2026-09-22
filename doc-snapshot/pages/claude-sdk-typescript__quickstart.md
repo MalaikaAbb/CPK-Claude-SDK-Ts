@@ -3,10 +3,11 @@
 > Run a Claude Agent SDK TypeScript agent behind CopilotKit.
 
 
-<IntelligenceOnboardingPrompt
-  feature="learning"
-  surface="docs_claude_sdk_typescript_quickstart"
-/>
+## Start with your coding agent
+
+Use this prompt to connect your Claude Agent SDK for TypeScript agent to CopilotKit and verify a working conversation. Your coding agent will follow this guide in your project, or you can work through the manual steps below.
+
+Ask your coding agent to follow the setup steps on this page for your selected framework and frontend.
 
 This quickstart gives you two working paths:
 
@@ -266,8 +267,25 @@ Before you begin, you'll need the following:
 
           Wrap your app with `CopilotKit` and target the agent name you registered in the runtime route.
 
-          ```tsx title="app/layout.tsx"
+          ```tsx title="app/providers.tsx"
+          "use client";
+
           import { CopilotKit } from "@copilotkit/react-core/v2";
+
+          export function Providers({ children }: { children: React.ReactNode }) {
+            return (
+              <CopilotKit runtimeUrl="/api/copilotkit" agent="claude_agent">
+                {children}
+              </CopilotKit>
+            );
+          }
+          ```
+
+          `app/layout.tsx` is a server component and cannot import the provider
+          directly, so it renders your client file instead:
+
+          ```tsx title="app/layout.tsx"
+          import { Providers } from "./providers";
           import "@copilotkit/react-core/v2/styles.css";
           import "./globals.css";
 
@@ -275,9 +293,9 @@ Before you begin, you'll need the following:
             return (
               <html lang="en">
                 <body>
-                  <CopilotKit runtimeUrl="/api/copilotkit" agent="claude_agent">
+                  <Providers>
                     {children}
-                  </CopilotKit>
+                  </Providers>
                 </body>
               </html>
             );
@@ -349,7 +367,7 @@ On localhost, click the Inspector button in the corner of the app.
 
 1. Open **Agents**, then **Agent**. Your agent is listed.
 2. Send a chat message. Open **Agents**, then **AG-UI Events**. Events are moving.
-3. Open **Threads**. The list is unlocked (Intelligence is on), or locked with Enable Intelligence (Intelligence is off).
+3. Open **Rich Threads**. The list is unlocked (Intelligence is on), or locked with Enable Intelligence (Intelligence is off).
 
 More detail: [Inspector](/claude-sdk-typescript/inspector).
 
