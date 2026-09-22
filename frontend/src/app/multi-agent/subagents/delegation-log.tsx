@@ -24,9 +24,8 @@ export interface Delegation {
  * and the always-visible chips are its. The style map is this repo's — the
  * page references `SUB_AGENT_STYLE` without publishing it.
  *
- * In this repo the log stays empty: the delegation tools are backend tools and
- * the run loop that would execute a sub-agent is described in prose only. See
- * the notes page.
+ * The entries come from `state.delegations`, which the agent server writes as
+ * each sub-agent goes `running` → `completed` / `failed`. See the notes page.
  */
 
 const SUB_AGENT_STYLE: Record<

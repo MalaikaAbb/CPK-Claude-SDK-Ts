@@ -27,30 +27,34 @@ export default function Page() {
               "Write me a short brief on why sourdough needs a starter.",
               "Research and draft a paragraph about tidal energy, then critique it.",
             ]}
-            expect="Currently: the supervisor answers directly and the delegation log stays empty with all three role chips dimmed. That is the documented-gap behaviour."
-            fail="Populated delegation cards would mean the tools got registered somehow — which would make this status entry wrong."
+            expect="The supervisor delegates research → writing → critique. A COMPLETED card with the sub-agent's output appears as each one finishes, and its role chip lights up."
+            fail="An empty log with dimmed chips means the tools are not registered or their results never became a snapshot; FAILED shows the error class — the full error is in the backend log."
           />
         </div>
       </Panel>
 
       <Panel title="Why this route is Partial">
-        <Callout tone="warn" title="The run loop is specified in one sentence and published nowhere">
+        <Callout tone="warn" title="The published run loop can't be used; the tools go through a repo bridge">
           <p>
-            The page gives you two of the three pieces: the supervisor prompt
-            and the three delegation tool schemas. The third — what actually
-            happens when the supervisor calls{" "}
-            <code>research_agent</code> — exists only as prose:{" "}
-            <em>
-              the run loop in <code>agent_server.ts</code> runs the matching
-              sub-agent synchronously, records the delegation into shared agent
-              state, and returns the sub-agent&apos;s output as a tool_result
-            </em>
-            . There is no code for it on this page or anywhere else in the
-            framework&apos;s docs.
+            The page now publishes its whole <code>agent_server.ts</code>,
+            including the <code>/subagents</code> route,{" "}
+            <code>runAgenticLoop</code>, the delegation branch of{" "}
+            <code>executeBackendTool</code> and <code>invokeSubAgent</code>.
+            But <code>runAgenticLoop</code> starts by calling{" "}
+            <code>shouldUseClaudeAgentSdk</code> /{" "}
+            <code>runWithClaudeAgentSdk</code> from a{" "}
+            <code>./claude-agent-sdk-adapter</code> module that no page
+            shows. The file also imports eight more modules this page never
+            shows.
           </p>
           <p className="mt-2">
-            Independently, the delegation tools are backend tools, they are currently not integrated
-            with ClaudeAgentAdapter
+            So the delegation tools are registered the way this repo registers
+            every backend tool: an in-process MCP server passed to{" "}
+            <code>ClaudeAgentAdapter</code> as <code>mcpServers</code>. Each
+            handler runs the doc&apos;s <code>invokeSubAgent</code>, and the
+            server writes the finished entry into <code>delegations</code>. The
+            doc&apos;s in-flight <code>running</code> row isn&apos;t shown,
+            because the write-back fires only on tool results.
           </p>
         </Callout>
       </Panel>
@@ -75,6 +79,10 @@ export default function Page() {
 
       <Panel title="The backend half, as published">
         <SourceCode file="backend/src/agents/subagents-prompts.ts" />
+      </Panel>
+
+      <Panel title="The delegation tools (repo MCP bridge around the doc's invokeSubAgent)">
+        <SourceCode file="backend/src/agents/subagents-mcp-server.ts" />
       </Panel>
     </>
   );

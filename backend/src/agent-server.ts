@@ -17,7 +17,8 @@
  * the framework's docs (the Shared State page has since published it — README
  * §9.1). The backend tools this repo registers (`get_weather` for
  * `tool-rendering`, `display_flight` for `a2ui-fixed-schema`, `set_notes` for
- * `shared-state-read-write`) go through repo-authored bridges in
+ * `shared-state-read-write`, the three delegation tools for `subagents`) go
+ * through repo-authored bridges in
  * `agents/*-mcp-server.ts` instead, and the registry passes their
  * `mcpServers` / `allowedTools` through below.
  *

@@ -32,6 +32,12 @@ import {
 } from "./set-notes-mcp-server";
 import { SHARED_STATE_READ_WRITE_BASE_SYSTEM } from "./shared-state-read-write-prompt";
 import { STATE_STREAMING_SYSTEM_PROMPT } from "./state-streaming-prompt";
+import {
+  SUBAGENTS_ALLOWED_TOOLS,
+  SUBAGENTS_MCP_SERVER_NAME,
+  applyDelegationResult,
+  subagentsMcpServer,
+} from "./subagents-mcp-server";
 import { SUPERVISOR_SYSTEM_PROMPT } from "./subagents-prompts";
 import {
   WEATHER_ALLOWED_TOOLS,
@@ -62,6 +68,7 @@ export interface AgentDefinition {
     resultContent: string,
     state: Record<string, unknown>,
   ) => Record<string, unknown> | null;
+
 }
 
 export const REGISTRY: Record<string, AgentDefinition> = {
@@ -137,7 +144,10 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   // ── Multi-Agent ──────────────────────────────────────────────────────────
   subagents: {
     systemPrompt: SUPERVISOR_SYSTEM_PROMPT,
-    note: "Prompt names three sub-agents; the delegation run loop is never published — README §9.",
+    note: "Delegation tools are registered through a repo-authored MCP bridge around the doc's `invokeSubAgent`; results are written to `state.delegations` by the server — README §9.3.",
+    mcpServers: { [SUBAGENTS_MCP_SERVER_NAME]: subagentsMcpServer },
+    allowedTools: SUBAGENTS_ALLOWED_TOOLS,
+    stateFromToolResult: applyDelegationResult,
   },
 
   // ── Agent Config ─────────────────────────────────────────────────────────
