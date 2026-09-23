@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { RouteHeader } from "@/components/route-header";
 import { SourceCodeGroup } from "@/components/source-code";
 import { Panel, TryIt } from "@/components/ui";
@@ -6,6 +8,25 @@ export default function Page() {
   return (
     <>
       <RouteHeader path="/human-in-the-loop" />
+
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <Link
+          href="/human-in-the-loop/demo-chat"
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-md bg-[var(--accent)] px-3 py-1.5 font-medium text-white"
+        >
+          HITL demo ↗
+        </Link>
+        <Link
+          href="/human-in-the-loop/use-interrupt/demo-chat"
+          target="_blank"
+          rel="noreferrer"
+          className="rounded-md bg-[var(--accent)] px-3 py-1.5 font-medium text-white"
+        >
+          useInterrupt demo ↗
+        </Link>
+      </div>
 
       <Panel title="What it demonstrates">
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
