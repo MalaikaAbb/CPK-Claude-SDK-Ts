@@ -323,6 +323,132 @@ export const NAV: NavGroup[] = [
         statusNote:
           "Injection is off per the page, and display_flight is registered through a repo-authored MCP server (backend/src/agents/display-flight-mcp-server.ts) because the docs publish no bridge. The card renders, but the bridge is this repo's code, not the doc's — README §9.1.",
       },
+      {
+        path: "/generative-ui/json-render",
+        hasDemo: true,
+        agentId: "byoc_json_render",
+        title: "JSON Render",
+        docPath: "/claude-sdk-typescript/generative-ui/json-render",
+        summary:
+          "The agent replies with a { root, elements } JSON spec; an assistantMessage slot renders it through a @json-render/react registry.",
+        status: "partial",
+        statusNote:
+          "The four printed files are verbatim; the rest (page, charts, prompt, route) come from the CopilotKit showcase's claude-sdk-typescript Code tab, with HttpAgent replacing the unpublished createClaudeHttpAgent. Props aren't validated at runtime, per the page. Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/hashbrown",
+        hasDemo: true,
+        agentId: "declarative-hashbrown-demo",
+        title: "Hashbrown",
+        docPath: "/claude-sdk-typescript/generative-ui/hashbrown",
+        summary:
+          "A { ui: [...] } envelope parsed progressively by @hashbrownai/react's useJsonParser, so dashboard pieces render while the reply streams.",
+        status: "partial",
+        statusNote:
+          "The three printed files are verbatim; charts, types, suggestions and the prompt come from the showcase. Pinned to the page's pre-release 0.5.0-beta.4. Not yet verified end-to-end.",
+      },
+    ],
+  },
+  {
+    // docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components and
+    // its seven sub-pages. A2UI 1.0, marked Experimental on the page. All
+    // eight run on /api/copilotkit-components (`generativeUI: true`).
+    title: "Components and Surfaces",
+    routes: [
+      {
+        path: "/generative-ui/components",
+        hasDemo: true,
+        agentId: "gen-ui-components",
+        title: "Components and surfaces",
+        docPath: "/claude-sdk-typescript/generative-ui/components",
+        summary:
+          "generativeUI={{ ui: standardUI }} on the provider: the agent draws catalog components through the runtime-injected render_ui tool.",
+        status: "partial",
+        statusNote:
+          "The doc's agent is a TanStack AI + OpenAI BuiltInAgent; this harness swaps in ClaudeAgentAdapter over HTTP, which forwards tools and context. Implemented and typechecked, but not yet verified end-to-end against the live agent.",
+      },
+      {
+        path: "/generative-ui/components/surfaces",
+        hasDemo: true,
+        agentId: "gen-ui-surfaces",
+        title: "Surfaces",
+        docPath: "/claude-sdk-typescript/generative-ui/components/surfaces",
+        summary:
+          "Page targets via GenerativeUISurface — component limits, fallback, per-item ids, autoScroll, and the provider errorBoundary.",
+        status: "partial",
+        statusNote:
+          "Products reach the agent via useAgentContext (the page never says where they come from). Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/components/catalogs",
+        hasDemo: true,
+        agentId: "gen-ui-catalogs",
+        title: "Catalogs",
+        docPath: "/claude-sdk-typescript/generative-ui/components/catalogs",
+        summary:
+          "createGenerativeUI with slots, child(), extends, parameterOrder and accessibility — plus a live exportA2UICatalog.",
+        status: "partial",
+        statusNote:
+          "The combine snippet's cartUI is undefined on the page; shopUI stands in. Valibot example shown, not run. Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/components/standard-catalog",
+        hasDemo: true,
+        agentId: "gen-ui-standard-catalog",
+        title: "Standard catalog",
+        docPath: "/claude-sdk-typescript/generative-ui/components/standard-catalog",
+        summary:
+          "The 69-component standardUI used as-is, extended, trimmed with omit, and with Card overridden — switchable in one chat.",
+        status: "partial",
+        statusNote:
+          "maplibre-gl ^5 is installed: the bundle needs it even when Map is never rendered. Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/components/state-and-actions",
+        hasDemo: true,
+        agentId: "gen-ui-state-actions",
+        title: "State and actions",
+        docPath: "/claude-sdk-typescript/generative-ui/components/state-and-actions",
+        summary:
+          "App state via useGenerativeUIState + bind, events calling useGenerativeUIFunction handlers, events sent to the agent, and writable props.",
+        status: "partial",
+        statusNote:
+          "agentOnly functions cannot fire — the page itself says callRendererFunction is rejected in this version. Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/components/theming",
+        hasDemo: true,
+        agentId: "gen-ui-theming",
+        title: "Theming",
+        docPath: "/claude-sdk-typescript/generative-ui/components/theming",
+        summary:
+          "--a2ui-* variables via the provider theme (with dark overrides) or .a2ui-surface CSS, driven by live controls.",
+        status: "partial",
+        statusNote: "Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/components/transports",
+        hasDemo: true,
+        agentId: "gen-ui-transports",
+        title: "Transports",
+        docPath: "/claude-sdk-typescript/generative-ui/components/transports",
+        summary:
+          "render_ui tool vs ```a2ui markdown fences, and agentIds scoping, toggled side by side on one agent.",
+        status: "partial",
+        statusNote: "Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/components/markdown-mode",
+        hasDemo: true,
+        agentId: "gen-ui-markdown",
+        title: "Markdown mode",
+        docPath: "/claude-sdk-typescript/generative-ui/components/markdown-mode",
+        summary:
+          "UI written as ```a2ui fences inside the text reply, with a target=featured page surface and the sendContext / includeCatalog options.",
+        status: "partial",
+        statusNote:
+          "sendContext: false expects the backend to build its own prompt from the envelope; the page's example is Python and this backend doesn't, so that mode yields plain text. Not yet verified end-to-end.",
+      },
     ],
   },
   {

@@ -8,7 +8,7 @@ A navigable, working test harness for the CopilotKit ↔ Claude Agent SDK (TypeS
 | **Docs tracked** | <https://docs.copilotkit.ai/claude-sdk-typescript> |
 | **Frontend** | `@copilotkit/react-core` 1.66.4 (v2 surface), `@copilotkit/runtime` 1.66.4, Next.js 16.3.0, React 19.2.8 |
 | **Backend** | `@ag-ui/claude-agent-sdk` 0.0.3, `@anthropic-ai/claude-agent-sdk` ^0.2.58, `@ag-ui/core` / `@ag-ui/encoder` 0.0.57, Express 5 |
-| **Status** | 32 routes — 21 working · 3 partial · 6 broken · 2 reference. See §8; the live count is computed from `nav-config.ts` on `/status`. |
+| **Status** | 42 routes — 21 working · 13 partial · 6 broken · 2 reference. See §8; the live count is computed from `nav-config.ts` on `/status`. |
 | **Build** | ⚠️ `next build` fails type checking on purpose — one route holds a doc snippet that does not compile. See §9.14. |
 | **CI** | none configured |
 
@@ -253,6 +253,50 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Find me a flight from SFO to JFK."
 *Pass:* a flight card on the fixed-schema surface with SFO, JFK, an airline and a price, plus a one-sentence reply. *Fail:* a prose-only answer means the model was never offered `display_flight`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
 
+**`/generative-ui/json-render`** — the agent replies with a `{ root, elements }` JSON spec, and an `assistantMessage` slot renders it through a `@json-render/react` registry (MetricCard, BarChart, PieChart). **Partial** (not yet verified live).
+*Try:* "Show me the sales dashboard with metrics and a revenue chart" (also a suggestion chip).
+*Pass:* raw JSON streams in a normal bubble, then turns into a MetricCard with a trend badge and a BarChart nested under it. *Fail:* JSON that never turns into a chart means `parseSpec` rejected it (unknown type, or a root missing from elements). A prose reply means the `byoc_json_render` prompt isn't running.
+
+**`/generative-ui/hashbrown`** — a `{ ui: [...] }` envelope parsed progressively by `@hashbrownai/react`'s `useJsonParser`; metric, pie and bar charts, deal cards and Markdown. **Partial** (not yet verified live).
+*Try:* "Show me a Q4 sales dashboard. Include a total-revenue metric card, a pie chart of revenue by segment, and a bar chart of monthly revenue."
+*Pass:* the pieces appear one by one while the reply streams, not all at the end. *Fail:* a blank assistant message means the envelope didn't parse, usually prose or a fence before the JSON.
+
+### Components and Surfaces
+
+Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@copilotkit/react-core` ≥ 1.83 for the `@copilotkit/react-core/v2/generative-ui` entry. All eight demos run on `/api/copilotkit-components` (`generativeUI: true`) and mount their own provider. Each is **Partial** until it has been verified end to end against the live agent; see §9.18.
+
+**`/generative-ui/components`** — `generativeUI={{ ui: standardUI }}` on the provider; the agent draws through the runtime-injected `render_ui` tool.
+*Try:* "Compare the Starter, Team, and Enterprise plans in a table"
+*Pass:* a rendered Table component in the chat, not a markdown table. *Fail:* a markdown or prose table means `render_ui` never reached Claude; check the Inspector's Generative UI → Prompt tab.
+
+**`/generative-ui/components/surfaces`** — page targets via `<GenerativeUISurface>`: `featured` (limited components and a fallback), per-item `recommendations-<id>`, and `sidebar-notes` with `autoScroll={false}`, plus the provider `errorBoundary`.
+*Try:* "Show me the products in the featured row." then "Show the featured products again."
+*Pass:* the fallback row is replaced by a ProductGrid on the page, not in the chat; the second prompt deletes it and the fallback returns. *Fail:* UI landing in the chat means the targets weren't sent. Red log lines are `errorBoundary.onError` output.
+
+**`/generative-ui/components/catalogs`** — `createGenerativeUI` with slots, `child()`, `extends`, `parameterOrder` and accessibility, plus a live `exportA2UICatalog`.
+*Try:* "Make a hero that says 'Autumn sale', then a panel titled 'Picks' containing two product cards."
+*Pass:* a gradient Hero above a bordered Panel with ProductCards; the footer's export shows the JSON catalog. *Fail:* standard Cards instead of ProductCard means `shopUI` did not merge.
+
+**`/generative-ui/components/standard-catalog`** — `standardUI` as-is, extended, trimmed with `omit`, and with Card overridden, all switchable in one chat.
+*Try:* "Build a signup form with an email field that must be a valid email, and a Submit button."
+*Pass:* Submit stays disabled until the email is valid. In Override, Cards get a large radius and a shadow. *Fail:* plain text where a component was expected. A list of places instead of a Map means `maplibre-gl` failed to load.
+
+**`/generative-ui/components/state-and-actions`** — `useGenerativeUIState` + `bind`, events → `useGenerativeUIFunction`, events sent to the agent, writable props, `calc`.
+*Try:* "Show product cards for the lamp and the mug." and click Add to cart.
+*Pass:* the sidebar cart and the card's "In cart" count both update, and the call is logged. Choosing a PlanCard posts a visible user message. *Fail:* "In cart" stuck at 0 means the state → bind path broke.
+
+**`/generative-ui/components/theming`** — `--a2ui-*` variables via `theme` (with `dark` overrides) or `.a2ui-surface` CSS, on live controls.
+*Try:* "Show a card with a title, a short paragraph, a badge and a primary button.", then move the controls.
+*Pass:* accent, radius and font change live; the `.dark` toggle applies the `theme.dark` colors; the theme value wins over CSS. *Fail:* nothing changes, so inspect `.a2ui-surface`'s inline style.
+
+**`/generative-ui/components/transports`** — tool vs markdown transport and `agentIds` scoping, toggled on one agent.
+*Try:* "Show me a small table of three fruits and their colors." under each combination.
+*Pass:* tool gives a separate card; markdown puts the UI inside the reply; `agentIds: ["shop"]` gives plain text. *Fail:* raw JSON in markdown mode means the fence wasn't parsed.
+
+**`/generative-ui/components/markdown-mode`** — ` ```a2ui ` fences in the text reply, a `target=featured` page surface, and the `sendContext` / `includeCatalog` options.
+*Try:* "Give me a seat price estimator I can play with: a slider for seats and the monthly price at $29/seat."
+*Pass:* text, then a live Slider card inline, then more text. With `sendContext` off, plain text is expected (§9.18). *Fail:* the fence shown as a raw code block.
+
 ### App Control
 
 **`/frontend-tools`** — a tool whose handler runs in the browser and mutates page state.
@@ -329,6 +373,16 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Runs its own copy of the shared State Streaming cell; same two blockers, so the document lands in one end-of-turn write. §9.15. |
 | [generative-ui/a2ui/dynamic-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema) | `/generative-ui/a2ui/dynamic-schema` | ✅ Working | `generate_a2ui` is injected as a frontend tool. |
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
+| [generative-ui/json-render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render) | `/generative-ui/json-render` | ⚠️ Partial | 4 printed files verbatim; the rest from the showcase's claude-sdk-typescript Code tab — §9.19. Not yet verified live. |
+| [generative-ui/hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown) | `/generative-ui/hashbrown` | ⚠️ Partial | 3 printed files verbatim; pinned to pre-release `0.5.0-beta.4` — §9.19. Not yet verified live. |
+| [generative-ui/components](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components) | `/generative-ui/components` | ⚠️ Partial | Doc agent is TanStack + OpenAI; here it's `ClaudeAgentAdapter` over HTTP on `/api/copilotkit-components` — §9.18. Not yet verified live. |
+| […/components/surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/surfaces) | `/generative-ui/components/surfaces` | ⚠️ Partial | Products given via `useAgentContext`; the page never says where they come from. Not yet verified live. |
+| […/components/catalogs](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/catalogs) | `/generative-ui/components/catalogs` | ⚠️ Partial | `cartUI` undefined on the page, so `shopUI` stands in; Valibot shown, not run. Not yet verified live. |
+| […/components/standard-catalog](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/standard-catalog) | `/generative-ui/components/standard-catalog` | ⚠️ Partial | `maplibre-gl@^5` installed for Map (required even if Map is never used — §9.18). Not yet verified live. |
+| […/components/state-and-actions](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/state-and-actions) | `/generative-ui/components/state-and-actions` | ⚠️ Partial | `agentOnly` functions can't fire in this version, per the page itself. Not yet verified live. |
+| […/components/theming](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/theming) | `/generative-ui/components/theming` | ⚠️ Partial | Not yet verified live. |
+| […/components/transports](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/transports) | `/generative-ui/components/transports` | ⚠️ Partial | Not yet verified live. |
+| […/components/markdown-mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode) | `/generative-ui/components/markdown-mode` | ⚠️ Partial | `sendContext: false` needs a backend that builds its own prompt; the page's example is Python. Not yet verified live. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
@@ -558,6 +612,32 @@ Related: the v1 `copilotRuntimeNextJSAppRouterEndpoint` / `ExperimentalEmptyAdap
 
 ---
 
+### 9.18 Components and surfaces: the doc's agent isn't Claude, and several names are undefined
+
+The [Components and surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components) page builds its runtime on a `BuiltInAgent` using `@tanstack/ai` + `@tanstack/ai-openai` (`openaiText("gpt-5.5")`, `OPENAI_API_KEY`). That is not this framework's agent. `/api/copilotkit-components` instead routes to `ClaudeAgentAdapter` agents over HTTP, keeps the doc's system prompt verbatim, and sets the [Transports](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/transports) page's `generativeUI: true`. The requirement that matters, "keep both `tools` and `systemPrompts`", holds because the adapter forwards `input.tools` (with `render_ui`) and `input.context` (with the guide). The new runtime route has the same `HttpAgent` vs `AbstractAgent` type error as every other runtime route here (two copies of `@ag-ui/client` after the 1.83 upgrade); it was left alone.
+
+Gaps filled with repo code, each marked in the source:
+- [Catalogs](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/catalogs): `extends: [standardUI, cartUI]`, where `cartUI` is defined nowhere, so `shopUI` stands in. `Hero` and `Panel` have schemas but no component bodies.
+- [Standard catalog](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/standard-catalog): the extend example's `ProductCard` / `productSchema` are undefined.
+- [Surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/surfaces): `ProductRow` (the fallback) and the `products` source are never shown. Products reach the agent via `useAgentContext`.
+- [State and actions](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/state-and-actions): every feature is a separate `createGenerativeUI` call under the same id, so they are merged into one catalog. The page itself says `agentOnly` functions (`callRendererFunction`) are rejected in this version, so `reload` is registered but can't fire.
+- [Standard catalog](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/standard-catalog) presents `maplibre-gl` as optional ("else a list of places"), and the package marks it an optional peer. But `@copilotkit/react-core/v2/generative-ui` contains `await import("maplibre-gl")`, and Next's bundler resolves that at build time, so without it **every** page importing the entry fails with `Module not found: Can't resolve 'maplibre-gl'`. Installed as `maplibre-gl@^5` (the peer range; 6.x is out of range).
+- [Markdown mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode): the "build your own prompt" example (`sendContext: false`) is Python. This TypeScript backend doesn't read `forwardedProps.copilotkit.ui`, so with the toggle off the model gets no guide and answers in plain text.
+
+---
+
+### 9.19 JSON Render and Hashbrown print only part of each demo
+
+[JSON Render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render) prints `chat.tsx`, `json-render-renderer.tsx`, `catalog.ts` and `registry.tsx`. [Hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown) prints `page.tsx`, `chat.tsx` and `hashbrown-renderer.tsx`. Both import files the pages never show (`metric-card.tsx`, `charts/*`, `types.ts`, `suggestions.ts`, the JSON Render `page.tsx`), and both describe the agent only as "emits plain JSON". The rest is behind each page's **Code** tab, which is the CopilotKit repo's `showcase/integrations/claude-sdk-typescript`. Everything missing was copied from there, and every file the pages do print is byte-identical to its showcase copy.
+
+Deviations, each marked in the source:
+- **Runtime routes:** the showcase uses `createClaudeHttpAgent` (unpublished, §9.7), replaced with `HttpAgent`. The routes get the same `HttpAgent` vs `AbstractAgent` type error as every other runtime here; the showcase hides it with `@ts-ignore`.
+- **Demo pages:** `h-screen` became `h-full` inside the DemoFrame, and a `ShowcaseTokens` wrapper (`frontend/src/components/showcase-tokens.tsx`) defines the shadcn-style CSS variables (`--card`, `--border`, …) the showcase components use and this app's `globals.css` doesn't.
+- **Hashbrown's agent:** the renderer comment points at `src/agents/byoc_hashbrown_agent.py`. That is the Python integration's agent. This TypeScript integration's prompt is `byoc-hashbrown-prompt.ts`, now in `backend/src/agents/`.
+- **Dependencies:** pinned to the page versions: `@json-render/core` / `@json-render/react` `0.18.0`, which need Zod 4 and so add `zod4: npm:zod@^4` beside the repo's Zod 3, and `@hashbrownai/core` / `@hashbrownai/react` `0.5.0-beta.4`, a pre-release. Recharts stays on this repo's v3; the showcase uses v2, and the copied charts compile against v3 unchanged.
+- **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
+- **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
+
 ---
 
 ## 10. Troubleshooting
@@ -639,7 +719,12 @@ claude-sdk-typescript/
         │   ├── api/
         │   │   ├── copilotkit/route.ts                    main runtime
         │   │   ├── copilotkit-declarative-gen-ui/route.ts  A2UI injection on
+        │   │   ├── copilotkit-components/[[...slug]]/route.ts  generativeUI: true
+        │   │   ├── copilotkit-declarative-json-render/route.ts  JSON Render agent
+        │   │   ├── copilotkit-declarative-hashbrown/route.ts    Hashbrown agent
         │   │   └── copilotkit-voice/[[...slug]]/route.ts   v2 + transcription
+        │   ├── generative-ui/components/   Components and Surfaces: 8 routes,
+        │   │                                _shared/ catalog + products
         │   └── <one dir per doc route>/
         │       ├── page.tsx        notes, source, pass/fail criteria
         │       └── demo-chat/      the live surface
@@ -695,6 +780,18 @@ Grouped as the doc nav groups them.
 - [State rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)
 - [A2UI · dynamic schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema)
 - [A2UI · fixed schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema)
+- [JSON Render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render)
+- [Hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown)
+
+**Components and Surfaces**
+- [Components and surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components)
+- [Surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/surfaces)
+- [Catalogs](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/catalogs)
+- [Standard catalog](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/standard-catalog)
+- [State and actions](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/state-and-actions)
+- [Theming](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/theming)
+- [Transports](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/transports)
+- [Markdown mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode)
 
 **App Control**
 - [Frontend tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools)
