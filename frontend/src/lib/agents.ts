@@ -11,6 +11,25 @@
  * against `GET /agents` and reports any drift.
  */
 
+/**
+ * The agents served by `/api/copilotkit-components`, the runtime with
+ * `generativeUI: true` — one per "Components and surfaces" doc page.
+ */
+export const COMPONENTS_AGENT_IDS = [
+  "gen-ui-components",
+  "gen-ui-surfaces",
+  "gen-ui-catalogs",
+  "gen-ui-standard-catalog",
+  "gen-ui-state-actions",
+  "gen-ui-theming",
+  "gen-ui-transports",
+  "gen-ui-markdown",
+] as const;
+
+/** The doc demos' own agent ids, each served by a dedicated runtime. */
+export const JSON_RENDER_AGENT_ID = "byoc_json_render";
+export const HASHBROWN_AGENT_ID = "declarative-hashbrown-demo";
+
 export const AGENT_IDS = [
   "claude_agent",
   "agentic_chat",
@@ -36,6 +55,9 @@ export const AGENT_IDS = [
   "readonly-state-agent-context",
   "subagents",
   "agent-config",
+  ...COMPONENTS_AGENT_IDS,
+  JSON_RENDER_AGENT_ID,
+  HASHBROWN_AGENT_ID,
 ] as const;
 
 export type AgentId = (typeof AGENT_IDS)[number];

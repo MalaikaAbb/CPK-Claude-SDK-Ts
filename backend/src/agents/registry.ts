@@ -18,6 +18,8 @@
 import type { McpServerConfig } from "@anthropic-ai/claude-agent-sdk";
 
 import { AGENT_CONFIG_DEFAULT_SYSTEM_PROMPT } from "./agent-config-prompt";
+import { BYOC_HASHBROWN_SYSTEM_PROMPT } from "./byoc-hashbrown-prompt";
+import { BYOC_JSON_RENDER_SYSTEM_PROMPT } from "./byoc-json-render-prompt";
 import { A2UI_FIXED_SYSTEM_PROMPT } from "./a2ui-fixed-prompt";
 import {
   DISPLAY_FLIGHT_ALLOWED_TOOLS,
@@ -48,6 +50,16 @@ import {
 /** The Quickstart's prompt, verbatim. */
 export const DEFAULT_SYSTEM_PROMPT =
   "You are a helpful assistant embedded in a CopilotKit app.";
+
+/**
+ * The system prompt from the "Components and surfaces" page's route.ts,
+ * verbatim. The catalog guide the runtime sends is appended by the adapter.
+ */
+const COMPONENTS_SYSTEM_PROMPT =
+  "You are a helpful assistant. When a visual answer helps, render it with generative UI.";
+
+const COMPONENTS_NOTE =
+  "Draws via the runtime-injected `render_ui` tool (`generativeUI: true` on /api/copilotkit-components).";
 
 export interface AgentDefinition {
   systemPrompt: string;
@@ -154,6 +166,35 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   "agent-config": {
     systemPrompt: AGENT_CONFIG_DEFAULT_SYSTEM_PROMPT,
     note: "The UI's typed config arrives as `useAgentContext` entries the adapter appends.",
+  },
+
+  // ── Generative UI · Components and surfaces ──────────────────────────────
+  // No backend tools: `render_ui` and the catalog guide are added to each run
+  // by the frontend runtime (`generativeUI: true`), and the adapter forwards
+  // both. The markdown agent gets no `render_ui` — it writes ```a2ui fences.
+  "gen-ui-components": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
+  "gen-ui-surfaces": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
+  "gen-ui-catalogs": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
+  "gen-ui-standard-catalog": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
+  "gen-ui-state-actions": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
+  "gen-ui-theming": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
+  "gen-ui-transports": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
+  "gen-ui-markdown": {
+    systemPrompt: COMPONENTS_SYSTEM_PROMPT,
+    note: "Markdown transport: the UI arrives as ```a2ui fences in the text reply, no tool call.",
+  },
+
+  // ── Generative UI · Bring your own renderer ──────────────────────────────
+  // Ids are the doc demos' own. Prompts are the CopilotKit showcase's
+  // claude-sdk-typescript prompts, verbatim — the doc pages say only "the
+  // agent emits plain JSON" and point at the Code tab for the rest.
+  byoc_json_render: {
+    systemPrompt: BYOC_JSON_RENDER_SYSTEM_PROMPT,
+    note: "Replies with one `{ root, elements }` JSON object rendered by @json-render/react.",
+  },
+  "declarative-hashbrown-demo": {
+    systemPrompt: BYOC_HASHBROWN_SYSTEM_PROMPT,
+    note: "Replies with one `{ ui: [...] }` JSON envelope parsed progressively by @hashbrownai/react.",
   },
 };
 
