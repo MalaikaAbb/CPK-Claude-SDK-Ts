@@ -94,8 +94,9 @@ export interface AgentDefinition {
 
 export const REGISTRY: Record<string, AgentDefinition> = {
   // ── Getting Started ──────────────────────────────────────────────────────
-  // The Quickstart names its agent `claude_agent`; kept as published.
-  claude_agent: { systemPrompt: DEFAULT_SYSTEM_PROMPT },
+  // The Quickstart registers its agent on the runtime as `default` (it was
+  // `claude_agent` until the 2026-11 doc update); kept as published.
+  default: { systemPrompt: DEFAULT_SYSTEM_PROMPT },
 
   // ── Prebuilt Components ──────────────────────────────────────────────────
   agentic_chat: { systemPrompt: DEFAULT_SYSTEM_PROMPT },

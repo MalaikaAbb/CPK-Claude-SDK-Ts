@@ -62,7 +62,7 @@ Worth knowing, because it explains most of §9: `ClaudeAgentAdapter` does more t
 
 | Requirement | Version | Why |
 |---|---|---|
-| Node.js | 20+ | Both processes. The Quickstart specifies 20+. |
+| Node.js | 20.9+ | Both processes. The Quickstart specifies 20.9+. |
 | npm | 10+ | Lockfiles here are npm's. |
 | Anthropic API key | — | Required. The Claude Agent SDK spawns a CLI child process that reads `ANTHROPIC_API_KEY` from its environment. |
 | OpenAI API key | — | Optional, and only for the mic on `/voice`. Every other route ignores it. |
@@ -170,7 +170,7 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 
 **`/quickstart`** — the bring-your-own-agent path end to end: a `ClaudeAgentAdapter` behind Express, reached by an `HttpAgent`.
 *Try:* "Tell me in one sentence what this app can do."
-*Pass:* tokens stream in a word at a time, markdown renders. *Fail:* an error banner — the agent server is down or `ANTHROPIC_API_KEY` is unset.
+*Pass:* tokens stream in a word at a time, markdown renders. *Fail:* an error banner — the agent server is down or `ANTHROPIC_API_KEY` is unset. The agent is registered as `default`, the name the Quickstart now uses (it was `claude_agent`).
 
 ### Prebuilt Components
 
@@ -393,7 +393,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 
 | Doc page | Route | Status | Notes |
 |---|---|---|---|
-| [quickstart](https://docs.copilotkit.ai/claude-sdk-typescript/quickstart?agent=bring-your-own) | `/quickstart` | ✅ Working | Chat streams end to end. |
+| [quickstart](https://docs.copilotkit.ai/claude-sdk-typescript/quickstart?agent=bring-your-own) | `/quickstart` | ✅ Working | Chat streams end to end. Agent renamed `claude_agent` → `default` with the 2026-11 doc update; not yet re-run since. §9.22. |
 | [prebuilt-components/chat](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/chat) | `/prebuilt-components/chat` | ✅ Working | |
 | [prebuilt-components/sidebar](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/sidebar) | `/prebuilt-components/sidebar` | ✅ Working | |
 | [prebuilt-components/popup](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/popup) | `/prebuilt-components/popup` | ✅ Working | |
@@ -687,6 +687,9 @@ Deviations, each marked in the source:
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
 
+### 9.22 Quickstart (2026-11): agent names and the `@ag-ui/client` pin
+
+The [Quickstart](https://docs.copilotkit.ai/claude-sdk-typescript/quickstart) now registers the agent on the runtime as `default` (runtime route and `<CopilotKit agent="default">`) and gives the adapter `agentId: "claude-sdk-typescript"`. This repo's registry key, frontend agent list, nav entry and `/quickstart` demo follow the `default` rename. The adapter `agentId` is not reproduced: `agent-server.ts` builds one adapter per registry key and passes that key as `agentId`, so the Quickstart's adapter reports `default`. The manual install line now pins `@ag-ui/client@1.0.2`; the frontend keeps `^1.0.3`, because `@ag-ui/client` has to match the version the installed `@copilotkit/react-core` pins (two copies break the `AbstractAgent` types). The CLI starter's `COPILOTKIT_AGENT_MODEL` and `agent/src/*` layout describe the generated project, not this repo, which follows the manual path (`CLAUDE_MODEL`).
 ### 9.21 Tool Rendering: the grouping snippets name components they never define
 
 [Tool Rendering → Grouping tool calls](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering#grouping-tool-calls) passes `MyToolRow` to `useDefaultRenderTool({ render, group: true })` and `ToolTimeline` to the `toolCallsView.group` slot, and defines neither. Both are minimal repo components in `frontend/src/app/generative-ui/tool-rendering/grouping/tool-row.tsx`, labelled. The `line` and `group`-slot snippets register no renderer, and only opted-in renderers group, so their tabs also call the page's zero-config `useDefaultRenderTool()` (labelled glue).
