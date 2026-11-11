@@ -46,6 +46,7 @@ export const AGENT_IDS = [
   "voice-demo",
   "gen-ui-tool-based",
   "tool-rendering",
+  "mcp-apps",
   "declarative-gen-ui",
   "a2ui-fixed-schema",
   "frontend-tools",

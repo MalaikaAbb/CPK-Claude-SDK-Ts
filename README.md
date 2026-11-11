@@ -103,6 +103,7 @@ cp .env.example frontend/.env.local  # optional; every value has a default
 | `CLAUDE_MODEL` | `backend/.env` | no | Model for every agent. Defaults to `claude-opus-4-8`, the value the Quickstart publishes. |
 | `AGENT_PORT` | `backend/.env` | no | Agent server port. Defaults to `8000`. |
 | `AGENT_URL` | `frontend/.env.local` | no | Where the runtime forwards runs. Defaults to `http://localhost:8000`. Change together with `AGENT_PORT`. |
+| `MCP_SERVER_URL` | `frontend/.env.local` | no | MCP server for `/generative-ui/mcp-apps`. Defaults to `https://mcp.excalidraw.com`, as on the doc page. |
 | `INTELLIGENCE_API_KEY` | `frontend/.env.local` | no | Project key for CopilotKit Intelligence. Puts the runtime in Intelligence mode so threads persist. Server-side only — never prefix it `NEXT_PUBLIC_`. |
 | `COPILOTKIT_LICENSE_TOKEN` | `frontend/.env.local` | no | A **separate** credential that advertises a license. Without it the Threads Drawer shows its locked Upgrade view even when threads work. §9.16. |
 | `NEXT_PUBLIC_DEMO_USER_ID` / `_NAME` | `frontend/.env.local` | no | The identity `identifyUser` reads off request headers, so threads scope per user. Override in a second browser profile to watch two lists diverge. |
@@ -261,6 +262,10 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Show me a Q4 sales dashboard. Include a total-revenue metric card, a pie chart of revenue by segment, and a bar chart of monthly revenue."
 *Pass:* the pieces appear one by one while the reply streams, not all at the end. *Fail:* a blank assistant message means the envelope didn't parse, usually prose or a fence before the JSON.
 
+**`/generative-ui/mcp-apps`** — the runtime's `mcpApps.servers` pointed at the public Excalidraw MCP server; its UI resources render inline as sandboxed iframes with a plain chat. **Partial** (not yet verified live).
+*Try:* "Draw a simple flowchart: Idea → Build → Ship."
+*Pass:* the agent calls an Excalidraw MCP tool and an interactive canvas appears in the chat. *Fail:* a text-only reply (MCP tools never reached the model — check the run's tools in the Inspector), or a runtime error (Excalidraw unreachable; override with `MCP_SERVER_URL`). §9.25.
+
 ### Components and Surfaces
 
 Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@copilotkit/react-core` ≥ 1.83 for the `@copilotkit/react-core/v2/generative-ui` entry. All eight demos run on `/api/copilotkit-components` (`generativeUI: true`) and mount their own provider. Each is **Partial** until it has been verified end to end against the live agent; see §9.18.
@@ -375,6 +380,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
 | [generative-ui/json-render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render) | `/generative-ui/json-render` | ⚠️ Partial | 4 printed files verbatim; the rest from the showcase's claude-sdk-typescript Code tab — §9.19. Not yet verified live. |
 | [generative-ui/hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown) | `/generative-ui/hashbrown` | ⚠️ Partial | 3 printed files verbatim; pinned to pre-release `0.5.0-beta.4` — §9.19. Not yet verified live. |
+| [generative-ui/mcp-apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps) | `/generative-ui/mcp-apps` | ⚠️ Partial | Code-tab route and page; two unpublished `_shared` helpers swapped/commented out, `./chat` borrowed, Quickstart agent at `/mcp-apps`. Intelligence variant shown only (premium). Not yet verified live. §9.25. |
 | [generative-ui/components](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components) | `/generative-ui/components` | ⚠️ Partial | Doc agent is TanStack + OpenAI; here it's `ClaudeAgentAdapter` over HTTP on `/api/copilotkit-components` — §9.18. Not yet verified live. |
 | […/components/surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/surfaces) | `/generative-ui/components/surfaces` | ⚠️ Partial | Products given via `useAgentContext`; the page never says where they come from. Not yet verified live. |
 | […/components/catalogs](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/catalogs) | `/generative-ui/components/catalogs` | ⚠️ Partial | `cartUI` undefined on the page, so `shopUI` stands in; Valibot shown, not run. Not yet verified live. |
@@ -638,6 +644,10 @@ Deviations, each marked in the source:
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
 
+### 9.25 MCP Apps: the Code tab imports unpublished helpers, and no agent is published
+
+[MCP Apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps)'s demo Code tab holds `src/app/api/copilotkit-mcp-apps/route.ts` and `src/app/demos/mcp-apps/page.tsx`. The route imports `createClaudeHttpAgent` (§9.7) and `internalRuntimeErrorResponse` from `@/app/api/_shared/*`, which no page shows; the first is replaced by `new HttpAgent({ url })`, the second commented out with the error rethrown (both marked `HARNESS` in `frontend/src/app/api/copilotkit-mcp-apps/route.ts`). The page imports `Chat` from `./chat`, also unpublished; a plain `<CopilotChat agentId="mcp-apps">` borrowed from the aws-strands-ts harness stands in. No agent is published for `${AGENT_URL}/mcp-apps`, so the backend serves the Quickstart agent there with no tools; the MCP tools come from the runtime middleware each run. The "MCP Apps with Intelligence" snippet builds a CopilotKit `BuiltInAgent` on an OpenAI model and needs an Intelligence key; it is shown, not run.
+
 ---
 
 ## 10. Troubleshooting
@@ -782,6 +792,7 @@ Grouped as the doc nav groups them.
 - [A2UI · fixed schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema)
 - [JSON Render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render)
 - [Hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown)
+- [MCP Apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps)
 
 **Components and Surfaces**
 - [Components and surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components)

@@ -114,6 +114,13 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   "voice-demo": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
 
   // ── Generative UI ────────────────────────────────────────────────────────
+  // MCP Apps: the page's Code tab reaches `${AGENT_URL}/mcp-apps` and
+  // publishes no agent for it, so this is the Quickstart's agent, unchanged.
+  // The runtime's MCP Apps middleware adds the MCP server's tools per run.
+  "mcp-apps": {
+    systemPrompt: DEFAULT_SYSTEM_PROMPT,
+    note: "No backend published for this page; Quickstart prompt, no tools. MCP tools arrive per run from the runtime's mcpApps middleware.",
+  },
   "gen-ui-tool-based": {
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
     note: "Its tool is a frontend `useComponent`, which the adapter bridges itself.",

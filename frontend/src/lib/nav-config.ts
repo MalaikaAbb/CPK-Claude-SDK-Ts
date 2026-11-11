@@ -347,6 +347,18 @@ export const NAV: NavGroup[] = [
         statusNote:
           "The three printed files are verbatim; charts, types, suggestions and the prompt come from the showcase. Pinned to the page's pre-release 0.5.0-beta.4. Not yet verified end-to-end.",
       },
+      {
+        path: "/generative-ui/mcp-apps",
+        hasDemo: true,
+        agentId: "mcp-apps",
+        title: "MCP Apps",
+        docPath: "/claude-sdk-typescript/generative-ui/mcp-apps",
+        summary:
+          "An MCP server's UI resources rendered inline in the chat as sandboxed iframes, wired only by the runtime's mcpApps.servers.",
+        status: "partial",
+        statusNote:
+          "Built, not yet checked in a browser. Runtime route and page are the demo Code tab's; createClaudeHttpAgent swapped for HttpAgent, internalRuntimeErrorResponse commented out, ./chat borrowed, and /mcp-apps is the Quickstart agent (no backend published). The Intelligence variant is premium and shown only.",
+      },
     ],
   },
   {
