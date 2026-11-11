@@ -76,6 +76,35 @@ export default function Page() {
         <SourceCode file="frontend/src/app/custom-look-and-feel/slots/demo-chat/page.tsx" />
       </Panel>
 
+      <Panel title="Tool calls: the toolCallsView sub-slot">
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          <code>messageView.assistantMessage.toolCallsView</code> draws the tool
+          calls belonging to one assistant message. The page wraps the stock{" "}
+          <code>CopilotChatToolCallsView</code> in a dashed box, so whatever
+          renderers are registered still draw inside it. It runs on the
+          demo&apos;s second tab.
+        </p>
+        <div className="mt-4">
+          <TryIt
+            prompts={["What's the weather in Tokyo?"]}
+            expect="On the toolCallsView tab, the get_weather call shows up inside a dashed rounded border, then the reply streams. Not yet checked in a browser."
+            fail="No dashed border around the tool call means the sub-slot was ignored. A plain-text answer with no tool call means the chat is not talking to the tool-rendering agent."
+          />
+        </div>
+        <div className="mt-3">
+          <SourceCode file="frontend/src/app/custom-look-and-feel/slots/demo-chat/tool-calls-view.tsx" />
+        </div>
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+          Harness glue, not doc code: the snippet&apos;s{" "}
+          <code>&lt;CopilotChat&gt;</code> names no agent, so the demo wraps it
+          in{" "}
+          <code>CopilotChatConfigurationProvider agentId=&quot;tool-rendering&quot;</code>
+          , the agent here with a backend tool. The page&apos;s link to{" "}
+          <code>toolCallDisplay</code> grouping belongs to the Tool Rendering
+          route.
+        </p>
+      </Panel>
+
       <Panel title="Notes">
         <Callout tone="warn" title="Overriding welcomeScreen can remove the composer entirely">
           <p>
