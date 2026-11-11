@@ -73,6 +73,45 @@ export default function Page() {
         />
       </Panel>
 
+      <Panel title="Grouping tool calls">
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Consecutive calls drawn by the built-in card collapse into one
+          &ldquo;Used N tools&rdquo; summary by default. A custom wildcard
+          renderer joins that grouping only with <code>group: true</code>;
+          otherwise its calls stand alone and split the group.{" "}
+          <code>messageView.toolCallDisplay</code> picks the presentation (
+          <code>grouped</code>, <code>line</code>, <code>stacked</code>,{" "}
+          <code>turn</code>, <code>separate</code>), and the tool-calls
+          view&apos;s <code>group</code> slot replaces the group component
+          itself. The demo has one tab per snippet.
+        </p>
+        <div className="mt-4">
+          <TryIt
+            prompts={["What's the weather in Tokyo, Paris and Lisbon?"]}
+            expect="If the model calls get_weather several times in a row: the custom-row tab shows one group of ✓ rows, the line tab a quiet one-line summary, and the group-slot tab the calls in an indigo-ruled list. Not yet checked in a browser."
+            fail="Each call in its own card on every tab means grouping is off (check the CopilotKit version, 1.83+). A single call cannot group; ask for several cities."
+          />
+        </div>
+        <div className="mt-3">
+          <SourceCodeGroup
+            files={[
+              { file: "frontend/src/app/generative-ui/tool-rendering/grouping/grouping-demo.tsx" },
+              { file: "frontend/src/app/generative-ui/tool-rendering/grouping/tool-row.tsx" },
+            ]}
+            note={
+              <>
+                The three snippets are the page&apos;s, verbatim.{" "}
+                <code>MyToolRow</code> and <code>ToolTimeline</code> are named
+                by them and defined nowhere on the page, so both are this
+                repo&apos;s, minimal. The line and group-slot tabs also call the
+                zero-config <code>useDefaultRenderTool()</code>, since those
+                snippets register no renderer and only opted-in renderers group.
+              </>
+            }
+          />
+        </div>
+      </Panel>
+
       <Panel title="The demo">
         <SourceCodeGroup
           files={[
