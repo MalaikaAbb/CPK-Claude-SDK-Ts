@@ -313,6 +313,9 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 **`/human-in-the-loop/useInterrupt`** — Pausing the Agent for Input. **Broken — reference only.** The page's Claude SDK code is missing upstream; the two generic `useInterrupt` snippets are type-checked in `_doc/`, not run.
 *Try:* nothing to run. *Pass (today):* the page renders the snippets and the gap callout. §9.29.
 
+**`/human-in-the-loop/headless`** — Headless Interrupts. **Broken — reference only.** The page publishes no code for this framework (its one snippet region is missing).
+*Try:* nothing to run. *Pass (today):* the page renders its summary and gap callout. §9.30.
+
 **`/programmatic-control`** — `addMessage`, `runAgent`, `stopAgent` and `subscribe` driven from code rather than a composer. **Broken — does not compile.**
 *Try:* nothing yet. The demo file holds the page's `headless-complete` snippet verbatim, and that snippet references three helpers it never defines. See §9.14.
 *Pass (today):* `npx tsc --noEmit` reports 6 errors in this one file, and `next build` fails type checking. Every other route still runs under `npm run dev`.
@@ -393,6 +396,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
 | [human-in-the-loop/index](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index) | `/human-in-the-loop/overview` | ⚠️ Partial | Code-tab demo verbatim on `hitl-in-chat`; `./time-picker-card` unpublished (repo card re-exported); showcase `route.ts` not copied. Not yet verified live. §9.28. |
 | [human-in-the-loop/useInterrupt](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt) | `/human-in-the-loop/useInterrupt` | ❌ Broken | Reference only: the Claude SDK snippets (`frontend-promise-handler`, `backend-tool-call`) are missing on the live page and the demo has no Code tab. §9.29. |
+| [human-in-the-loop/headless](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless) | `/human-in-the-loop/headless` | ❌ Broken | Reference only: the page's one snippet (`headless-promise-primitives`) is missing for this framework; no Code tab. §9.30. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
 | [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Published snippets kept; imports, types, form and layout are repo code. `set_notes` works via this repo's MCP bridge (`backend/src/agents/set-notes-mcp-server.ts`) with a server-side state write-back — §9.1, §9.15. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
@@ -654,6 +658,10 @@ Deviations, each marked in the source:
 
 [Pausing the Agent for Input](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt) says this framework's demo uses a `useFrontendTool` Promise handler (`schedule_meeting`) instead of a native interrupt, then shows neither half: the `.md` export reads `snippet skipped: region 'frontend-promise-handler' missing in claude-sdk-typescript::gen-ui-interrupt` (and the same for `backend-tool-call`), the rendered page shows nothing in their place, and the embedded demo has no Code tab. Nothing is built from guesswork; `/human-in-the-loop/useInterrupt` is reference-only and `broken`. Its two framework-neutral `useInterrupt` snippets are type-checked in `_doc/snippets.tsx`. (The adapter can emit real interrupts through `deferTools`, but no page of this framework's docs shows that wiring.)
 
+### 9.30 Headless Interrupts: no code published for this framework
+
+[Headless Interrupts](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless) describes a Promise-based `useFrontendTool` whose pending state drives a picker outside the chat, and its only code block is missing (`snippet skipped: region 'headless-promise-primitives' missing in claude-sdk-typescript::interrupt-headless`); the embedded demo has no Code tab. `/human-in-the-loop/headless` is a reference-only page, status `broken`.
+
 ---
 
 ## 10. Troubleshooting
@@ -814,6 +822,7 @@ Grouped as the doc nav groups them.
 - [Human in the loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop)
 - [HITL overview](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index)
 - [Pausing the agent for input (useInterrupt)](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt)
+- [Headless interrupts](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless)
 - [Programmatic control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control)
 
 **Shared State**

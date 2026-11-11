@@ -497,6 +497,16 @@ export const NAV: NavGroup[] = [
           "Reference only. The page's Claude SDK snippets (frontend-promise-handler, backend-tool-call) are missing upstream and its demo has no Code tab, so schedule_meeting is never published. The two generic useInterrupt snippets are type-checked, not mounted.",
       },
       {
+        path: "/human-in-the-loop/headless",
+        title: "Headless Interrupts",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/headless",
+        summary:
+          "Resolving a pause from UI outside the chat: a Promise-based frontend tool whose pending payload drives an app surface.",
+        status: "broken",
+        statusNote:
+          "Reference only. The page's single snippet (headless-promise-primitives) is missing for this framework and its demo has no Code tab, so no code is published at all.",
+      },
+      {
         path: "/programmatic-control",
         hasDemo: true,
         agentId: "headless-complete",
