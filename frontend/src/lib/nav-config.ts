@@ -507,6 +507,18 @@ export const NAV: NavGroup[] = [
           "Reference only. The page's single snippet (headless-promise-primitives) is missing for this framework and its demo has no Code tab, so no code is published at all.",
       },
       {
+        path: "/human-in-the-loop/governed-actions",
+        hasDemo: true,
+        agentId: "governed-actions",
+        title: "Governed Action Approval UI",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/governed-actions",
+        summary:
+          "An approval card in front of a side effect, raised as a human-in-the-loop tool (useHumanInTheLoop) or as an interrupt (useInterrupt).",
+        status: "partial",
+        statusNote:
+          "Components verbatim. No agent, policy or GovernedAction producer is published, so governed-actions is the Quickstart agent. The useHumanInTheLoop half can run; the useInterrupt half never shows its card (no interrupt is raised) and its null-returning render is suppressed. executeSideEffect is undefined. Not yet checked in a browser.",
+      },
+      {
         path: "/programmatic-control",
         hasDemo: true,
         agentId: "headless-complete",
