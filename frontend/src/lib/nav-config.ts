@@ -486,6 +486,17 @@ export const NAV: NavGroup[] = [
         statusNote:
           "The demo holds the page's headless-complete snippet verbatim, and that snippet opens by destructuring useAttachmentsConfig, useAutoScroll and buildContent — three helpers it never defines — and omits its own hook imports. It does not compile, so `next build` fails type checking. Left as published rather than patched. README §9.14.",
       },
+      {
+        path: "/webmcp",
+        hasDemo: true,
+        title: "WebMCP",
+        docPath: "/claude-sdk-typescript/webmcp",
+        summary:
+          "A frontend tool mirrored onto document.modelContext for WebMCP browser agents, from a React hook or a bare CopilotKitCore.",
+        status: "broken",
+        statusNote:
+          "Both snippets verbatim. Doc gap: searchOrders is called but never defined on the page, so the tool handler throws (no stub). The page prints no agent, so there is no chat; the tool only registers (WebMCP needs Chrome 149+ with the flag or origin trial). @copilotkit/core is imported as a transitive dependency. Not yet checked in a browser.",
+      },
     ],
   },
   {
