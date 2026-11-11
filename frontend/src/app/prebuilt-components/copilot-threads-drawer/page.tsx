@@ -67,6 +67,53 @@ export default function Page() {
         <SourceCode file="frontend/src/app/prebuilt-components/copilot-threads-drawer/demo-chat/page.tsx" />
       </Panel>
 
+      <Panel title="Your own New conversation button">
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          Two ways to start a conversation from a button you own. Uncontrolled:
+          call <code>startNewThread()</code> from{" "}
+          <code>useCopilotChatConfiguration()</code> inside the same
+          configuration provider as the drawer. Controlled: keep{" "}
+          <code>threadId</code> in React state and give the drawer{" "}
+          <code>onThreadSelect</code> and <code>onNewThread</code>. The CSS parts{" "}
+          <code>new-thread-button</code> and <code>launcher-new-thread</code>{" "}
+          hide the drawer&apos;s own controls. Each is a variant tab in the demo.
+        </p>
+        <div className="mt-4">
+          <TryIt
+            prompts={["Hello", "Tell me a fact about owls"]}
+            expect="Your button: after a message, the header button clears the chat to the welcome screen and no drawer row stays selected; the new thread gets a row after its first run. Your button only: the drawer's own New Conversation row and (+) launcher are gone. Controlled: both the drawer row and the inline button start a new thread. Not yet checked in a browser."
+            fail="The header button does nothing (it is outside the configuration provider). The controlled variant is printed with no agentId; if it resolves to an agent this runtime lacks, it lists no threads or errors on send."
+          />
+        </div>
+        <div className="mt-3">
+          <SourceCode file="frontend/src/app/prebuilt-components/copilot-threads-drawer/demo-chat/new-conversation.tsx" />
+        </div>
+        <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
+          Harness changes, not on the page: the snippets run under this
+          route&apos;s existing{" "}
+          <code>&lt;CopilotKit agent=&quot;agentic_chat&quot;&gt;</code> instead
+          of the page&apos;s <code>&lt;CopilotKitProvider&gt;</code>; the
+          uncontrolled variant passes <code>agentId</code> to the configuration
+          provider like the main demo; the controlled snippet gets the{" "}
+          <code>useState</code> import it leaves out; and the CSS is scoped to
+          its own variant.
+        </p>
+      </Panel>
+
+      <Panel title="Which agent's threads the drawer lists">
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+          One agent only, picked in this order: the drawer&apos;s own{" "}
+          <code>agentId</code>, then the nearest configuration provider&apos;s
+          (which <code>&lt;CopilotKit agent=...&gt;</code> supplies), then{" "}
+          <code>agentId</code> on <code>&lt;CopilotKitProvider&gt;</code>, then{" "}
+          <code>&quot;default&quot;</code>. The threads runtime here registers
+          only <code>agentic_chat</code>. The controlled variant tests whether
+          the demo&apos;s{" "}
+          <code>&lt;CopilotKit agent=&quot;agentic_chat&quot;&gt;</code> still
+          reaches a drawer whose own configuration provider names no agent.
+        </p>
+      </Panel>
+
       <Panel title="Customization">
         <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           The drawer renders in a shadow root with self-contained,

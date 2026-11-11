@@ -219,6 +219,18 @@ export const NAV: NavGroup[] = [
         statusNote:
           "Claude emits thinking blocks with no extra configuration and the adapter translates them into the full REASONING_* lifecycle, so the card paints. Verified against the live agent.",
       },
+      {
+        path: "/custom-look-and-feel/markdown",
+        hasDemo: true,
+        agentId: "chat-markdown",
+        title: "Markdown Rendering",
+        docPath: "/claude-sdk-typescript/custom-look-and-feel/markdown",
+        summary:
+          "The markdownRenderer slot on assistant messages in all three forms: a Streamdown components map, a class string, and a whole replacement component.",
+        status: "partial",
+        statusNote:
+          "All three snippets are wired as published, on a plain Quickstart-prompt agent. Not yet checked in a browser. The page defines no CSS for its my-link and my-heading classes, so the first example is only visible in DevTools.",
+      },
     ],
   },
   {
@@ -300,6 +312,16 @@ export const NAV: NavGroup[] = [
           "Runs its own copy of the shared State Streaming cell. Same two blockers: write_document has no runnable registration path, and emitStreamingDocumentState needs raw Anthropic deltas the adapter never emits — so the document lands in one end-of-turn write instead of filling in. README §9.15.",
       },
       {
+        path: "/generative-ui/a2ui",
+        title: "A2UI",
+        docPath: "/claude-sdk-typescript/generative-ui/a2ui",
+        summary:
+          "Overview of A2UI: the three surface operations, the two schema approaches, and the two ways to switch it on.",
+        status: "reference",
+        statusNote:
+          "Overview page. Its setup paths run on the Dynamic Schema (catalog on provider) and Fixed Schema (runtime a2ui block) routes; the snippets are type-checked verbatim (myCatalog, myAgent, children undefined), the Python helper snippet and the CSS variables are shown, not run.",
+      },
+      {
         path: "/generative-ui/a2ui/dynamic-schema",
         hasDemo: true,
         agentId: "declarative-gen-ui",
@@ -346,6 +368,30 @@ export const NAV: NavGroup[] = [
         status: "partial",
         statusNote:
           "The three printed files are verbatim; charts, types, suggestions and the prompt come from the showcase. Pinned to the page's pre-release 0.5.0-beta.4. Not yet verified end-to-end.",
+      },
+      {
+        path: "/generative-ui/mcp-apps",
+        hasDemo: true,
+        agentId: "mcp-apps",
+        title: "MCP Apps",
+        docPath: "/claude-sdk-typescript/generative-ui/mcp-apps",
+        summary:
+          "An MCP server's UI resources rendered inline in the chat as sandboxed iframes, wired only by the runtime's mcpApps.servers.",
+        status: "partial",
+        statusNote:
+          "Built, not yet checked in a browser. Runtime route and page are the demo Code tab's; createClaudeHttpAgent swapped for HttpAgent, internalRuntimeErrorResponse commented out, ./chat borrowed, and /mcp-apps is the Quickstart agent (no backend published). The Intelligence variant is premium and shown only.",
+      },
+      {
+        path: "/generative-ui/open-generative-ui",
+        hasDemo: true,
+        agentId: "open-gen-ui",
+        title: "Open Generative UI",
+        docPath: "/claude-sdk-typescript/generative-ui/open-generative-ui",
+        summary:
+          "generateSandboxedUi streaming agent-written HTML/CSS/JS into a sandboxed iframe, plus sandbox functions the generated page calls back into the host.",
+        status: "partial",
+        statusNote:
+          "Built, not yet checked in a browser. Runtime route and both demos are the Code tab's. VISUALIZATION_DESIGN_SKILL and ./chat are unpublished (design skill commented out, Chat borrowed); createClaudeHttpAgent and the error helper are swapped/commented out; agents served at /<id> with the Code tab's prompt.",
       },
     ],
   },
@@ -475,6 +521,48 @@ export const NAV: NavGroup[] = [
         status: "working",
       },
       {
+        path: "/human-in-the-loop/overview",
+        hasDemo: true,
+        agentId: "hitl-in-chat",
+        title: "HITL Overview",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/index",
+        summary:
+          "The two HITL patterns side by side; the Claude SDK path is useHumanInTheLoop as an async frontend tool, run from the page's Code tab.",
+        status: "partial",
+        statusNote:
+          "Code-tab demo verbatim on the existing hitl-in-chat agent. ./time-picker-card is unpublished (repo card re-exported); the Code tab's showcase route.ts is not copied. Pattern 2 (useInterrupt) has no Claude SDK code on the docs. Not yet checked in a browser.",
+      },
+      {
+        path: "/human-in-the-loop/useInterrupt",
+        title: "Pausing the Agent for Input",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/useInterrupt",
+        summary:
+          "useInterrupt's render contract (standard vs legacy flow, resolve/cancel per interrupt id), and the Promise-based frontend-tool stand-in the page describes for this framework.",
+        status: "broken",
+        statusNote:
+          "Reference only. The page's Claude SDK snippets (frontend-promise-handler, backend-tool-call) are missing upstream and its demo has no Code tab, so schedule_meeting is never published. The two generic useInterrupt snippets are type-checked, not mounted.",
+      },
+      {
+        path: "/human-in-the-loop/headless",
+        title: "Headless Interrupts",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/headless",
+        summary:
+          "Resolving a pause from UI outside the chat: a Promise-based frontend tool whose pending payload drives an app surface.",
+        status: "broken",
+        statusNote:
+          "Reference only. The page's single snippet (headless-promise-primitives) is missing for this framework and its demo has no Code tab, so no code is published at all.",
+      },
+      {
+        path: "/human-in-the-loop/governed-actions",
+        title: "Governed Action Approval UI",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/governed-actions",
+        summary:
+          "An approval card in front of a side effect, raised as a human-in-the-loop tool (useHumanInTheLoop) or as an interrupt (useInterrupt).",
+        status: "broken",
+        statusNote:
+          "Reference only. The page publishes no agent, policy engine or GovernedAction-producing tool, so there is nothing to run its components against; no agent was added. Components and handleApproval are verbatim and type-checked, not mounted. The useInterrupt render returns null and executeSideEffect is undefined (both suppressed).",
+      },
+      {
         path: "/programmatic-control",
         hasDemo: true,
         agentId: "headless-complete",
@@ -485,6 +573,17 @@ export const NAV: NavGroup[] = [
         status: "working",
         statusNote:
           "The demo holds the page's headless-complete snippet verbatim, and that snippet opens by destructuring useAttachmentsConfig, useAutoScroll and buildContent — three helpers it never defines — and omits its own hook imports. It does not compile, so `next build` fails type checking. Left as published rather than patched. README §9.14.",
+      },
+      {
+        path: "/webmcp",
+        hasDemo: true,
+        title: "WebMCP",
+        docPath: "/claude-sdk-typescript/webmcp",
+        summary:
+          "A frontend tool mirrored onto document.modelContext for WebMCP browser agents, from a React hook or a bare CopilotKitCore.",
+        status: "broken",
+        statusNote:
+          "Both snippets verbatim. Doc gap: searchOrders is called but never defined on the page, so the tool handler throws (no stub). The page prints no agent, so there is no chat; the tool only registers (WebMCP needs Chrome 149+ with the flag or origin trial). @copilotkit/core is imported as a transitive dependency. Not yet checked in a browser.",
       },
     ],
   },
