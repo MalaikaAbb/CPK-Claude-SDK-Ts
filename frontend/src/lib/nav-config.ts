@@ -521,6 +521,48 @@ export const NAV: NavGroup[] = [
         status: "working",
       },
       {
+        path: "/human-in-the-loop/overview",
+        hasDemo: true,
+        agentId: "hitl-in-chat",
+        title: "HITL Overview",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/index",
+        summary:
+          "The two HITL patterns side by side; the Claude SDK path is useHumanInTheLoop as an async frontend tool, run from the page's Code tab.",
+        status: "partial",
+        statusNote:
+          "Code-tab demo verbatim on the existing hitl-in-chat agent. ./time-picker-card is unpublished (repo card re-exported); the Code tab's showcase route.ts is not copied. Pattern 2 (useInterrupt) has no Claude SDK code on the docs. Not yet checked in a browser.",
+      },
+      {
+        path: "/human-in-the-loop/useInterrupt",
+        title: "Pausing the Agent for Input",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/useInterrupt",
+        summary:
+          "useInterrupt's render contract (standard vs legacy flow, resolve/cancel per interrupt id), and the Promise-based frontend-tool stand-in the page describes for this framework.",
+        status: "broken",
+        statusNote:
+          "Reference only. The page's Claude SDK snippets (frontend-promise-handler, backend-tool-call) are missing upstream and its demo has no Code tab, so schedule_meeting is never published. The two generic useInterrupt snippets are type-checked, not mounted.",
+      },
+      {
+        path: "/human-in-the-loop/headless",
+        title: "Headless Interrupts",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/headless",
+        summary:
+          "Resolving a pause from UI outside the chat: a Promise-based frontend tool whose pending payload drives an app surface.",
+        status: "broken",
+        statusNote:
+          "Reference only. The page's single snippet (headless-promise-primitives) is missing for this framework and its demo has no Code tab, so no code is published at all.",
+      },
+      {
+        path: "/human-in-the-loop/governed-actions",
+        title: "Governed Action Approval UI",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/governed-actions",
+        summary:
+          "An approval card in front of a side effect, raised as a human-in-the-loop tool (useHumanInTheLoop) or as an interrupt (useInterrupt).",
+        status: "broken",
+        statusNote:
+          "Reference only. The page publishes no agent, policy engine or GovernedAction-producing tool, so there is nothing to run its components against; no agent was added. Components and handleApproval are verbatim and type-checked, not mounted. The useInterrupt render returns null and executeSideEffect is undefined (both suppressed).",
+      },
+      {
         path: "/programmatic-control",
         hasDemo: true,
         agentId: "headless-complete",

@@ -323,6 +323,18 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 *Try:* "Please book an intro call with the sales team to discuss pricing."
 *Pass:* a slot picker appears and the chat stops; clicking a slot flips it to "Answered" and the agent's next message names your time. *Fail:* an invented time with no picker, or a click that does nothing.
 
+**`/human-in-the-loop/overview`** — the HITL Overview page's Code-tab demo: `useHumanInTheLoop` + suggestion pills under its own `<CopilotKit agent="hitl-in-chat">`.
+*Try:* the "Book a call with sales" pill. *Pass:* the slot picker appears, the run waits, and the reply names the slot you chose. *Fail:* an invented time with no picker, or a dead click. §9.28.
+
+**`/human-in-the-loop/useInterrupt`** — Pausing the Agent for Input. **Broken — reference only.** The page's Claude SDK code is missing upstream; the two generic `useInterrupt` snippets are type-checked in `_doc/`, not run.
+*Try:* nothing to run. *Pass (today):* the page renders the snippets and the gap callout. §9.29.
+
+**`/human-in-the-loop/headless`** — Headless Interrupts. **Broken — reference only.** The page publishes no code for this framework (its one snippet region is missing).
+*Try:* nothing to run. *Pass (today):* the page renders its summary and gap callout. §9.30.
+
+**`/human-in-the-loop/governed-actions`** — the page's `GovernedAction` envelope, `GovernedActionCard`, its two transports (`useInterrupt` inline approval and the `useHumanInTheLoop` tool `approve_governed_action`) and the agent-side `handleApproval`, verbatim and type-checked. **Broken — reference only.**
+*Try:* nothing to run: the page publishes no agent or policy that produces a `GovernedAction`, and none was added. *Pass (today):* the page renders its source and gap callout. §9.31.
+
 **`/programmatic-control`** — `addMessage`, `runAgent`, `stopAgent` and `subscribe` driven from code rather than a composer. **Broken — does not compile.**
 *Try:* nothing yet. The demo file holds the page's `headless-complete` snippet verbatim, and that snippet references three helpers it never defines. See §9.14.
 *Pass (today):* `npx tsc --noEmit` reports 6 errors in this one file, and `next build` fails type checking. Every other route still runs under `npm run dev`.
@@ -409,6 +421,10 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | […/components/markdown-mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode) | `/generative-ui/components/markdown-mode` | ⚠️ Partial | `sendContext: false` needs a backend that builds its own prompt; the page's example is Python. Not yet verified live. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
+| [human-in-the-loop/index](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index) | `/human-in-the-loop/overview` | ⚠️ Partial | Code-tab demo verbatim on `hitl-in-chat`; `./time-picker-card` unpublished (repo card re-exported); showcase `route.ts` not copied. Not yet verified live. §9.28. |
+| [human-in-the-loop/useInterrupt](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt) | `/human-in-the-loop/useInterrupt` | ❌ Broken | Reference only: the Claude SDK snippets (`frontend-promise-handler`, `backend-tool-call`) are missing on the live page and the demo has no Code tab. §9.29. |
+| [human-in-the-loop/headless](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless) | `/human-in-the-loop/headless` | ❌ Broken | Reference only: the page's one snippet (`headless-promise-primitives`) is missing for this framework; no Code tab. §9.30. |
+| [human-in-the-loop/governed-actions](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions) | `/human-in-the-loop/governed-actions` | ❌ Broken | Reference only: no agent/policy/GovernedAction producer published, none added. Components and `handleApproval` verbatim, type-checked, not mounted; `null` render and `executeSideEffect` suppressed. §9.31. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
 | [webmcp](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp) | `/webmcp` | ❌ Broken | Both snippets verbatim; `searchOrders` is never defined, so the handler throws (not stubbed). No agent on the page, so no chat. Needs Chrome 149+ WebMCP. §9.27. |
 | [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Published snippets kept; imports, types, form and layout are repo code. `set_notes` works via this repo's MCP bridge (`backend/src/agents/set-notes-mcp-server.ts`) with a server-side state write-back — §9.1, §9.15. |
@@ -663,6 +679,21 @@ Deviations, each marked in the source:
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
 
+### 9.28 HITL Overview: the Code tab's card and runtime are unpublished
+
+[HITL Overview](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index)'s Code tab holds `src/app/demos/hitl-in-chat/page.tsx` (copied unchanged to `frontend/src/app/human-in-the-loop/overview/_demo/`) and the showcase's main `src/app/api/copilotkit/route.ts`. The page imports `TimePickerCard` from `./time-picker-card`, which no page shows; the repo's existing card is re-exported in its place. The route file depends on three unpublished modules (`createClaudeHttpAgent`, `internalRuntimeErrorResponse`, `withCvdiagBackend`) and is not copied; the existing main runtime already serves `hitl-in-chat` (Quickstart prompt, no backend published). The page's Pattern 2 links an embedded `gen-ui-interrupt` demo with no Claude SDK code (see §9.29).
+
+### 9.29 useInterrupt: the Claude SDK snippets are missing upstream
+
+[Pausing the Agent for Input](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt) says this framework's demo uses a `useFrontendTool` Promise handler (`schedule_meeting`) instead of a native interrupt, then shows neither half: the `.md` export reads `snippet skipped: region 'frontend-promise-handler' missing in claude-sdk-typescript::gen-ui-interrupt` (and the same for `backend-tool-call`), the rendered page shows nothing in their place, and the embedded demo has no Code tab. Nothing is built from guesswork; `/human-in-the-loop/useInterrupt` is reference-only and `broken`. Its two framework-neutral `useInterrupt` snippets are type-checked in `_doc/snippets.tsx`. (The adapter can emit real interrupts through `deferTools`, but no page of this framework's docs shows that wiring.)
+
+### 9.30 Headless Interrupts: no code published for this framework
+
+[Headless Interrupts](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless) describes a Promise-based `useFrontendTool` whose pending state drives a picker outside the chat, and its only code block is missing (`snippet skipped: region 'headless-promise-primitives' missing in claude-sdk-typescript::interrupt-headless`); the embedded demo has no Code tab. `/human-in-the-loop/headless` is a reference-only page, status `broken`.
+
+### 9.31 Governed Action Approval UI: no agent, no interrupt, and two TypeScript errors
+
+[Governed Action Approval UI](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions) prints the `GovernedAction` envelope, an inline `useInterrupt` approval (`GovernedActionApproval` + `GovernedActionCard`), a `useHumanInTheLoop` tool (`GovernedActionTool`), and an agent-side `handleApproval`. It publishes no agent, policy engine or tool that produces a `GovernedAction`, so `/human-in-the-loop/governed-actions` is reference-only: no agent was added to stand in for it, and the components are type-checked but not mounted. Nothing raises an interrupt with `metadata.action` for this adapter either. Kept as published with `@ts-expect-error`: the `useInterrupt` `render` returns `null` where the installed types want a `ReactElement` (TS2322), and `handleApproval` calls an undefined `executeSideEffect` (TS2304, type-checked only in `_doc/`). An older copy of the `useInterrupt` card lives at `/human-in-the-loop/use-interrupt/demo-chat` on `hitl-in-chat`.
 ### 9.27 WebMCP: `searchOrders` is called and never defined
 
 Both [WebMCP](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp) snippets (`OrderSearch.tsx` with `useFrontendTool`, and `webmcp.ts` with a bare `CopilotKitCore`) call `await searchOrders(status)` and define it nowhere. They are kept verbatim in `frontend/src/app/webmcp/_demo/` with `@ts-expect-error` (TS2304); there is no stub, so calling the tool throws a `ReferenceError`. The page prints no agent, so the route has no chat. `webmcp.ts` imports `@copilotkit/core`, which this frontend gets transitively through `@copilotkit/react-core` (1.83.0 in the lockfile) rather than as a declared dependency. WebMCP itself needs Chrome 149+ with the testing flag or origin trial.
@@ -839,6 +870,10 @@ Grouped as the doc nav groups them.
 **App Control**
 - [Frontend tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools)
 - [Human in the loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop)
+- [HITL overview](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index)
+- [Pausing the agent for input (useInterrupt)](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt)
+- [Headless interrupts](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless)
+- [Governed action approval UI](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions)
 - [Programmatic control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control)
 - [WebMCP](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp)
 
