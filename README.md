@@ -194,6 +194,8 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/prebuilt-components/copilot-threads-drawer`** — the drop-in conversation sidebar, with no active-thread state of your own.
 *Try:* send a message, press New Conversation, send another, then click back to the first row.
 *Pass:* two rows in the drawer (auto-named by the LLM after the first message); clicking one replays that conversation. *Fail:* a locked "Threads are a CopilotKit Intelligence feature" panel is the **license** gate, not the key gate — see §9.16. An empty list with chat working means the runtime is in SSE mode.
+*Try (variant tabs):* "Your button" → send "Hello", press the header **New conversation**; "Your button only" → look at the drawer; "Controlled thread id" → use both the drawer's row and the inline button.
+*Pass:* the header button returns the chat to the welcome screen with no row selected, and the new thread gets a row after its first run; the drawer's own New Conversation row and (+) launcher are hidden on "Your button only"; both controls start a fresh thread on "Controlled". *Fail:* a button that does nothing (outside the configuration provider), or the controlled variant listing nothing because its printed snippet names no agent.
 
 **`/headless-threads`** — the same thread data through `useThreads`, with a list you build yourself.
 *Try:* send a message, press Rename on its row. Then open the route in a second tab and send a message there.
@@ -360,7 +362,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [prebuilt-components/sidebar](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/sidebar) | `/prebuilt-components/sidebar` | ✅ Working | |
 | [prebuilt-components/popup](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/popup) | `/prebuilt-components/popup` | ✅ Working | |
 | [prebuilt-components/chat-controls](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/chat-controls) | `/prebuilt-components/chat-controls` | ✅ Working | Needed the doc's own `CopilotChatConfigurationProvider` workaround — §9. |
-| [prebuilt-components/copilot-threads-drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer) | `/prebuilt-components/copilot-threads-drawer` | ✅ Working | Needs Intelligence mode **and** a license token — the two gates fail differently. §9.16. |
+| [prebuilt-components/copilot-threads-drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer) | `/prebuilt-components/copilot-threads-drawer` | ✅ Working | Needs Intelligence mode **and** a license token — the two gates fail differently. §9.16. New-conversation-button variants (uncontrolled, CSS-hidden, controlled) added; not yet checked in a browser. |
 | [headless-threads](https://docs.copilotkit.ai/claude-sdk-typescript/headless-threads) | `/headless-threads` | ✅ Working | Needs Intelligence mode; in SSE mode `/info` reports `mutations: false`. |
 | [threads-lifecycle](https://docs.copilotkit.ai/claude-sdk-typescript/threads-lifecycle) | `/threads-lifecycle` | ✅ Working | Switch/start work in any mode; history replay needs a server-side store. |
 | [custom-look-and-feel/css](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/css) | `/custom-look-and-feel/css` | ✅ Working | `theme.css` is the published subset only — the page shows it in excerpt. |
@@ -639,6 +641,10 @@ Deviations, each marked in the source:
 - **Dependencies:** pinned to the page versions: `@json-render/core` / `@json-render/react` `0.18.0`, which need Zod 4 and so add `zod4: npm:zod@^4` beside the repo's Zod 3, and `@hashbrownai/core` / `@hashbrownai/react` `0.5.0-beta.4`, a pre-release. Recharts stays on this repo's v3; the showcase uses v2, and the copied charts compile against v3 unchanged.
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
+
+### 9.20 Threads Drawer: the controlled "New conversation" snippet is a fragment
+
+[Threads Drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer#add-your-own-new-conversation-button) prints `ControlledChat` using `useState` with no import, and with no `agentId` on its configuration provider or drawer. The route adds only the import (labelled in `demo-chat/new-conversation.tsx`) and mounts the snippet under the demo's `<CopilotKit agent="agentic_chat">`; the missing `agentId` is left as printed. The uncontrolled variant passes `agentId` to its configuration provider like the route's main demo, because this runtime has no `default` agent.
 
 ---
 
