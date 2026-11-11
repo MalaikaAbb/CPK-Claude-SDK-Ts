@@ -487,6 +487,16 @@ export const NAV: NavGroup[] = [
           "Code-tab demo verbatim on the existing hitl-in-chat agent. ./time-picker-card is unpublished (repo card re-exported); the Code tab's showcase route.ts is not copied. Pattern 2 (useInterrupt) has no Claude SDK code on the docs. Not yet checked in a browser.",
       },
       {
+        path: "/human-in-the-loop/useInterrupt",
+        title: "Pausing the Agent for Input",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/useInterrupt",
+        summary:
+          "useInterrupt's render contract (standard vs legacy flow, resolve/cancel per interrupt id), and the Promise-based frontend-tool stand-in the page describes for this framework.",
+        status: "broken",
+        statusNote:
+          "Reference only. The page's Claude SDK snippets (frontend-promise-handler, backend-tool-call) are missing upstream and its demo has no Code tab, so schedule_meeting is never published. The two generic useInterrupt snippets are type-checked, not mounted.",
+      },
+      {
         path: "/programmatic-control",
         hasDemo: true,
         agentId: "headless-complete",
