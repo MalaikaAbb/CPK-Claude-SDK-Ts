@@ -103,6 +103,7 @@ cp .env.example frontend/.env.local  # optional; every value has a default
 | `CLAUDE_MODEL` | `backend/.env` | no | Model for every agent. Defaults to `claude-opus-4-8`, the value the Quickstart publishes. |
 | `AGENT_PORT` | `backend/.env` | no | Agent server port. Defaults to `8000`. |
 | `AGENT_URL` | `frontend/.env.local` | no | Where the runtime forwards runs. Defaults to `http://localhost:8000`. Change together with `AGENT_PORT`. |
+| `MCP_SERVER_URL` | `frontend/.env.local` | no | MCP server for `/generative-ui/mcp-apps`. Defaults to `https://mcp.excalidraw.com`, as on the doc page. |
 | `INTELLIGENCE_API_KEY` | `frontend/.env.local` | no | Project key for CopilotKit Intelligence. Puts the runtime in Intelligence mode so threads persist. Server-side only — never prefix it `NEXT_PUBLIC_`. |
 | `COPILOTKIT_LICENSE_TOKEN` | `frontend/.env.local` | no | A **separate** credential that advertises a license. Without it the Threads Drawer shows its locked Upgrade view even when threads work. §9.16. |
 | `NEXT_PUBLIC_DEMO_USER_ID` / `_NAME` | `frontend/.env.local` | no | The identity `identifyUser` reads off request headers, so threads scope per user. Override in a second browser profile to watch two lists diverge. |
@@ -194,6 +195,8 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/prebuilt-components/copilot-threads-drawer`** — the drop-in conversation sidebar, with no active-thread state of your own.
 *Try:* send a message, press New Conversation, send another, then click back to the first row.
 *Pass:* two rows in the drawer (auto-named by the LLM after the first message); clicking one replays that conversation. *Fail:* a locked "Threads are a CopilotKit Intelligence feature" panel is the **license** gate, not the key gate — see §9.16. An empty list with chat working means the runtime is in SSE mode.
+*Try (variant tabs):* "Your button" → send "Hello", press the header **New conversation**; "Your button only" → look at the drawer; "Controlled thread id" → use both the drawer's row and the inline button.
+*Pass:* the header button returns the chat to the welcome screen with no row selected, and the new thread gets a row after its first run; the drawer's own New Conversation row and (+) launcher are hidden on "Your button only"; both controls start a fresh thread on "Controlled". *Fail:* a button that does nothing (outside the configuration provider), or the controlled variant listing nothing because its printed snippet names no agent.
 
 **`/headless-threads`** — the same thread data through `useThreads`, with a list you build yourself.
 *Try:* send a message, press Rename on its row. Then open the route in a second tab and send a message there.
@@ -212,10 +215,16 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/custom-look-and-feel/slots`** — the three override levels (class string, props object, whole component) across three slots.
 *Try:* look before sending, then send "Hello."
 *Pass:* a badged welcome card first; then a badged assistant card, with the disclaimer overridden throughout. *Fail:* default chrome with no badges.
+*Try (toolCallsView tab):* "What's the weather in Tokyo?"
+*Pass:* the `get_weather` call sits inside a dashed rounded border, then the reply. *Fail:* no dashed border (sub-slot ignored), or no tool call at all (chat not on the `tool-rendering` agent).
 
 **`/custom-look-and-feel/headless-ui`** — the whole chat rebuilt from `useAgent`, `useCopilotKit` and `useRenderToolCall`, with no CopilotKit UI.
 *Try:* "Tell me about yourself."
 *Pass:* your own bubbles and composer, streaming normally. *Fail:* a message that never leaves the composer — check the console, which this page logs to deliberately.
+
+**`/custom-look-and-feel/markdown`** — the `markdownRenderer` slot in its three shapes (Streamdown `components` map, class string, replacement component), one demo tab each.
+*Try:* "Reply with a level-2 markdown heading, then a paragraph containing a markdown link to https://copilotkit.ai", then switch tabs. Then: `Repeat this exactly, raw, not in a code block: Hi <reference-chip id="42">Doc 42</reference-chip>. Press <kbd>Ctrl</kbd>+<kbd>C</kbd>.`
+*Pass:* components map: in DevTools the `<h2>` has `class="my-heading"` and the `<a>` has `class="my-link"` plus `target="_blank" rel="noopener noreferrer"`, with no `data-streamdown` or `node` attribute (no visible styling; the page ships no CSS for those classes). Class string: smaller text with looser line height. PlainText: the raw markdown in a `<pre>`. The `<reference-chip>` tag is stripped with "Doc 42" kept, while `<kbd>` renders. *Fail:* `data-streamdown="link"` still on the anchor (object form ignored), formatted HTML on the PlainText tab, or a `<reference-chip>` element in the DOM.
 
 **`/custom-look-and-feel/reasoning-messages`** — the `header` and `contentView` sub-slots of the reasoning card.
 *Try:* "Think step by step: what is 17 × 24?"
@@ -242,8 +251,13 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/generative-ui/tool-rendering`** — named renderers plus a wildcard catch-all. **Partial.**
 *Try:* "What's the weather in Lisbon?"
 *Pass:* a `WeatherCard` for Lisbon with the executor's fixed values (68°, 55% humidity, wind 10, Sunny), then a short prose reply. *Fail:* a prose-only answer means the model was never offered `get_weather`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
+*Try (grouping tabs):* "What's the weather in Tokyo, Paris and Lisbon?"
+*Pass:* consecutive `get_weather` calls collapse: one group of ✓ rows (custom row, `group: true`), a one-line summary (`toolCallDisplay: "line"`), or an indigo-ruled list (`group` slot). *Fail:* every call in its own card on each tab means grouping isn't applied. `MyToolRow` and `ToolTimeline` are this repo's (the page names but never defines them) — §9.21.
 
 **`/generative-ui/state-rendering`** — rendering agent state reactively. **Partial.** Shares its cell with State Streaming; the demo link redirects there.
+
+**`/generative-ui/a2ui`** — the A2UI overview: three surface operations, Dynamic vs Fixed Schema, catalog-on-provider vs runtime `a2ui` setup, and the `--a2ui-*` color variables. Reference only.
+*Try:* open the page and follow the links to the two schema routes. *Pass:* the four snippets render as code, and the two linked routes run their setups. *Fail:* none to observe here — the page runs nothing itself.
 
 **`/generative-ui/a2ui/dynamic-schema`** — bring-your-own-catalog UI where the agent composes the surface per request.
 *Try:* "Show me a dashboard for our API health: uptime 99.95%, p95 latency 240 ms, 3 open incidents."
@@ -252,6 +266,8 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/generative-ui/a2ui/fixed-schema`** — a flight card whose tree is authored as JSON up front. **Partial.**
 *Try:* "Find me a flight from SFO to JFK."
 *Pass:* a flight card on the fixed-schema surface with SFO, JFK, an airline and a price, plus a one-sentence reply. *Fail:* a prose-only answer means the model was never offered `display_flight`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
+*Try (grouping tabs):* "What's the weather in Tokyo, Paris and Lisbon?"
+*Pass:* consecutive `get_weather` calls collapse: one group of ✓ rows (custom row, `group: true`), a one-line summary (`toolCallDisplay: "line"`), or an indigo-ruled list (`group` slot). *Fail:* every call in its own card on each tab means grouping isn't applied. `MyToolRow` and `ToolTimeline` are this repo's (the page names but never defines them) — §9.21.
 
 **`/generative-ui/json-render`** — the agent replies with a `{ root, elements }` JSON spec, and an `assistantMessage` slot renders it through a `@json-render/react` registry (MetricCard, BarChart, PieChart). **Partial** (not yet verified live).
 *Try:* "Show me the sales dashboard with metrics and a revenue chart" (also a suggestion chip).
@@ -260,6 +276,14 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/generative-ui/hashbrown`** — a `{ ui: [...] }` envelope parsed progressively by `@hashbrownai/react`'s `useJsonParser`; metric, pie and bar charts, deal cards and Markdown. **Partial** (not yet verified live).
 *Try:* "Show me a Q4 sales dashboard. Include a total-revenue metric card, a pie chart of revenue by segment, and a bar chart of monthly revenue."
 *Pass:* the pieces appear one by one while the reply streams, not all at the end. *Fail:* a blank assistant message means the envelope didn't parse, usually prose or a fence before the JSON.
+
+**`/generative-ui/mcp-apps`** — the runtime's `mcpApps.servers` pointed at the public Excalidraw MCP server; its UI resources render inline as sandboxed iframes with a plain chat. **Partial** (not yet verified live).
+*Try:* "Draw a simple flowchart: Idea → Build → Ship."
+*Pass:* the agent calls an Excalidraw MCP tool and an interactive canvas appears in the chat. *Fail:* a text-only reply (MCP tools never reached the model — check the run's tools in the Inspector), or a runtime error (Excalidraw unreachable; override with `MCP_SERVER_URL`). §9.25.
+
+**`/generative-ui/open-generative-ui`** — `openGenerativeUI` on a dedicated runtime: `generateSandboxedUi` streams agent-written HTML/CSS/JS into a sandboxed iframe; the advanced demo adds host-side sandbox functions. **Partial** (not yet verified live).
+*Try:* minimal demo, "Build me a simple greeting card."; advanced demo, the "Calculator (calls evaluateExpression)" pill.
+*Pass:* a live preview that fills in while the HTML streams; on the advanced demo, pressing = logs `[open-gen-ui/advanced] evaluateExpression` in the console and shows the result. *Fail:* plain text means `generateSandboxedUi` was never called (on the minimal demo the page's own design skill is unpublished, so this can be the gap rather than wiring). §9.26.
 
 ### Components and Surfaces
 
@@ -307,9 +331,25 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 *Try:* "Please book an intro call with the sales team to discuss pricing."
 *Pass:* a slot picker appears and the chat stops; clicking a slot flips it to "Answered" and the agent's next message names your time. *Fail:* an invented time with no picker, or a click that does nothing.
 
+**`/human-in-the-loop/overview`** — the HITL Overview page's Code-tab demo: `useHumanInTheLoop` + suggestion pills under its own `<CopilotKit agent="hitl-in-chat">`.
+*Try:* the "Book a call with sales" pill. *Pass:* the slot picker appears, the run waits, and the reply names the slot you chose. *Fail:* an invented time with no picker, or a dead click. §9.28.
+
+**`/human-in-the-loop/useInterrupt`** — Pausing the Agent for Input. **Broken — reference only.** The page's Claude SDK code is missing upstream; the two generic `useInterrupt` snippets are type-checked in `_doc/`, not run.
+*Try:* nothing to run. *Pass (today):* the page renders the snippets and the gap callout. §9.29.
+
+**`/human-in-the-loop/headless`** — Headless Interrupts. **Broken — reference only.** The page publishes no code for this framework (its one snippet region is missing).
+*Try:* nothing to run. *Pass (today):* the page renders its summary and gap callout. §9.30.
+
+**`/human-in-the-loop/governed-actions`** — the page's `GovernedAction` envelope, `GovernedActionCard`, its two transports (`useInterrupt` inline approval and the `useHumanInTheLoop` tool `approve_governed_action`) and the agent-side `handleApproval`, verbatim and type-checked. **Broken — reference only.**
+*Try:* nothing to run: the page publishes no agent or policy that produces a `GovernedAction`, and none was added. *Pass (today):* the page renders its source and gap callout. §9.31.
+
 **`/programmatic-control`** — `addMessage`, `runAgent`, `stopAgent` and `subscribe` driven from code rather than a composer. **Broken — does not compile.**
 *Try:* nothing yet. The demo file holds the page's `headless-complete` snippet verbatim, and that snippet references three helpers it never defines. See §9.14.
 *Pass (today):* `npx tsc --noEmit` reports 6 errors in this one file, and `next build` fails type checking. Every other route still runs under `npm run dev`.
+
+**`/webmcp`** — a frontend tool with `webmcp` set, mirrored onto `document.modelContext`; once via `useFrontendTool` under the root provider, once on a bare `CopilotKitCore` (separate page). **Broken by design** — `searchOrders` is never defined.
+*Try:* in Chrome 149+ with the WebMCP flag or origin trial, open `/webmcp/demo-chat` and list tools in Chrome's Model Context Tool Inspector, then call `searchOrders` with `status: "open"`.
+*Pass (today):* the inspector lists `searchOrders` with its enum schema and `readOnlyHint`; calling it fails with `ReferenceError: searchOrders is not defined`. *Fail:* no tool listed (browser lacks `document.modelContext`, or the `webmcp` option was dropped). In other browsers nothing is observable. §9.27.
 
 ### Shared State
 
@@ -358,23 +398,27 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [prebuilt-components/sidebar](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/sidebar) | `/prebuilt-components/sidebar` | ✅ Working | |
 | [prebuilt-components/popup](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/popup) | `/prebuilt-components/popup` | ✅ Working | |
 | [prebuilt-components/chat-controls](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/chat-controls) | `/prebuilt-components/chat-controls` | ✅ Working | Needed the doc's own `CopilotChatConfigurationProvider` workaround — §9. |
-| [prebuilt-components/copilot-threads-drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer) | `/prebuilt-components/copilot-threads-drawer` | ✅ Working | Needs Intelligence mode **and** a license token — the two gates fail differently. §9.16. |
+| [prebuilt-components/copilot-threads-drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer) | `/prebuilt-components/copilot-threads-drawer` | ✅ Working | Needs Intelligence mode **and** a license token — the two gates fail differently. §9.16. New-conversation-button variants (uncontrolled, CSS-hidden, controlled) added; not yet checked in a browser. |
 | [headless-threads](https://docs.copilotkit.ai/claude-sdk-typescript/headless-threads) | `/headless-threads` | ✅ Working | Needs Intelligence mode; in SSE mode `/info` reports `mutations: false`. |
 | [threads-lifecycle](https://docs.copilotkit.ai/claude-sdk-typescript/threads-lifecycle) | `/threads-lifecycle` | ✅ Working | Switch/start work in any mode; history replay needs a server-side store. |
 | [custom-look-and-feel/css](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/css) | `/custom-look-and-feel/css` | ✅ Working | `theme.css` is the published subset only — the page shows it in excerpt. |
-| [custom-look-and-feel/slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots) | `/custom-look-and-feel/slots` | ✅ Working | Override components are this repo's; the doc only `declare`s them. |
+| [custom-look-and-feel/slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots) | `/custom-look-and-feel/slots` | ✅ Working | Override components are this repo's; the doc only `declare`s them. New `toolCallsView` example on a second tab, wired to the `tool-rendering` agent (harness glue) — not yet checked in a browser. |
 | [custom-look-and-feel/headless-ui](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui) | `/custom-look-and-feel/headless-ui` | ✅ Working | `headless-complete` half lives on `/programmatic-control`. |
+| [custom-look-and-feel/markdown](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/markdown) | `/custom-look-and-feel/markdown` | ⚠️ Partial | Three snippets wired verbatim (plus `agentId`) on a Quickstart-prompt agent `chat-markdown`. Not yet checked in a browser. |
 | [custom-look-and-feel/reasoning-messages](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/reasoning-messages) | `/custom-look-and-feel/reasoning-messages` | ✅ Working | Claude emits thinking blocks with no config; the adapter maps them to the full `REASONING_*` lifecycle. Verified live. |
 | [multimodal-attachments](https://docs.copilotkit.ai/claude-sdk-typescript/multimodal-attachments) | `/multimodal-attachments` | ✅ Working | Base64 variant; the URL variant needs storage this repo has none of. |
 | [voice](https://docs.copilotkit.ai/claude-sdk-typescript/voice) | `/voice` | ✅ Working | Mic needs `OPENAI_API_KEY`; sample-audio button works without. |
 | [generative-ui/reasoning](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/reasoning) | `/generative-ui/reasoning` | ✅ Working | Same reasoning stream; replaces the whole card instead of its sub-slots. |
 | [generative-ui/tool-based](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based) | `/generative-ui/tool-based` | ⚠️ Partial | Chart renders, then the follow-up run 400s. Adapter bug — §9.13. |
-| [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. |
+| [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. Grouping tabs (custom row, `line` display, `group` slot) added; not yet checked in a browser. |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Runs its own copy of the shared State Streaming cell; same two blockers, so the document lands in one end-of-turn write. §9.15. |
+| [generative-ui/a2ui](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui) | `/generative-ui/a2ui` | 📄 Reference | Overview. Snippets type-checked verbatim in `_doc/` (`myCatalog`, `myAgent`, `children` undefined on the page, suppressed); the Python `copilotkit.a2ui` helpers can't run on this Node backend. §9.23. |
 | [generative-ui/a2ui/dynamic-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema) | `/generative-ui/a2ui/dynamic-schema` | ✅ Working | `generate_a2ui` is injected as a frontend tool. |
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
 | [generative-ui/json-render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render) | `/generative-ui/json-render` | ⚠️ Partial | 4 printed files verbatim; the rest from the showcase's claude-sdk-typescript Code tab — §9.19. Not yet verified live. |
 | [generative-ui/hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown) | `/generative-ui/hashbrown` | ⚠️ Partial | 3 printed files verbatim; pinned to pre-release `0.5.0-beta.4` — §9.19. Not yet verified live. |
+| [generative-ui/mcp-apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps) | `/generative-ui/mcp-apps` | ⚠️ Partial | Code-tab route and page; two unpublished `_shared` helpers swapped/commented out, `./chat` borrowed, Quickstart agent at `/mcp-apps`. Intelligence variant shown only (premium). Not yet verified live. §9.25. |
+| [generative-ui/open-generative-ui](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-generative-ui) | `/generative-ui/open-generative-ui` | ⚠️ Partial | Code-tab runtime and both demos; design skill and `./chat` unpublished (commented out / borrowed); agents at `/<id>` with the Code tab's prompt. Not yet verified live. §9.26. |
 | [generative-ui/components](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components) | `/generative-ui/components` | ⚠️ Partial | Doc agent is TanStack + OpenAI; here it's `ClaudeAgentAdapter` over HTTP on `/api/copilotkit-components` — §9.18. Not yet verified live. |
 | […/components/surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/surfaces) | `/generative-ui/components/surfaces` | ⚠️ Partial | Products given via `useAgentContext`; the page never says where they come from. Not yet verified live. |
 | […/components/catalogs](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/catalogs) | `/generative-ui/components/catalogs` | ⚠️ Partial | `cartUI` undefined on the page, so `shopUI` stands in; Valibot shown, not run. Not yet verified live. |
@@ -385,7 +429,12 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | […/components/markdown-mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode) | `/generative-ui/components/markdown-mode` | ⚠️ Partial | `sendContext: false` needs a backend that builds its own prompt; the page's example is Python. Not yet verified live. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
+| [human-in-the-loop/index](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index) | `/human-in-the-loop/overview` | ⚠️ Partial | Code-tab demo verbatim on `hitl-in-chat`; `./time-picker-card` unpublished (repo card re-exported); showcase `route.ts` not copied. Not yet verified live. §9.28. |
+| [human-in-the-loop/useInterrupt](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt) | `/human-in-the-loop/useInterrupt` | ❌ Broken | Reference only: the Claude SDK snippets (`frontend-promise-handler`, `backend-tool-call`) are missing on the live page and the demo has no Code tab. §9.29. |
+| [human-in-the-loop/headless](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless) | `/human-in-the-loop/headless` | ❌ Broken | Reference only: the page's one snippet (`headless-promise-primitives`) is missing for this framework; no Code tab. §9.30. |
+| [human-in-the-loop/governed-actions](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions) | `/human-in-the-loop/governed-actions` | ❌ Broken | Reference only: no agent/policy/GovernedAction producer published, none added. Components and `handleApproval` verbatim, type-checked, not mounted; `null` render and `executeSideEffect` suppressed. §9.31. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
+| [webmcp](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp) | `/webmcp` | ❌ Broken | Both snippets verbatim; `searchOrders` is never defined, so the handler throws (not stubbed). No agent on the page, so no chat. Needs Chrome 149+ WebMCP. §9.27. |
 | [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Published snippets kept; imports, types, form and layout are repo code. `set_notes` works via this repo's MCP bridge (`backend/src/agents/set-notes-mcp-server.ts`) with a server-side state write-back — §9.1, §9.15. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
 | [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) | `/shared-state/streaming` | ❌ Broken | The page's 5 published lines run inside a repo-built canvas. `write_document` has no bridge and the raw-delta loop is unpublished, so the document arrives in one end-of-turn write via `ag_ui_update_state`. §9.15. |
@@ -641,6 +690,40 @@ Deviations, each marked in the source:
 ### 9.22 Quickstart (2026-11): agent names and the `@ag-ui/client` pin
 
 The [Quickstart](https://docs.copilotkit.ai/claude-sdk-typescript/quickstart) now registers the agent on the runtime as `default` (runtime route and `<CopilotKit agent="default">`) and gives the adapter `agentId: "claude-sdk-typescript"`. This repo's registry key, frontend agent list, nav entry and `/quickstart` demo follow the `default` rename. The adapter `agentId` is not reproduced: `agent-server.ts` builds one adapter per registry key and passes that key as `agentId`, so the Quickstart's adapter reports `default`. The manual install line now pins `@ag-ui/client@1.0.2`; the frontend keeps `^1.0.3`, because `@ag-ui/client` has to match the version the installed `@copilotkit/react-core` pins (two copies break the `AbstractAgent` types). The CLI starter's `COPILOTKIT_AGENT_MODEL` and `agent/src/*` layout describe the generated project, not this repo, which follows the manual path (`CLAUDE_MODEL`).
+### 9.21 Tool Rendering: the grouping snippets name components they never define
+
+[Tool Rendering → Grouping tool calls](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering#grouping-tool-calls) passes `MyToolRow` to `useDefaultRenderTool({ render, group: true })` and `ToolTimeline` to the `toolCallsView.group` slot, and defines neither. Both are minimal repo components in `frontend/src/app/generative-ui/tool-rendering/grouping/tool-row.tsx`, labelled. The `line` and `group`-slot snippets register no renderer, and only opted-in renderers group, so their tabs also call the page's zero-config `useDefaultRenderTool()` (labelled glue).
+### 9.20 Threads Drawer: the controlled "New conversation" snippet is a fragment
+
+[Threads Drawer](https://docs.copilotkit.ai/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer#add-your-own-new-conversation-button) prints `ControlledChat` using `useState` with no import, and with no `agentId` on its configuration provider or drawer. The route adds only the import (labelled in `demo-chat/new-conversation.tsx`) and mounts the snippet under the demo's `<CopilotKit agent="agentic_chat">`; the missing `agentId` is left as printed. The uncontrolled variant passes `agentId` to its configuration provider like the route's main demo, because this runtime has no `default` agent.
+### 9.28 HITL Overview: the Code tab's card and runtime are unpublished
+
+[HITL Overview](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index)'s Code tab holds `src/app/demos/hitl-in-chat/page.tsx` (copied unchanged to `frontend/src/app/human-in-the-loop/overview/_demo/`) and the showcase's main `src/app/api/copilotkit/route.ts`. The page imports `TimePickerCard` from `./time-picker-card`, which no page shows; the repo's existing card is re-exported in its place. The route file depends on three unpublished modules (`createClaudeHttpAgent`, `internalRuntimeErrorResponse`, `withCvdiagBackend`) and is not copied; the existing main runtime already serves `hitl-in-chat` (Quickstart prompt, no backend published). The page's Pattern 2 links an embedded `gen-ui-interrupt` demo with no Claude SDK code (see §9.29).
+
+### 9.29 useInterrupt: the Claude SDK snippets are missing upstream
+
+[Pausing the Agent for Input](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt) says this framework's demo uses a `useFrontendTool` Promise handler (`schedule_meeting`) instead of a native interrupt, then shows neither half: the `.md` export reads `snippet skipped: region 'frontend-promise-handler' missing in claude-sdk-typescript::gen-ui-interrupt` (and the same for `backend-tool-call`), the rendered page shows nothing in their place, and the embedded demo has no Code tab. Nothing is built from guesswork; `/human-in-the-loop/useInterrupt` is reference-only and `broken`. Its two framework-neutral `useInterrupt` snippets are type-checked in `_doc/snippets.tsx`. (The adapter can emit real interrupts through `deferTools`, but no page of this framework's docs shows that wiring.)
+
+### 9.30 Headless Interrupts: no code published for this framework
+
+[Headless Interrupts](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless) describes a Promise-based `useFrontendTool` whose pending state drives a picker outside the chat, and its only code block is missing (`snippet skipped: region 'headless-promise-primitives' missing in claude-sdk-typescript::interrupt-headless`); the embedded demo has no Code tab. `/human-in-the-loop/headless` is a reference-only page, status `broken`.
+
+### 9.31 Governed Action Approval UI: no agent, no interrupt, and two TypeScript errors
+
+[Governed Action Approval UI](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions) prints the `GovernedAction` envelope, an inline `useInterrupt` approval (`GovernedActionApproval` + `GovernedActionCard`), a `useHumanInTheLoop` tool (`GovernedActionTool`), and an agent-side `handleApproval`. It publishes no agent, policy engine or tool that produces a `GovernedAction`, so `/human-in-the-loop/governed-actions` is reference-only: no agent was added to stand in for it, and the components are type-checked but not mounted. Nothing raises an interrupt with `metadata.action` for this adapter either. Kept as published with `@ts-expect-error`: the `useInterrupt` `render` returns `null` where the installed types want a `ReactElement` (TS2322), and `handleApproval` calls an undefined `executeSideEffect` (TS2304, type-checked only in `_doc/`). An older copy of the `useInterrupt` card lives at `/human-in-the-loop/use-interrupt/demo-chat` on `hitl-in-chat`.
+### 9.27 WebMCP: `searchOrders` is called and never defined
+
+Both [WebMCP](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp) snippets (`OrderSearch.tsx` with `useFrontendTool`, and `webmcp.ts` with a bare `CopilotKitCore`) call `await searchOrders(status)` and define it nowhere. They are kept verbatim in `frontend/src/app/webmcp/_demo/` with `@ts-expect-error` (TS2304); there is no stub, so calling the tool throws a `ReferenceError`. The page prints no agent, so the route has no chat. `webmcp.ts` imports `@copilotkit/core`, which this frontend gets transitively through `@copilotkit/react-core` (1.83.0 in the lockfile) rather than as a declared dependency. WebMCP itself needs Chrome 149+ with the testing flag or origin trial.
+### 9.25 MCP Apps: the Code tab imports unpublished helpers, and no agent is published
+
+[MCP Apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps)'s demo Code tab holds `src/app/api/copilotkit-mcp-apps/route.ts` and `src/app/demos/mcp-apps/page.tsx`. The route imports `createClaudeHttpAgent` (§9.7) and `internalRuntimeErrorResponse` from `@/app/api/_shared/*`, which no page shows; the first is replaced by `new HttpAgent({ url })`, the second commented out with the error rethrown (both marked `HARNESS` in `frontend/src/app/api/copilotkit-mcp-apps/route.ts`). The page imports `Chat` from `./chat`, also unpublished; a plain `<CopilotChat agentId="mcp-apps">` borrowed from the aws-strands-ts harness stands in. No agent is published for `${AGENT_URL}/mcp-apps`, so the backend serves the Quickstart agent there with no tools; the MCP tools come from the runtime middleware each run. The "MCP Apps with Intelligence" snippet builds a CopilotKit `BuiltInAgent` on an OpenAI model and needs an Intelligence key; it is shown, not run.
+
+### 9.26 Open Generative UI: unpublished design skill, chat and helpers
+
+[Open Generative UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-generative-ui)'s Code tab holds the runtime route, both demo pages, `sandbox-functions.ts`, `suggestions.ts` and the showcase's `agent_server.ts`. The minimal page imports `VISUALIZATION_DESIGN_SKILL` from `./design-skill` and `Chat` from `./chat`, neither shown: the design skill import and prop are commented out (the provider's default design skill applies), and `Chat` is a plain `<CopilotChat>` borrowed from the aws-strands-ts harness. The route has the same two unpublished `_shared` helpers as MCP Apps (§9.25). The Code tab's agents live at `${AGENT_URL}/` in a raw Anthropic SDK server; here they are ClaudeAgentAdapter agents at `/open-gen-ui` and `/open-gen-ui-advanced` (route URLs changed, marked `HARNESS`), using that server's `/` prompt verbatim and no tools.
+### 9.23 A2UI overview: undefined names and a Python helper snippet
+
+[A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui) prints `<CopilotKit a2ui={{ catalog: myCatalog }}>{children}</CopilotKit>` and `new CopilotRuntime({ agents: { default: myAgent }, a2ui: { injectA2UITool: true }, ... })` without defining `myCatalog`, `children` or `myAgent`. They are kept verbatim in `frontend/src/app/generative-ui/a2ui/_doc/` with `@ts-expect-error` (TS2304) and never rendered. The page also lists the surface operations through the Python SDK (`from copilotkit import a2ui`), which this Node backend can't use; it is shown as text only.
 
 ---
 
@@ -772,6 +855,7 @@ Grouped as the doc nav groups them.
 - [Slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots)
 - [Headless UI](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui)
 - [Reasoning messages](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/reasoning-messages)
+- [Markdown rendering](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/markdown)
 
 **Input Modalities**
 - [Multimodal attachments](https://docs.copilotkit.ai/claude-sdk-typescript/multimodal-attachments)
@@ -782,10 +866,13 @@ Grouped as the doc nav groups them.
 - [Components as tools](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based)
 - [Tool call rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering)
 - [State rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)
+- [A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui)
 - [A2UI · dynamic schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema)
 - [A2UI · fixed schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema)
 - [JSON Render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render)
 - [Hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown)
+- [MCP Apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps)
+- [Open Generative UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-generative-ui)
 
 **Components and Surfaces**
 - [Components and surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components)
@@ -800,7 +887,12 @@ Grouped as the doc nav groups them.
 **App Control**
 - [Frontend tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools)
 - [Human in the loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop)
+- [HITL overview](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index)
+- [Pausing the agent for input (useInterrupt)](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/useInterrupt)
+- [Headless interrupts](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/headless)
+- [Governed action approval UI](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/governed-actions)
 - [Programmatic control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control)
+- [WebMCP](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp)
 
 **Shared State**
 - [Overview](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state)
