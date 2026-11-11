@@ -8,14 +8,14 @@ import { DemoFrame } from "@/components/demo-frame";
  * The Quickstart's `app/page.tsx`, which is a `<main>` holding a
  * `<CopilotSidebar />`.
  *
- * The doc names the agent once, on the provider (`agent="claude_agent"`). This
+ * The doc names the agent once, on the provider (`agent="default"`). This
  * app has a single root provider shared by every route, so the agent is named
  * per surface with `agentId` instead — same binding, chosen at the component
  * rather than the tree.
  */
 export default function Page() {
   return (
-    <DemoFrame parentPath="/quickstart" subtitle="agent: claude_agent">
+    <DemoFrame parentPath="/quickstart" subtitle="agent: default">
       <main className="h-full overflow-y-auto p-10">
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
           Your App
@@ -25,7 +25,7 @@ export default function Page() {
           <code>ClaudeAgentAdapter</code> running in the Express server on port
           8000. Ask it anything.
         </p>
-        <CopilotSidebar agentId="claude_agent" defaultOpen />
+        <CopilotSidebar agentId="default" defaultOpen />
       </main>
     </DemoFrame>
   );

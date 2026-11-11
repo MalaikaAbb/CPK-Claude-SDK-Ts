@@ -47,6 +47,15 @@ import {
   weatherMcpServer,
 } from "./weather-mcp-server";
 
+/**
+ * The Open Generative UI page's demo Code tab (`src/agent_server.ts`) serves
+ * both OGUI agents from its `/` handler, whose prompt is this constant
+ * (`DEFAULT_SYSTEM_PROMPT` there), verbatim. No tools: the page's only tool,
+ * `generateSandboxedUi`, arrives per run as a frontend tool.
+ */
+const OGUI_SYSTEM_PROMPT =
+  "You are a helpful AI assistant powered by Anthropic's Claude.";
+
 /** The Quickstart's prompt, verbatim. */
 export const DEFAULT_SYSTEM_PROMPT =
   "You are a helpful assistant embedded in a CopilotKit app.";
@@ -85,8 +94,9 @@ export interface AgentDefinition {
 
 export const REGISTRY: Record<string, AgentDefinition> = {
   // ── Getting Started ──────────────────────────────────────────────────────
-  // The Quickstart names its agent `claude_agent`; kept as published.
-  claude_agent: { systemPrompt: DEFAULT_SYSTEM_PROMPT },
+  // The Quickstart registers its agent on the runtime as `default` (it was
+  // `claude_agent` until the 2026-11 doc update); kept as published.
+  default: { systemPrompt: DEFAULT_SYSTEM_PROMPT },
 
   // ── Prebuilt Components ──────────────────────────────────────────────────
   agentic_chat: { systemPrompt: DEFAULT_SYSTEM_PROMPT },
@@ -115,6 +125,21 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   "voice-demo": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
 
   // ── Generative UI ────────────────────────────────────────────────────────
+  // MCP Apps: the page's Code tab reaches `${AGENT_URL}/mcp-apps` and
+  // publishes no agent for it, so this is the Quickstart's agent, unchanged.
+  // The runtime's MCP Apps middleware adds the MCP server's tools per run.
+  "mcp-apps": {
+    systemPrompt: DEFAULT_SYSTEM_PROMPT,
+    note: "No backend published for this page; Quickstart prompt, no tools. MCP tools arrive per run from the runtime's mcpApps middleware.",
+  },
+  "open-gen-ui": {
+    systemPrompt: OGUI_SYSTEM_PROMPT,
+    note: "Prompt from the OGUI page's Code-tab agent_server.ts; generateSandboxedUi arrives as a frontend tool.",
+  },
+  "open-gen-ui-advanced": {
+    systemPrompt: OGUI_SYSTEM_PROMPT,
+    note: "Prompt from the OGUI page's Code-tab agent_server.ts; generateSandboxedUi arrives as a frontend tool.",
+  },
   "gen-ui-tool-based": {
     systemPrompt: DEFAULT_SYSTEM_PROMPT,
     note: "Its tool is a frontend `useComponent`, which the adapter bridges itself.",

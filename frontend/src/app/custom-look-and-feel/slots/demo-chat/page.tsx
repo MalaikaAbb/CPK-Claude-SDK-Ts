@@ -3,10 +3,14 @@
 import {
   CopilotChat,
   CopilotChatAssistantMessage,
+  CopilotChatConfigurationProvider,
   CopilotChatInput,
   CopilotChatView,
 } from "@copilotkit/react-core/v2";
+import { useState } from "react";
 import { DemoFrame } from "@/components/demo-frame";
+
+import { Chat as ToolCallsViewChat } from "./tool-calls-view";
 
 /**
  * The page's three overridden slots, at the three levels it describes.
@@ -122,6 +126,8 @@ function CustomDisclaimer() {
 }
 
 export default function Page() {
+  const [tab, setTab] = useState<"slots" | "tool-calls">("slots");
+
   // The doc's extract, verbatim: each override is pulled into a local so the
   // three levels are easy to see, then cast to the slot's own type.
   const welcomeScreen =
@@ -142,13 +148,43 @@ export default function Page() {
       parentPath="/custom-look-and-feel/slots"
       subtitle="agent: chat-slots"
     >
-      <div className="mx-auto h-full w-full max-w-4xl">
-        <CopilotChat
-          agentId="chat-slots"
-          welcomeScreen={welcomeScreen}
-          messageView={messageView}
-          input={input}
-        />
+      <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
+        {/* Tab switcher: harness glue so both of the page's examples run here. */}
+        <div className="flex shrink-0 gap-2 border-b border-slate-200 p-2 dark:border-slate-800">
+          {(
+            [
+              ["slots", "Three levels + overrides (chat-slots)"],
+              ["tool-calls", "toolCallsView (tool-rendering)"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={`rounded-md border px-3 py-1 text-xs font-medium ${
+                tab === id
+                  ? "border-indigo-500 text-indigo-600"
+                  : "border-slate-300 text-slate-600 dark:border-slate-600 dark:text-slate-300"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="min-h-0 flex-1">
+          {tab === "slots" ? (
+            <CopilotChat
+              agentId="chat-slots"
+              welcomeScreen={welcomeScreen}
+              messageView={messageView}
+              input={input}
+            />
+          ) : (
+            <CopilotChatConfigurationProvider agentId="tool-rendering">
+              <ToolCallsViewChat />
+            </CopilotChatConfigurationProvider>
+          )}
+        </div>
       </div>
     </DemoFrame>
   );

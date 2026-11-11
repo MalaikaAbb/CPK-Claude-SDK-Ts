@@ -10,7 +10,7 @@ import { rootInspectorSetting } from "@/lib/inspector";
  * One provider for the whole app, so a conversation survives navigation
  * between test routes.
  *
- * The Quickstart wraps the tree in `<CopilotKit runtimeUrl agent="claude_agent">`
+ * The Quickstart wraps the tree in `<CopilotKit runtimeUrl agent="default">`
  * — one provider naming one agent. This harness has ~24 agents, so the agent
  * is named per surface with `agentId` instead. Same binding, chosen at the
  * component rather than the tree.

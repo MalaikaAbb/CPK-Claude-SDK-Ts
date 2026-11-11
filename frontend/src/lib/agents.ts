@@ -32,7 +32,7 @@ export const JSON_RENDER_AGENT_ID = "byoc_json_render";
 export const HASHBROWN_AGENT_ID = "declarative-hashbrown-demo";
 
 export const AGENT_IDS = [
-  "claude_agent",
+  "default",
   "agentic_chat",
   "prebuilt-sidebar",
   "prebuilt-popup",
@@ -48,6 +48,9 @@ export const AGENT_IDS = [
   "voice-demo",
   "gen-ui-tool-based",
   "tool-rendering",
+  "mcp-apps",
+  "open-gen-ui",
+  "open-gen-ui-advanced",
   "declarative-gen-ui",
   "a2ui-fixed-schema",
   "frontend-tools",
