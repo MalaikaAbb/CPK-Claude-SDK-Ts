@@ -47,6 +47,8 @@ export const AGENT_IDS = [
   "gen-ui-tool-based",
   "tool-rendering",
   "mcp-apps",
+  "open-gen-ui",
+  "open-gen-ui-advanced",
   "declarative-gen-ui",
   "a2ui-fixed-schema",
   "frontend-tools",

@@ -359,6 +359,18 @@ export const NAV: NavGroup[] = [
         statusNote:
           "Built, not yet checked in a browser. Runtime route and page are the demo Code tab's; createClaudeHttpAgent swapped for HttpAgent, internalRuntimeErrorResponse commented out, ./chat borrowed, and /mcp-apps is the Quickstart agent (no backend published). The Intelligence variant is premium and shown only.",
       },
+      {
+        path: "/generative-ui/open-generative-ui",
+        hasDemo: true,
+        agentId: "open-gen-ui",
+        title: "Open Generative UI",
+        docPath: "/claude-sdk-typescript/generative-ui/open-generative-ui",
+        summary:
+          "generateSandboxedUi streaming agent-written HTML/CSS/JS into a sandboxed iframe, plus sandbox functions the generated page calls back into the host.",
+        status: "partial",
+        statusNote:
+          "Built, not yet checked in a browser. Runtime route and both demos are the Code tab's. VISUALIZATION_DESIGN_SKILL and ./chat are unpublished (design skill commented out, Chat borrowed); createClaudeHttpAgent and the error helper are swapped/commented out; agents served at /<id> with the Code tab's prompt.",
+      },
     ],
   },
   {

@@ -266,6 +266,10 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Draw a simple flowchart: Idea → Build → Ship."
 *Pass:* the agent calls an Excalidraw MCP tool and an interactive canvas appears in the chat. *Fail:* a text-only reply (MCP tools never reached the model — check the run's tools in the Inspector), or a runtime error (Excalidraw unreachable; override with `MCP_SERVER_URL`). §9.25.
 
+**`/generative-ui/open-generative-ui`** — `openGenerativeUI` on a dedicated runtime: `generateSandboxedUi` streams agent-written HTML/CSS/JS into a sandboxed iframe; the advanced demo adds host-side sandbox functions. **Partial** (not yet verified live).
+*Try:* minimal demo, "Build me a simple greeting card."; advanced demo, the "Calculator (calls evaluateExpression)" pill.
+*Pass:* a live preview that fills in while the HTML streams; on the advanced demo, pressing = logs `[open-gen-ui/advanced] evaluateExpression` in the console and shows the result. *Fail:* plain text means `generateSandboxedUi` was never called (on the minimal demo the page's own design skill is unpublished, so this can be the gap rather than wiring). §9.26.
+
 ### Components and Surfaces
 
 Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@copilotkit/react-core` ≥ 1.83 for the `@copilotkit/react-core/v2/generative-ui` entry. All eight demos run on `/api/copilotkit-components` (`generativeUI: true`) and mount their own provider. Each is **Partial** until it has been verified end to end against the live agent; see §9.18.
@@ -381,6 +385,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [generative-ui/json-render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render) | `/generative-ui/json-render` | ⚠️ Partial | 4 printed files verbatim; the rest from the showcase's claude-sdk-typescript Code tab — §9.19. Not yet verified live. |
 | [generative-ui/hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown) | `/generative-ui/hashbrown` | ⚠️ Partial | 3 printed files verbatim; pinned to pre-release `0.5.0-beta.4` — §9.19. Not yet verified live. |
 | [generative-ui/mcp-apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps) | `/generative-ui/mcp-apps` | ⚠️ Partial | Code-tab route and page; two unpublished `_shared` helpers swapped/commented out, `./chat` borrowed, Quickstart agent at `/mcp-apps`. Intelligence variant shown only (premium). Not yet verified live. §9.25. |
+| [generative-ui/open-generative-ui](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-generative-ui) | `/generative-ui/open-generative-ui` | ⚠️ Partial | Code-tab runtime and both demos; design skill and `./chat` unpublished (commented out / borrowed); agents at `/<id>` with the Code tab's prompt. Not yet verified live. §9.26. |
 | [generative-ui/components](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components) | `/generative-ui/components` | ⚠️ Partial | Doc agent is TanStack + OpenAI; here it's `ClaudeAgentAdapter` over HTTP on `/api/copilotkit-components` — §9.18. Not yet verified live. |
 | […/components/surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/surfaces) | `/generative-ui/components/surfaces` | ⚠️ Partial | Products given via `useAgentContext`; the page never says where they come from. Not yet verified live. |
 | […/components/catalogs](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/catalogs) | `/generative-ui/components/catalogs` | ⚠️ Partial | `cartUI` undefined on the page, so `shopUI` stands in; Valibot shown, not run. Not yet verified live. |
@@ -648,6 +653,10 @@ Deviations, each marked in the source:
 
 [MCP Apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps)'s demo Code tab holds `src/app/api/copilotkit-mcp-apps/route.ts` and `src/app/demos/mcp-apps/page.tsx`. The route imports `createClaudeHttpAgent` (§9.7) and `internalRuntimeErrorResponse` from `@/app/api/_shared/*`, which no page shows; the first is replaced by `new HttpAgent({ url })`, the second commented out with the error rethrown (both marked `HARNESS` in `frontend/src/app/api/copilotkit-mcp-apps/route.ts`). The page imports `Chat` from `./chat`, also unpublished; a plain `<CopilotChat agentId="mcp-apps">` borrowed from the aws-strands-ts harness stands in. No agent is published for `${AGENT_URL}/mcp-apps`, so the backend serves the Quickstart agent there with no tools; the MCP tools come from the runtime middleware each run. The "MCP Apps with Intelligence" snippet builds a CopilotKit `BuiltInAgent` on an OpenAI model and needs an Intelligence key; it is shown, not run.
 
+### 9.26 Open Generative UI: unpublished design skill, chat and helpers
+
+[Open Generative UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-generative-ui)'s Code tab holds the runtime route, both demo pages, `sandbox-functions.ts`, `suggestions.ts` and the showcase's `agent_server.ts`. The minimal page imports `VISUALIZATION_DESIGN_SKILL` from `./design-skill` and `Chat` from `./chat`, neither shown: the design skill import and prop are commented out (the provider's default design skill applies), and `Chat` is a plain `<CopilotChat>` borrowed from the aws-strands-ts harness. The route has the same two unpublished `_shared` helpers as MCP Apps (§9.25). The Code tab's agents live at `${AGENT_URL}/` in a raw Anthropic SDK server; here they are ClaudeAgentAdapter agents at `/open-gen-ui` and `/open-gen-ui-advanced` (route URLs changed, marked `HARNESS`), using that server's `/` prompt verbatim and no tools.
+
 ---
 
 ## 10. Troubleshooting
@@ -793,6 +802,7 @@ Grouped as the doc nav groups them.
 - [JSON Render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render)
 - [Hashbrown](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/hashbrown)
 - [MCP Apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps)
+- [Open Generative UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/open-generative-ui)
 
 **Components and Surfaces**
 - [Components and surfaces](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components)
