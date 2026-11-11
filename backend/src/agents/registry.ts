@@ -209,6 +209,7 @@ export const REGISTRY: Record<string, AgentDefinition> = {
     systemPrompt: COMPONENTS_SYSTEM_PROMPT,
     note: "Markdown transport: the UI arrives as ```a2ui fences in the text reply, no tool call.",
   },
+  "gen-ui-from-a2ui": { systemPrompt: COMPONENTS_SYSTEM_PROMPT, note: COMPONENTS_NOTE },
 
   // ── Generative UI · Bring your own renderer ──────────────────────────────
   // Ids are the doc demos' own. Prompts are the CopilotKit showcase's

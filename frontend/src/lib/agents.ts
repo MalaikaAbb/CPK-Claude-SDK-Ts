@@ -24,6 +24,7 @@ export const COMPONENTS_AGENT_IDS = [
   "gen-ui-theming",
   "gen-ui-transports",
   "gen-ui-markdown",
+  "gen-ui-from-a2ui",
 ] as const;
 
 /** The doc demos' own agent ids, each served by a dedicated runtime. */
