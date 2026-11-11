@@ -138,9 +138,6 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   // ── App Control ──────────────────────────────────────────────────────────
   "frontend-tools": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
   "hitl-in-chat": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
-  // Governed Action Approval UI publishes no agent; the Quickstart's, unchanged.
-  // approve_governed_action arrives as a frontend (HITL) tool.
-  "governed-actions": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
 
   // ── Shared State ─────────────────────────────────────────────────────────
   "shared-state-read-write": {

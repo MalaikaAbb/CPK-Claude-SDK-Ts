@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { RouteHeader } from "@/components/route-header";
 import { SourceCode, SourceCodeGroup } from "@/components/source-code";
-import { Callout, Panel, TryIt } from "@/components/ui";
+import { Callout, Panel } from "@/components/ui";
 
 const DIR = "frontend/src/app/human-in-the-loop/governed-actions";
 
@@ -27,21 +27,12 @@ export default function Page() {
           <code>approve_governed_action</code>, whose result tells the agent
           whether to go on.
         </p>
-        <div className="mt-4">
-          <TryIt
-            prompts={[
-              "Before you email the customer a 15% discount, ask me to approve it with approve_governed_action (verdict require_approval).",
-            ]}
-            expect="useHumanInTheLoop tab: a card with the summary, tool, reference and arguments, plus Approve and run / Reject; your choice comes back to the agent as { approved, actionId, reference }. useInterrupt tab: no card ever appears (see below). Not yet checked in a browser."
-            fail="No card on the first tab means the model never called approve_governed_action; the page gives it no prompt or policy that would make it do so, so name the tool explicitly."
-          />
-        </div>
       </Panel>
 
       <Panel title="The page's components, verbatim">
         <SourceCodeGroup
-          files={[{ file: `${DIR}/governed-action.tsx` }, { file: `${DIR}/demo-chat/page.tsx` }]}
-          note="The first file is the page's three snippets in order. The second is harness glue: two tabs and a chat on the governed-actions agent."
+          files={[{ file: `${DIR}/governed-action.tsx` }]}
+          note="The page's three snippets in order. Type-checked, not mounted: there is no published agent to run them against."
         />
       </Panel>
 
@@ -53,15 +44,13 @@ export default function Page() {
         <ul className="space-y-1.5">
           <li>
             · No agent, policy engine or backend tool that produces a{" "}
-            <code>GovernedAction</code> is published.{" "}
-            <code>governed-actions</code> is the Quickstart agent (Quickstart
-            prompt, no tools), so verdicts and references are whatever the
-            model writes into the tool call.
+            <code>GovernedAction</code> is published, and none was added, so
+            this route is reference-only and the components are not mounted.
           </li>
           <li>
             · The <code>useInterrupt</code> half needs an agent that raises an
             interrupt with <code>metadata.action</code>. This page shows none
-            for the Claude SDK, so its card never appears. Its{" "}
+            for the Claude SDK. Its{" "}
             <code>render</code> also returns <code>null</code>, which the
             installed types reject (suppressed with{" "}
             <code>@ts-expect-error</code>).
