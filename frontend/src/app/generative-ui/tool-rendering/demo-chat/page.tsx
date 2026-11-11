@@ -2,9 +2,11 @@
 
 import {
   CopilotChat,
+  CopilotChatConfigurationProvider,
   useDefaultRenderTool,
   useRenderTool,
 } from "@copilotkit/react-core/v2";
+import { useState } from "react";
 import { z } from "zod";
 
 import { DemoFrame } from "@/components/demo-frame";
@@ -14,6 +16,26 @@ import {
 } from "../catchall-renderer";
 import { parseJsonResult } from "../parse-json-result";
 import { WeatherCard } from "../weather-card";
+import {
+  GroupSlot,
+  GroupedCustomRow,
+  LineDisplay,
+} from "../grouping/grouping-demo";
+
+/**
+ * Tabs: the existing renderers, plus one per "Grouping tool calls" snippet.
+ * Each tab mounts its own chat (keyed), so only that tab's renderers are
+ * registered. Grouping tabs reach the same agent through a configuration
+ * provider, since the page's snippets name no agent (harness glue).
+ */
+const TABS = [
+  { id: "renderers", label: "Per-tool + catch-all" },
+  { id: "group-row", label: "Grouping: custom row (group: true)" },
+  { id: "line", label: "Grouping: toolCallDisplay=\"line\"" },
+  { id: "group-slot", label: "Grouping: group slot" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
 
 /**
  * Both renderer kinds the page shows: a named renderer for `get_weather`, and
@@ -92,14 +114,40 @@ function Chat() {
 }
 
 export default function Page() {
+  const [tab, setTab] = useState<TabId>("renderers");
+
   return (
     <DemoFrame
       parentPath="/generative-ui/tool-rendering"
       subtitle="agent: tool-rendering · no backend tools registered"
     >
       <div className="mx-auto flex h-full w-full max-w-4xl flex-col">
-        <div className="min-h-0 flex-1">
-          <Chat />
+        <div className="flex shrink-0 flex-wrap gap-2 border-b border-slate-200 p-2 dark:border-slate-800">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`rounded-md border px-3 py-1 text-xs font-medium ${
+                tab === t.id
+                  ? "border-indigo-500 text-indigo-600"
+                  : "border-slate-300 text-slate-600 dark:border-slate-600 dark:text-slate-300"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div key={tab} className="min-h-0 flex-1">
+          {tab === "renderers" ? (
+            <Chat />
+          ) : (
+            <CopilotChatConfigurationProvider agentId="tool-rendering">
+              {tab === "group-row" && <GroupedCustomRow />}
+              {tab === "line" && <LineDisplay />}
+              {tab === "group-slot" && <GroupSlot />}
+            </CopilotChatConfigurationProvider>
+          )}
         </div>
       </div>
     </DemoFrame>

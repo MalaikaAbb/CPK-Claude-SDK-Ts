@@ -242,6 +242,8 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/generative-ui/tool-rendering`** — named renderers plus a wildcard catch-all. **Partial.**
 *Try:* "What's the weather in Lisbon?"
 *Pass:* a `WeatherCard` for Lisbon with the executor's fixed values (68°, 55% humidity, wind 10, Sunny), then a short prose reply. *Fail:* a prose-only answer means the model was never offered `get_weather`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
+*Try (grouping tabs):* "What's the weather in Tokyo, Paris and Lisbon?"
+*Pass:* consecutive `get_weather` calls collapse: one group of ✓ rows (custom row, `group: true`), a one-line summary (`toolCallDisplay: "line"`), or an indigo-ruled list (`group` slot). *Fail:* every call in its own card on each tab means grouping isn't applied. `MyToolRow` and `ToolTimeline` are this repo's (the page names but never defines them) — §9.21.
 
 **`/generative-ui/state-rendering`** — rendering agent state reactively. **Partial.** Shares its cell with State Streaming; the demo link redirects there.
 
@@ -252,6 +254,8 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/generative-ui/a2ui/fixed-schema`** — a flight card whose tree is authored as JSON up front. **Partial.**
 *Try:* "Find me a flight from SFO to JFK."
 *Pass:* a flight card on the fixed-schema surface with SFO, JFK, an airline and a price, plus a one-sentence reply. *Fail:* a prose-only answer means the model was never offered `display_flight`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
+*Try (grouping tabs):* "What's the weather in Tokyo, Paris and Lisbon?"
+*Pass:* consecutive `get_weather` calls collapse: one group of ✓ rows (custom row, `group: true`), a one-line summary (`toolCallDisplay: "line"`), or an indigo-ruled list (`group` slot). *Fail:* every call in its own card on each tab means grouping isn't applied. `MyToolRow` and `ToolTimeline` are this repo's (the page names but never defines them) — §9.21.
 
 **`/generative-ui/json-render`** — the agent replies with a `{ root, elements }` JSON spec, and an `assistantMessage` slot renders it through a `@json-render/react` registry (MetricCard, BarChart, PieChart). **Partial** (not yet verified live).
 *Try:* "Show me the sales dashboard with metrics and a revenue chart" (also a suggestion chip).
@@ -369,7 +373,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [voice](https://docs.copilotkit.ai/claude-sdk-typescript/voice) | `/voice` | ✅ Working | Mic needs `OPENAI_API_KEY`; sample-audio button works without. |
 | [generative-ui/reasoning](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/reasoning) | `/generative-ui/reasoning` | ✅ Working | Same reasoning stream; replaces the whole card instead of its sub-slots. |
 | [generative-ui/tool-based](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based) | `/generative-ui/tool-based` | ⚠️ Partial | Chart renders, then the follow-up run 400s. Adapter bug — §9.13. |
-| [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. |
+| [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. Grouping tabs (custom row, `line` display, `group` slot) added; not yet checked in a browser. |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Runs its own copy of the shared State Streaming cell; same two blockers, so the document lands in one end-of-turn write. §9.15. |
 | [generative-ui/a2ui/dynamic-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema) | `/generative-ui/a2ui/dynamic-schema` | ✅ Working | `generate_a2ui` is injected as a frontend tool. |
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
@@ -637,6 +641,10 @@ Deviations, each marked in the source:
 - **Dependencies:** pinned to the page versions: `@json-render/core` / `@json-render/react` `0.18.0`, which need Zod 4 and so add `zod4: npm:zod@^4` beside the repo's Zod 3, and `@hashbrownai/core` / `@hashbrownai/react` `0.5.0-beta.4`, a pre-release. Recharts stays on this repo's v3; the showcase uses v2, and the copied charts compile against v3 unchanged.
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
+
+### 9.21 Tool Rendering: the grouping snippets name components they never define
+
+[Tool Rendering → Grouping tool calls](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering#grouping-tool-calls) passes `MyToolRow` to `useDefaultRenderTool({ render, group: true })` and `ToolTimeline` to the `toolCallsView.group` slot, and defines neither. Both are minimal repo components in `frontend/src/app/generative-ui/tool-rendering/grouping/tool-row.tsx`, labelled. The `line` and `group`-slot snippets register no renderer, and only opted-in renderers group, so their tabs also call the page's zero-config `useDefaultRenderTool()` (labelled glue).
 
 ---
 
