@@ -217,6 +217,10 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Tell me about yourself."
 *Pass:* your own bubbles and composer, streaming normally. *Fail:* a message that never leaves the composer — check the console, which this page logs to deliberately.
 
+**`/custom-look-and-feel/markdown`** — the `markdownRenderer` slot in its three shapes (Streamdown `components` map, class string, replacement component), one demo tab each.
+*Try:* "Reply with a level-2 markdown heading, then a paragraph containing a markdown link to https://copilotkit.ai", then switch tabs. Then: `Repeat this exactly, raw, not in a code block: Hi <reference-chip id="42">Doc 42</reference-chip>. Press <kbd>Ctrl</kbd>+<kbd>C</kbd>.`
+*Pass:* components map: in DevTools the `<h2>` has `class="my-heading"` and the `<a>` has `class="my-link"` plus `target="_blank" rel="noopener noreferrer"`, with no `data-streamdown` or `node` attribute (no visible styling; the page ships no CSS for those classes). Class string: smaller text with looser line height. PlainText: the raw markdown in a `<pre>`. The `<reference-chip>` tag is stripped with "Doc 42" kept, while `<kbd>` renders. *Fail:* `data-streamdown="link"` still on the anchor (object form ignored), formatted HTML on the PlainText tab, or a `<reference-chip>` element in the DOM.
+
 **`/custom-look-and-feel/reasoning-messages`** — the `header` and `contentView` sub-slots of the reasoning card.
 *Try:* "Think step by step: what is 17 × 24?"
 *Pass:* a card badged "HEADER SLOT" over a body badged "contentView slot", appearing before the answer. *Fail:* no card means no reasoning reached the client — check the `REASONING_*` rows on `/backend/copilot-runtime`.
@@ -364,6 +368,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [custom-look-and-feel/css](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/css) | `/custom-look-and-feel/css` | ✅ Working | `theme.css` is the published subset only — the page shows it in excerpt. |
 | [custom-look-and-feel/slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots) | `/custom-look-and-feel/slots` | ✅ Working | Override components are this repo's; the doc only `declare`s them. |
 | [custom-look-and-feel/headless-ui](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui) | `/custom-look-and-feel/headless-ui` | ✅ Working | `headless-complete` half lives on `/programmatic-control`. |
+| [custom-look-and-feel/markdown](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/markdown) | `/custom-look-and-feel/markdown` | ⚠️ Partial | Three snippets wired verbatim (plus `agentId`) on a Quickstart-prompt agent `chat-markdown`. Not yet checked in a browser. |
 | [custom-look-and-feel/reasoning-messages](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/reasoning-messages) | `/custom-look-and-feel/reasoning-messages` | ✅ Working | Claude emits thinking blocks with no config; the adapter maps them to the full `REASONING_*` lifecycle. Verified live. |
 | [multimodal-attachments](https://docs.copilotkit.ai/claude-sdk-typescript/multimodal-attachments) | `/multimodal-attachments` | ✅ Working | Base64 variant; the URL variant needs storage this repo has none of. |
 | [voice](https://docs.copilotkit.ai/claude-sdk-typescript/voice) | `/voice` | ✅ Working | Mic needs `OPENAI_API_KEY`; sample-audio button works without. |
@@ -768,6 +773,7 @@ Grouped as the doc nav groups them.
 - [Slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots)
 - [Headless UI](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui)
 - [Reasoning messages](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/reasoning-messages)
+- [Markdown rendering](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/markdown)
 
 **Input Modalities**
 - [Multimodal attachments](https://docs.copilotkit.ai/claude-sdk-typescript/multimodal-attachments)
