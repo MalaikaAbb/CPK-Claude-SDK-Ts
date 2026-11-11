@@ -76,7 +76,7 @@ export const NAV: NavGroup[] = [
       {
         path: "/quickstart",
         hasDemo: true,
-        agentId: "claude_agent",
+        agentId: "default",
         title: "Quickstart",
         docPath: "/claude-sdk-typescript/quickstart?agent=bring-your-own",
         summary:

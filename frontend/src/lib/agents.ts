@@ -31,7 +31,7 @@ export const JSON_RENDER_AGENT_ID = "byoc_json_render";
 export const HASHBROWN_AGENT_ID = "declarative-hashbrown-demo";
 
 export const AGENT_IDS = [
-  "claude_agent",
+  "default",
   "agentic_chat",
   "prebuilt-sidebar",
   "prebuilt-popup",
