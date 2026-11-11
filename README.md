@@ -307,6 +307,9 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 *Try:* "Please book an intro call with the sales team to discuss pricing."
 *Pass:* a slot picker appears and the chat stops; clicking a slot flips it to "Answered" and the agent's next message names your time. *Fail:* an invented time with no picker, or a click that does nothing.
 
+**`/human-in-the-loop/overview`** — the HITL Overview page's Code-tab demo: `useHumanInTheLoop` + suggestion pills under its own `<CopilotKit agent="hitl-in-chat">`.
+*Try:* the "Book a call with sales" pill. *Pass:* the slot picker appears, the run waits, and the reply names the slot you chose. *Fail:* an invented time with no picker, or a dead click. §9.28.
+
 **`/programmatic-control`** — `addMessage`, `runAgent`, `stopAgent` and `subscribe` driven from code rather than a composer. **Broken — does not compile.**
 *Try:* nothing yet. The demo file holds the page's `headless-complete` snippet verbatim, and that snippet references three helpers it never defines. See §9.14.
 *Pass (today):* `npx tsc --noEmit` reports 6 errors in this one file, and `next build` fails type checking. Every other route still runs under `npm run dev`.
@@ -385,6 +388,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | […/components/markdown-mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode) | `/generative-ui/components/markdown-mode` | ⚠️ Partial | `sendContext: false` needs a backend that builds its own prompt; the page's example is Python. Not yet verified live. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
+| [human-in-the-loop/index](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index) | `/human-in-the-loop/overview` | ⚠️ Partial | Code-tab demo verbatim on `hitl-in-chat`; `./time-picker-card` unpublished (repo card re-exported); showcase `route.ts` not copied. Not yet verified live. §9.28. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
 | [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Published snippets kept; imports, types, form and layout are repo code. `set_notes` works via this repo's MCP bridge (`backend/src/agents/set-notes-mcp-server.ts`) with a server-side state write-back — §9.1, §9.15. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
@@ -638,6 +642,10 @@ Deviations, each marked in the source:
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
 
+### 9.28 HITL Overview: the Code tab's card and runtime are unpublished
+
+[HITL Overview](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index)'s Code tab holds `src/app/demos/hitl-in-chat/page.tsx` (copied unchanged to `frontend/src/app/human-in-the-loop/overview/_demo/`) and the showcase's main `src/app/api/copilotkit/route.ts`. The page imports `TimePickerCard` from `./time-picker-card`, which no page shows; the repo's existing card is re-exported in its place. The route file depends on three unpublished modules (`createClaudeHttpAgent`, `internalRuntimeErrorResponse`, `withCvdiagBackend`) and is not copied; the existing main runtime already serves `hitl-in-chat` (Quickstart prompt, no backend published). The page's Pattern 2 links an embedded `gen-ui-interrupt` demo with no Claude SDK code (see §9.29).
+
 ---
 
 ## 10. Troubleshooting
@@ -796,6 +804,7 @@ Grouped as the doc nav groups them.
 **App Control**
 - [Frontend tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools)
 - [Human in the loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop)
+- [HITL overview](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop/index)
 - [Programmatic control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control)
 
 **Shared State**

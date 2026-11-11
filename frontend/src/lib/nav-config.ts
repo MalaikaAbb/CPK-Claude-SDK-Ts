@@ -475,6 +475,18 @@ export const NAV: NavGroup[] = [
         status: "working",
       },
       {
+        path: "/human-in-the-loop/overview",
+        hasDemo: true,
+        agentId: "hitl-in-chat",
+        title: "HITL Overview",
+        docPath: "/claude-sdk-typescript/human-in-the-loop/index",
+        summary:
+          "The two HITL patterns side by side; the Claude SDK path is useHumanInTheLoop as an async frontend tool, run from the page's Code tab.",
+        status: "partial",
+        statusNote:
+          "Code-tab demo verbatim on the existing hitl-in-chat agent. ./time-picker-card is unpublished (repo card re-exported); the Code tab's showcase route.ts is not copied. Pattern 2 (useInterrupt) has no Claude SDK code on the docs. Not yet checked in a browser.",
+      },
+      {
         path: "/programmatic-control",
         hasDemo: true,
         agentId: "headless-complete",
