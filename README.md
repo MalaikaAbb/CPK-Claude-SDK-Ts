@@ -217,6 +217,10 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Try:* "Tell me about yourself."
 *Pass:* your own bubbles and composer, streaming normally. *Fail:* a message that never leaves the composer — check the console, which this page logs to deliberately.
 
+**`/custom-look-and-feel/markdown`** — the `markdownRenderer` slot in its three shapes (Streamdown `components` map, class string, replacement component), one demo tab each.
+*Try:* "Reply with a level-2 markdown heading, then a paragraph containing a markdown link to https://copilotkit.ai", then switch tabs. Then: `Repeat this exactly, raw, not in a code block: Hi <reference-chip id="42">Doc 42</reference-chip>. Press <kbd>Ctrl</kbd>+<kbd>C</kbd>.`
+*Pass:* components map: in DevTools the `<h2>` has `class="my-heading"` and the `<a>` has `class="my-link"` plus `target="_blank" rel="noopener noreferrer"`, with no `data-streamdown` or `node` attribute (no visible styling; the page ships no CSS for those classes). Class string: smaller text with looser line height. PlainText: the raw markdown in a `<pre>`. The `<reference-chip>` tag is stripped with "Doc 42" kept, while `<kbd>` renders. *Fail:* `data-streamdown="link"` still on the anchor (object form ignored), formatted HTML on the PlainText tab, or a `<reference-chip>` element in the DOM.
+
 **`/custom-look-and-feel/reasoning-messages`** — the `header` and `contentView` sub-slots of the reasoning card.
 *Try:* "Think step by step: what is 17 × 24?"
 *Pass:* a card badged "HEADER SLOT" over a body badged "contentView slot", appearing before the answer. *Fail:* no card means no reasoning reached the client — check the `REASONING_*` rows on `/backend/copilot-runtime`.
@@ -244,6 +248,9 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 *Pass:* a `WeatherCard` for Lisbon with the executor's fixed values (68°, 55% humidity, wind 10, Sunny), then a short prose reply. *Fail:* a prose-only answer means the model was never offered `get_weather`. Partial rather than Working because the tool is registered through a repo-authored bridge, not doc code — see §9.1.
 
 **`/generative-ui/state-rendering`** — rendering agent state reactively. **Partial.** Shares its cell with State Streaming; the demo link redirects there.
+
+**`/generative-ui/a2ui`** — the A2UI overview: three surface operations, Dynamic vs Fixed Schema, catalog-on-provider vs runtime `a2ui` setup, and the `--a2ui-*` color variables. Reference only.
+*Try:* open the page and follow the links to the two schema routes. *Pass:* the four snippets render as code, and the two linked routes run their setups. *Fail:* none to observe here — the page runs nothing itself.
 
 **`/generative-ui/a2ui/dynamic-schema`** — bring-your-own-catalog UI where the agent composes the surface per request.
 *Try:* "Show me a dashboard for our API health: uptime 99.95%, p95 latency 240 ms, 3 open incidents."
@@ -368,6 +375,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [custom-look-and-feel/css](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/css) | `/custom-look-and-feel/css` | ✅ Working | `theme.css` is the published subset only — the page shows it in excerpt. |
 | [custom-look-and-feel/slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots) | `/custom-look-and-feel/slots` | ✅ Working | Override components are this repo's; the doc only `declare`s them. |
 | [custom-look-and-feel/headless-ui](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui) | `/custom-look-and-feel/headless-ui` | ✅ Working | `headless-complete` half lives on `/programmatic-control`. |
+| [custom-look-and-feel/markdown](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/markdown) | `/custom-look-and-feel/markdown` | ⚠️ Partial | Three snippets wired verbatim (plus `agentId`) on a Quickstart-prompt agent `chat-markdown`. Not yet checked in a browser. |
 | [custom-look-and-feel/reasoning-messages](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/reasoning-messages) | `/custom-look-and-feel/reasoning-messages` | ✅ Working | Claude emits thinking blocks with no config; the adapter maps them to the full `REASONING_*` lifecycle. Verified live. |
 | [multimodal-attachments](https://docs.copilotkit.ai/claude-sdk-typescript/multimodal-attachments) | `/multimodal-attachments` | ✅ Working | Base64 variant; the URL variant needs storage this repo has none of. |
 | [voice](https://docs.copilotkit.ai/claude-sdk-typescript/voice) | `/voice` | ✅ Working | Mic needs `OPENAI_API_KEY`; sample-audio button works without. |
@@ -375,6 +383,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [generative-ui/tool-based](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based) | `/generative-ui/tool-based` | ⚠️ Partial | Chart renders, then the follow-up run 400s. Adapter bug — §9.13. |
 | [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Runs its own copy of the shared State Streaming cell; same two blockers, so the document lands in one end-of-turn write. §9.15. |
+| [generative-ui/a2ui](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui) | `/generative-ui/a2ui` | 📄 Reference | Overview. Snippets type-checked verbatim in `_doc/` (`myCatalog`, `myAgent`, `children` undefined on the page, suppressed); the Python `copilotkit.a2ui` helpers can't run on this Node backend. §9.23. |
 | [generative-ui/a2ui/dynamic-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema) | `/generative-ui/a2ui/dynamic-schema` | ✅ Working | `generate_a2ui` is injected as a frontend tool. |
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
 | [generative-ui/json-render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render) | `/generative-ui/json-render` | ⚠️ Partial | 4 printed files verbatim; the rest from the showcase's claude-sdk-typescript Code tab — §9.19. Not yet verified live. |
@@ -646,6 +655,9 @@ Deviations, each marked in the source:
 ### 9.24 Adopt from A2UI: the After catalog's components are never defined
 
 [Adopt from A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/from-a2ui) registers `Airport` and `Arrow` in its After catalog and uses `z` without importing it. The route adds the `zod` import and borrows two minimal components from the aws-strands-ts harness (`frontend/src/app/generative-ui/components/from-a2ui/demo-chat/scaffolding.tsx`), labelled. The page's provider line names no agent; the demo adds `agentId="gen-ui-from-a2ui"` and runs on the existing `/api/copilotkit-components` runtime (no `a2ui` option, `generativeUI: true`). The page's support matrix rejects v0.9 operations, so this repo's fixed-schema `display_flight` surfaces stay on the `a2ui` renderer.
+### 9.23 A2UI overview: undefined names and a Python helper snippet
+
+[A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui) prints `<CopilotKit a2ui={{ catalog: myCatalog }}>{children}</CopilotKit>` and `new CopilotRuntime({ agents: { default: myAgent }, a2ui: { injectA2UITool: true }, ... })` without defining `myCatalog`, `children` or `myAgent`. They are kept verbatim in `frontend/src/app/generative-ui/a2ui/_doc/` with `@ts-expect-error` (TS2304) and never rendered. The page also lists the surface operations through the Python SDK (`from copilotkit import a2ui`), which this Node backend can't use; it is shown as text only.
 
 ---
 
@@ -777,6 +789,7 @@ Grouped as the doc nav groups them.
 - [Slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots)
 - [Headless UI](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui)
 - [Reasoning messages](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/reasoning-messages)
+- [Markdown rendering](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/markdown)
 
 **Input Modalities**
 - [Multimodal attachments](https://docs.copilotkit.ai/claude-sdk-typescript/multimodal-attachments)
@@ -787,6 +800,7 @@ Grouped as the doc nav groups them.
 - [Components as tools](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based)
 - [Tool call rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering)
 - [State rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)
+- [A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui)
 - [A2UI · dynamic schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema)
 - [A2UI · fixed schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema)
 - [JSON Render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render)

@@ -219,6 +219,18 @@ export const NAV: NavGroup[] = [
         statusNote:
           "Claude emits thinking blocks with no extra configuration and the adapter translates them into the full REASONING_* lifecycle, so the card paints. Verified against the live agent.",
       },
+      {
+        path: "/custom-look-and-feel/markdown",
+        hasDemo: true,
+        agentId: "chat-markdown",
+        title: "Markdown Rendering",
+        docPath: "/claude-sdk-typescript/custom-look-and-feel/markdown",
+        summary:
+          "The markdownRenderer slot on assistant messages in all three forms: a Streamdown components map, a class string, and a whole replacement component.",
+        status: "partial",
+        statusNote:
+          "All three snippets are wired as published, on a plain Quickstart-prompt agent. Not yet checked in a browser. The page defines no CSS for its my-link and my-heading classes, so the first example is only visible in DevTools.",
+      },
     ],
   },
   {
@@ -298,6 +310,16 @@ export const NAV: NavGroup[] = [
         status: "broken",
         statusNote:
           "Runs its own copy of the shared State Streaming cell. Same two blockers: write_document has no runnable registration path, and emitStreamingDocumentState needs raw Anthropic deltas the adapter never emits — so the document lands in one end-of-turn write instead of filling in. README §9.15.",
+      },
+      {
+        path: "/generative-ui/a2ui",
+        title: "A2UI",
+        docPath: "/claude-sdk-typescript/generative-ui/a2ui",
+        summary:
+          "Overview of A2UI: the three surface operations, the two schema approaches, and the two ways to switch it on.",
+        status: "reference",
+        statusNote:
+          "Overview page. Its setup paths run on the Dynamic Schema (catalog on provider) and Fixed Schema (runtime a2ui block) routes; the snippets are type-checked verbatim (myCatalog, myAgent, children undefined), the Python helper snippet and the CSS variables are shown, not run.",
       },
       {
         path: "/generative-ui/a2ui/dynamic-schema",
