@@ -327,6 +327,10 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 *Try:* nothing yet. The demo file holds the page's `headless-complete` snippet verbatim, and that snippet references three helpers it never defines. See §9.14.
 *Pass (today):* `npx tsc --noEmit` reports 6 errors in this one file, and `next build` fails type checking. Every other route still runs under `npm run dev`.
 
+**`/webmcp`** — a frontend tool with `webmcp` set, mirrored onto `document.modelContext`; once via `useFrontendTool` under the root provider, once on a bare `CopilotKitCore` (separate page). **Broken by design** — `searchOrders` is never defined.
+*Try:* in Chrome 149+ with the WebMCP flag or origin trial, open `/webmcp/demo-chat` and list tools in Chrome's Model Context Tool Inspector, then call `searchOrders` with `status: "open"`.
+*Pass (today):* the inspector lists `searchOrders` with its enum schema and `readOnlyHint`; calling it fails with `ReferenceError: searchOrders is not defined`. *Fail:* no tool listed (browser lacks `document.modelContext`, or the `webmcp` option was dropped). In other browsers nothing is observable. §9.27.
+
 ### Shared State
 
 **`/shared-state`** — the two-way channel. **Partial.**
@@ -406,6 +410,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
+| [webmcp](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp) | `/webmcp` | ❌ Broken | Both snippets verbatim; `searchOrders` is never defined, so the handler throws (not stubbed). No agent on the page, so no chat. Needs Chrome 149+ WebMCP. §9.27. |
 | [shared-state](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state) | `/shared-state` | ⚠️ Partial | Published snippets kept; imports, types, form and layout are repo code. `set_notes` works via this repo's MCP bridge (`backend/src/agents/set-notes-mcp-server.ts`) with a server-side state write-back — §9.1, §9.15. |
 | [shared-state/rendering-in-app](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/rendering-in-app) | `/shared-state/rendering-in-app` | ⚠️ Partial | This page publishes a fuller example (imports + component + export) so it compiles; still no backend tool to write items with. |
 | [shared-state/streaming](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state/streaming) | `/shared-state/streaming` | ❌ Broken | The page's 5 published lines run inside a repo-built canvas. `write_document` has no bridge and the raw-delta loop is unpublished, so the document arrives in one end-of-turn write via `ag_ui_update_state`. §9.15. |
@@ -658,6 +663,9 @@ Deviations, each marked in the source:
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
 
+### 9.27 WebMCP: `searchOrders` is called and never defined
+
+Both [WebMCP](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp) snippets (`OrderSearch.tsx` with `useFrontendTool`, and `webmcp.ts` with a bare `CopilotKitCore`) call `await searchOrders(status)` and define it nowhere. They are kept verbatim in `frontend/src/app/webmcp/_demo/` with `@ts-expect-error` (TS2304); there is no stub, so calling the tool throws a `ReferenceError`. The page prints no agent, so the route has no chat. `webmcp.ts` imports `@copilotkit/core`, which this frontend gets transitively through `@copilotkit/react-core` (1.83.0 in the lockfile) rather than as a declared dependency. WebMCP itself needs Chrome 149+ with the testing flag or origin trial.
 ### 9.25 MCP Apps: the Code tab imports unpublished helpers, and no agent is published
 
 [MCP Apps](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/mcp-apps)'s demo Code tab holds `src/app/api/copilotkit-mcp-apps/route.ts` and `src/app/demos/mcp-apps/page.tsx`. The route imports `createClaudeHttpAgent` (§9.7) and `internalRuntimeErrorResponse` from `@/app/api/_shared/*`, which no page shows; the first is replaced by `new HttpAgent({ url })`, the second commented out with the error rethrown (both marked `HARNESS` in `frontend/src/app/api/copilotkit-mcp-apps/route.ts`). The page imports `Chat` from `./chat`, also unpublished; a plain `<CopilotChat agentId="mcp-apps">` borrowed from the aws-strands-ts harness stands in. No agent is published for `${AGENT_URL}/mcp-apps`, so the backend serves the Quickstart agent there with no tools; the MCP tools come from the runtime middleware each run. The "MCP Apps with Intelligence" snippet builds a CopilotKit `BuiltInAgent` on an OpenAI model and needs an Intelligence key; it is shown, not run.
@@ -832,6 +840,7 @@ Grouped as the doc nav groups them.
 - [Frontend tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools)
 - [Human in the loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop)
 - [Programmatic control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control)
+- [WebMCP](https://docs.copilotkit.ai/claude-sdk-typescript/webmcp)
 
 **Shared State**
 - [Overview](https://docs.copilotkit.ai/claude-sdk-typescript/shared-state)
