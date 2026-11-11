@@ -449,6 +449,18 @@ export const NAV: NavGroup[] = [
         statusNote:
           "sendContext: false expects the backend to build its own prompt from the envelope; the page's example is Python and this backend doesn't, so that mode yields plain text. Not yet verified end-to-end.",
       },
+      {
+        path: "/generative-ui/components/from-a2ui",
+        hasDemo: true,
+        agentId: "gen-ui-from-a2ui",
+        title: "Adopt from A2UI",
+        docPath: "/claude-sdk-typescript/generative-ui/components/from-a2ui",
+        summary:
+          "The v0.9 a2ui renderer to A2UI 1.0 migration: the After catalog running on the new engine, with the Before code shown.",
+        status: "partial",
+        statusNote:
+          "Built, not yet checked in a browser. Airport and Arrow are borrowed scaffolding (aws-strands-ts). The support matrix rules out v0.9 operation emitters, which is what this repo's fixed-schema A2UI bridge produces.",
+      },
     ],
   },
   {

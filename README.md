@@ -297,6 +297,10 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 *Try:* "Give me a seat price estimator I can play with: a slider for seats and the monthly price at $29/seat."
 *Pass:* text, then a live Slider card inline, then more text. With `sendContext` off, plain text is expected (§9.18). *Fail:* the fence shown as a raw code block.
 
+**`/generative-ui/components/from-a2ui`** — the v0.9 `a2ui` renderer → A2UI 1.0 migration: the page's After catalog (`createGenerativeUI` with `Airport`/`Arrow` over `standardUI`) running on the components runtime, with the Before code shown.
+*Try:* "Show a flight card from SFO (San Francisco) to JFK (New York) with a Book button."
+*Pass:* two Airport blocks (code over city) joined by an Arrow, in standard layout components, with a standard Button. *Fail:* plain text, or a rejection naming a v0.9 shape (`{ path }` bindings, old `action`). `Airport`/`Arrow` are borrowed scaffolding — §9.24.
+
 ### App Control
 
 **`/frontend-tools`** — a tool whose handler runs in the browser and mutates page state.
@@ -383,6 +387,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | […/components/theming](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/theming) | `/generative-ui/components/theming` | ⚠️ Partial | Not yet verified live. |
 | […/components/transports](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/transports) | `/generative-ui/components/transports` | ⚠️ Partial | Not yet verified live. |
 | […/components/markdown-mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode) | `/generative-ui/components/markdown-mode` | ⚠️ Partial | `sendContext: false` needs a backend that builds its own prompt; the page's example is Python. Not yet verified live. |
+| […/components/from-a2ui](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/from-a2ui) | `/generative-ui/components/from-a2ui` | ⚠️ Partial | After catalog runs on agent `gen-ui-from-a2ui`; `Airport`/`Arrow` borrowed (aws-strands-ts). Not yet checked in a browser. §9.24. |
 | [frontend-tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools) | `/frontend-tools` | ✅ Working | |
 | [human-in-the-loop](https://docs.copilotkit.ai/claude-sdk-typescript/human-in-the-loop) | `/human-in-the-loop` | ✅ Working | `useInterrupt` is LangGraph-only and out of scope by the docs' own text. |
 | [programmatic-control](https://docs.copilotkit.ai/claude-sdk-typescript/programmatic-control) | `/programmatic-control` | ❌ Broken | Holds the page's `headless-complete` snippet verbatim; it references 3 undefined helpers and omits 2 imports, so it does not compile — §9.14. |
@@ -638,6 +643,10 @@ Deviations, each marked in the source:
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
 
+### 9.24 Adopt from A2UI: the After catalog's components are never defined
+
+[Adopt from A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/from-a2ui) registers `Airport` and `Arrow` in its After catalog and uses `z` without importing it. The route adds the `zod` import and borrows two minimal components from the aws-strands-ts harness (`frontend/src/app/generative-ui/components/from-a2ui/demo-chat/scaffolding.tsx`), labelled. The page's provider line names no agent; the demo adds `agentId="gen-ui-from-a2ui"` and runs on the existing `/api/copilotkit-components` runtime (no `a2ui` option, `generativeUI: true`). The page's support matrix rejects v0.9 operations, so this repo's fixed-schema `display_flight` surfaces stay on the `a2ui` renderer.
+
 ---
 
 ## 10. Troubleshooting
@@ -792,6 +801,7 @@ Grouped as the doc nav groups them.
 - [Theming](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/theming)
 - [Transports](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/transports)
 - [Markdown mode](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/markdown-mode)
+- [Adopt from A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/components/from-a2ui)
 
 **App Control**
 - [Frontend tools](https://docs.copilotkit.ai/claude-sdk-typescript/frontend-tools)
