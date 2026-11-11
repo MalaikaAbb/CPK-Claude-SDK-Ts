@@ -245,6 +245,9 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 
 **`/generative-ui/state-rendering`** — rendering agent state reactively. **Partial.** Shares its cell with State Streaming; the demo link redirects there.
 
+**`/generative-ui/a2ui`** — the A2UI overview: three surface operations, Dynamic vs Fixed Schema, catalog-on-provider vs runtime `a2ui` setup, and the `--a2ui-*` color variables. Reference only.
+*Try:* open the page and follow the links to the two schema routes. *Pass:* the four snippets render as code, and the two linked routes run their setups. *Fail:* none to observe here — the page runs nothing itself.
+
 **`/generative-ui/a2ui/dynamic-schema`** — bring-your-own-catalog UI where the agent composes the surface per request.
 *Try:* "Show me a dashboard for our API health: uptime 99.95%, p95 latency 240 ms, 3 open incidents."
 *Pass:* a composed surface of cards, metrics and badges, streaming in progressively. *Fail:* a plain markdown answer means `generate_a2ui` was never injected.
@@ -371,6 +374,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [generative-ui/tool-based](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based) | `/generative-ui/tool-based` | ⚠️ Partial | Chart renders, then the follow-up run 400s. Adapter bug — §9.13. |
 | [generative-ui/tool-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering) | `/generative-ui/tool-rendering` | ⚠️ Partial | `get_weather` works, but via this repo's own MCP bridge (`backend/src/agents/weather-mcp-server.ts`), since the docs never publish one — §9.1. |
 | [generative-ui/state-rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering) | `/generative-ui/state-rendering` | ❌ Broken | Runs its own copy of the shared State Streaming cell; same two blockers, so the document lands in one end-of-turn write. §9.15. |
+| [generative-ui/a2ui](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui) | `/generative-ui/a2ui` | 📄 Reference | Overview. Snippets type-checked verbatim in `_doc/` (`myCatalog`, `myAgent`, `children` undefined on the page, suppressed); the Python `copilotkit.a2ui` helpers can't run on this Node backend. §9.23. |
 | [generative-ui/a2ui/dynamic-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema) | `/generative-ui/a2ui/dynamic-schema` | ✅ Working | `generate_a2ui` is injected as a frontend tool. |
 | [generative-ui/a2ui/fixed-schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema) | `/generative-ui/a2ui/fixed-schema` | ⚠️ Partial | Injection off per the page; `display_flight` works via this repo's own MCP bridge (`backend/src/agents/display-flight-mcp-server.ts`) — §9.1. |
 | [generative-ui/json-render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render) | `/generative-ui/json-render` | ⚠️ Partial | 4 printed files verbatim; the rest from the showcase's claude-sdk-typescript Code tab — §9.19. Not yet verified live. |
@@ -638,6 +642,10 @@ Deviations, each marked in the source:
 - **Lint:** `eslint` flags `json-render/charts/pie-chart.tsx` (`react-hooks/immutability`, a reassigned accumulator inside `.map()`). The file is verbatim showcase code and `next build` doesn't lint, so it was left alone.
 - **Runtime props validation:** per the JSON Render page itself, `parseSpec` checks shape and the type allowlist only, never the Zod prop schemas.
 
+### 9.23 A2UI overview: undefined names and a Python helper snippet
+
+[A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui) prints `<CopilotKit a2ui={{ catalog: myCatalog }}>{children}</CopilotKit>` and `new CopilotRuntime({ agents: { default: myAgent }, a2ui: { injectA2UITool: true }, ... })` without defining `myCatalog`, `children` or `myAgent`. They are kept verbatim in `frontend/src/app/generative-ui/a2ui/_doc/` with `@ts-expect-error` (TS2304) and never rendered. The page also lists the surface operations through the Python SDK (`from copilotkit import a2ui`), which this Node backend can't use; it is shown as text only.
+
 ---
 
 ## 10. Troubleshooting
@@ -778,6 +786,7 @@ Grouped as the doc nav groups them.
 - [Components as tools](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-based)
 - [Tool call rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/tool-rendering)
 - [State rendering](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/state-rendering)
+- [A2UI](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui)
 - [A2UI · dynamic schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema)
 - [A2UI · fixed schema](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/a2ui/fixed-schema)
 - [JSON Render](https://docs.copilotkit.ai/claude-sdk-typescript/generative-ui/json-render)
