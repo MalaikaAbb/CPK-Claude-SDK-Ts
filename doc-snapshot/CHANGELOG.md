@@ -8,6 +8,338 @@ Holds the 3 most recent dated entries. When a change lands on a fourth
 date, the oldest entry is dropped. Entries are counted, not aged, so a gap of
 weeks between changes does not expire anything.
 
+## 2026-11-11
+
+### 14:08 UTC — 27 pages, highest severity high
+
+**High — Introduction**
+
+`/claude-sdk-typescript` · routes `/`, `/doc-sync` · under “Prerequisites”
+
+12 code lines, 27 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- - Node.js 20+
++ - Node.js 20.9+
+- The starter contains three pieces:
++ The starter contains these pieces:
+- - `src/agent_server.ts` - the Claude Agent SDK backend process
+- - `src/app/api/copilotkit/route.ts` - the CopilotKit runtime route that proxies to the agent
+- - `src/app/page.tsx` - the starter chat UI to inspect first
++ - `agent/src/server.ts` - the AG-UI server for the agent. It listens on port 8000.
+````
+
+**High — Slots**
+
+`/claude-sdk-typescript/custom-look-and-feel/slots` · route `/custom-look-and-feel/slots` · under “Tool calls”
+
+23 code lines, 1 heading, 15 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ ### Tool calls
++ 
++ The `assistantMessage` slot holds `toolCallsView`, which renders the tool calls
++ of one assistant message. Wrap the default `CopilotChatToolCallsView` to change
++ the container while keeping your registered tool renderers:
++ 
++ ```tsx title="page.tsx"
++ import {
+````
+
+**High — A2UI · Dynamic Schema**
+
+`/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema` · route `/generative-ui/a2ui/dynamic-schema` · under “The A2UI agent tool” · in a `python` block
+
+2 code lines changed.
+
+````diff
+- "model": ChatOpenAI(model="gpt-4o"),
++ "model": ChatOpenAI(model="gpt-6-luna", reasoning_effort="none"),
+````
+
+**High — Tool Call Rendering**
+
+`/claude-sdk-typescript/generative-ui/tool-rendering` · route `/generative-ui/tool-rendering` · under “Default tool rendering (zero-config)”
+
+15 code lines, 1 heading, 35 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- any UI.
++ any UI. Calls the agent makes in a row are grouped into one card; see
++ [Grouping tool calls](#grouping-tool-calls).
++ 
++ ## Grouping tool calls
++ 
++ Agents often call several tools in a row. By default, CopilotKit collapses
++ each run of calls drawn by the built-in card from `useDefaultRenderTool()` into
+````
+
+**High — Threads Drawer**
+
+`/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer` · route `/prebuilt-components/copilot-threads-drawer` · under “When should I use this?”
+
+41 code lines, 1 heading, 35 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- server-side). <SignupLink surface="docs_drawer">Start managed onboarding</SignupLink> to create or select a project.
++ server-side). <SignupLink surface="docs_drawer">Start cloud-hosted setup</SignupLink> to create or select a project.
+- [scope Rich Threads to the signed-in user](/claude-sdk-typescript/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
++ [scope AG-UI Streams to the signed-in user](/claude-sdk-typescript/threads-lifecycle#scope-rich-threads-to-the-signed-in-user).
+- body="Connect a managed project to get persistent threads and realtime sync."
++ body="Connect a cloud-hosted project to get persistent threads and realtime sync."
++ ## Add your own "New conversation" button
++ 
+````
+
+**High — Quickstart**
+
+`/claude-sdk-typescript/quickstart` · routes `/quickstart`, `/backend/copilot-runtime` · under “Prerequisites”
+
+12 code lines, 27 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- - Node.js 20+
++ - Node.js 20.9+
+- The starter contains three pieces:
++ The starter contains these pieces:
+- - `src/agent_server.ts` - the Claude Agent SDK backend process
+- - `src/app/api/copilotkit/route.ts` - the CopilotKit runtime route that proxies to the agent
+- - `src/app/page.tsx` - the starter chat UI to inspect first
++ - `agent/src/server.ts` - the AG-UI server for the agent. It listens on port 8000.
+````
+
+**Medium — Headless UI**
+
+`/claude-sdk-typescript/custom-look-and-feel/headless-ui` · route `/custom-look-and-feel/headless-ui` · under “Fully Headless UI”
+
+2 headings changed.
+
+````diff
+- # Fully Headless UI
++ # Headless UI
+````
+
+**Medium — Thread & History Lifecycle**
+
+`/claude-sdk-typescript/threads-lifecycle` · route `/threads-lifecycle` · under “The lifecycle at a glance”
+
+3 headings, 17 prose lines changed.
+
+````diff
+- 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [Threads & Persistence Architecture](/claude-sdk-typescript/intelligence/threads-explained) for the full server-side model.
++ 2. **Run.** Messages and tool calls stream under that `threadId`. If a server-side store is configured (CopilotKit Intelligence, or a persisting `AgentRunner`), they are persisted as they happen so the thread can be replayed later. A runtime with no persistence layer keeps nothing server-side. See [AG-UI Streams & Framework Threads](/claude-sdk-typescript/intelligence/threads-explained) for the full server-side model.
+- ## Scope Rich Threads to the signed-in user
++ <span id="scope-rich-threads-to-the-signed-in-user" />
++ ## Scope AG-UI Streams to the signed-in user
++ 
+- [Connect your runtime to Intelligence](/claude-sdk-typescript/intelligence/connect-your-runtime) covers the
++ [Connect your runtime to Intelligence](/claude-sdk-typescript/intelligence/quickstart) covers the
+````
+
+**Low — Reasoning Messages**
+
+`/claude-sdk-typescript/custom-look-and-feel/reasoning-messages` · route `/custom-look-and-feel/reasoning-messages` · under “Reasoning Messages”
+
+7 prose lines changed.
+
+````diff
+- > Customize how reasoning (thinking) tokens from models like o1, o3, and o4-mini are displayed.
++ > Customize how reasoning (thinking) tokens from models like `gpt-6-luna` are displayed.
+- Some models (like OpenAI's o1, o3, and o4-mini) emit **reasoning tokens**: internal
++ Some models (like `gpt-6-luna`) emit **reasoning tokens**: internal
+- | `label` | `string` | `"Thinking…"` while streaming, `"Thought for X seconds"` after |
++ | `label` | `string` | `labels.reasoningMessageThinkingLabel` (`"Thinking…"`) while streaming, `"Thought for X seconds"` after |
++ | `elapsedSeconds` | `number` | Seconds spent reasoning, for building a localized label |
+````
+
+**Low — Frontend Tools**
+
+`/claude-sdk-typescript/frontend-tools` · route `/frontend-tools` · under “Forward browser tools to Claude”
+
+12 prose lines changed.
+
+````diff
+- input. Convert each AG-UI tool definition into an Anthropic Messages API
+- tool schema before calling the model. Runs that carry frontend tools use
+- the direct Messages API path rather than the Claude Agent SDK.
++ input. This demo's server calls the Anthropic Messages API directly for
++ runs that carry frontend tools, so it converts each AG-UI tool definition
++ into a Messages API tool schema first.
++ 
++ The published `ClaudeAgentAdapter` from `@ag-ui/claude-agent-sdk` needs
+````
+
+**Low — A2UI · Fixed Schema**
+
+`/claude-sdk-typescript/generative-ui/a2ui/fixed-schema` · route `/generative-ui/a2ui/fixed-schema` · under “Fixed Schema A2UI”
+
+35 prose lines changed.
+
+````diff
+- - **Schema-loading** (langgraph-python, langgraph-typescript,
+- langgraph-fastapi, llamaindex, crewai-crews, pydantic-ai,
+- ms-agent-python, google-adk), the schema is saved as a `.json`
+- file next to the agent and loaded once at startup.
++ - **Schema-loading** (including Strands TypeScript), the schema is saved
++ as a `.json` file next to the agent and loaded once at startup.
+- - **LLM-driven** (mastra, strands), the agent runs a secondary LLM
+- call to produce the operations container per-request. The catalog
+````
+
+**Low — Reasoning**
+
+`/claude-sdk-typescript/generative-ui/reasoning` · route `/generative-ui/reasoning` · under “What is this?”
+
+2 prose lines changed.
+
+````diff
+- Some models (OpenAI's `o1`, `o3`, and `o4-mini`, Anthropic's thinking
++ Some models (`gpt-6-luna`, Anthropic's thinking
+````
+
+**Low — Components as Tools**
+
+`/claude-sdk-typescript/generative-ui/tool-based` · route `/generative-ui/tool-based` · under “Forward browser tools to Claude”
+
+12 prose lines changed.
+
+````diff
+- input. Convert each AG-UI tool definition into an Anthropic Messages API
+- tool schema before calling the model. Runs that carry frontend tools use
+- the direct Messages API path rather than the Claude Agent SDK.
++ input. This demo's server calls the Anthropic Messages API directly for
++ runs that carry frontend tools, so it converts each AG-UI tool definition
++ into a Messages API tool schema first.
++ 
++ The published `ClaudeAgentAdapter` from `@ag-ui/claude-agent-sdk` needs
+````
+
+**Low — Headless Threads**
+
+`/claude-sdk-typescript/headless-threads` · route `/headless-threads` · under “Headless Threads”
+
+28 prose lines changed.
+
+````diff
++ Intelligence’s AG-UI streams power the history and delivery behind this custom UI. Use `useThreads` to list and manage conversations, and pass their `threadId` to your chat.
++ 
+- CopilotKit Rich Threads enable persistent, resumable multi-turn conversations. The `useThreads` hook lists, creates, renames, archives, and deletes CopilotKit Intelligence threads with realtime synchronization via WebSocket. Threads work with any agent framework — CopilotKit Intelligence stores conversation history server-side, so users can close their browser and pick up where they left off. It does not list or mutate native LangGraph, ADK, or other framework stores unless your backend explicitly bridges those systems. Thread metadata updates (renames, archives, new threads) appear on connected clients without polling.
++ The `useThreads` hook lists, creates, renames, archives, and deletes CopilotKit Intelligence threads with realtime synchronization via WebSocket. Threads work with any agent framework — CopilotKit Intelligence stores conversation history server-side, so users can close their browser and pick up where they left off. It does not list or mutate native LangGraph, ADK, or other framework stores unless your backend explicitly bridges those systems. Thread metadata updates (renames, archives, new threads) appear on connected clients without polling.
+- [scope Rich Threads to the signed-in user](/claude-sdk-typescript/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)
++ [scope AG-UI Streams to the signed-in user](/claude-sdk-typescript/threads-lifecycle#scope-rich-threads-to-the-signed-in-user)
+- <Callout type="info" title="Migrating existing history?">
+- Threads capture new CopilotKit conversations once your app is connected to
+````
+
+**Low — Open, close, and feedback**
+
+`/claude-sdk-typescript/prebuilt-components/chat-controls` · route `/prebuilt-components/chat-controls` · under “Capture message feedback (thumbs up / down)”
+
+12 prose lines changed.
+
+````diff
+- slot**. The buttons only render when a handler is provided:
++ slot**. Without Automatic Learning capture, the buttons only render when a
++ handler or a custom thumb slot is provided:
++ 
++ With [Automatic Learning capture](/claude-sdk-typescript/intelligence/capture-interactions#collect-reply-ratings)
++ on and a Trajectory started, the buttons appear without handlers in every chat
++ that renders messages with `CopilotChatMessageView` inside a
++ `CopilotChatConfigurationProvider`, as `CopilotChat`, `CopilotPopup`, and
+````
+
+**Low — Programmatic Control**
+
+`/claude-sdk-typescript/programmatic-control` · route `/programmatic-control` · under “What is this?”
+
+4 prose lines changed.
+
+````diff
+- - `agent.subscribe(subscriber)` — low-level AG-UI event subscription (`onCustomEvent`, `onRunStartedEvent`, `onRunFinalized`, `onRunFailed`, …). Pairs with `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` to drive interrupt resolution from arbitrary UI.
++ - `agent.subscribe(subscriber)` — low-level AG-UI event subscription (`onCustomEvent`, `onRunStartedEvent`, `onRunFinalized`, `onRunFailed`, …). Pairs with `copilotkit.runAgent({ agent, resume })` for standard AG-UI interrupts, or `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` for legacy `on_interrupt` custom events, to drive interrupt resolution from arbitrary UI.
+- - **`agent.runAgent(options)`** — low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or chain follow-ups. Reach for this only when you need direct control. (For the interrupt-resume case, use `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` — see the snippet below — so the subscriber lifecycle still wraps the resumed run.)
++ - **`agent.runAgent(options)`** — low-level method on the agent instance. Sends the request to the runtime but does **not** execute frontend tools or chain follow-ups. Reach for this only when you need direct control. (For the interrupt-resume case, use `copilotkit.runAgent({ agent, resume })` for standard AG-UI interrupts, or `copilotkit.runAgent({ agent, forwardedProps: { command: { resume, interruptEvent } } })` for legacy `on_interrupt` custom events — the snippet below shows the legacy form — so the subscriber lifecycle still wraps the resumed run.)
+````
+
+**Low — Voice**
+
+`/claude-sdk-typescript/voice` · route `/voice` · under “Custom transcription backends”
+
+20 prose lines changed.
+
+````diff
++ <Callout type="info" title="TranscriptionServiceOpenAI takes an openai 5.x client">
++ `@copilotkit/voice` depends on `openai` `^5.9.0`, and the `openai` option of
++ `TranscriptionServiceOpenAI` is typed against the copy of `openai` that
++ `@copilotkit/voice` resolves. Pass an `OpenAI` instance created from that same
++ installed copy. The `OpenAI` class has private (`#private`) members, so an
++ instance from another copy or another major version fails type-checking, even
++ when it looks the same.
++ 
+````
+
+**Info — Components and surfaces**
+
+`/claude-sdk-typescript/generative-ui/components` · route `/generative-ui/components`
+
+Now tracked for the first time.
+
+**Info — Catalogs**
+
+`/claude-sdk-typescript/generative-ui/components/catalogs` · route `/generative-ui/components/catalogs`
+
+Now tracked for the first time.
+
+**Info — Markdown mode**
+
+`/claude-sdk-typescript/generative-ui/components/markdown-mode` · route `/generative-ui/components/markdown-mode`
+
+Now tracked for the first time.
+
+**Info — Standard catalog**
+
+`/claude-sdk-typescript/generative-ui/components/standard-catalog` · route `/generative-ui/components/standard-catalog`
+
+Now tracked for the first time.
+
+**Info — State and actions**
+
+`/claude-sdk-typescript/generative-ui/components/state-and-actions` · route `/generative-ui/components/state-and-actions`
+
+Now tracked for the first time.
+
+**Info — Surfaces**
+
+`/claude-sdk-typescript/generative-ui/components/surfaces` · route `/generative-ui/components/surfaces`
+
+Now tracked for the first time.
+
+**Info — Theming**
+
+`/claude-sdk-typescript/generative-ui/components/theming` · route `/generative-ui/components/theming`
+
+Now tracked for the first time.
+
+**Info — Transports**
+
+`/claude-sdk-typescript/generative-ui/components/transports` · route `/generative-ui/components/transports`
+
+Now tracked for the first time.
+
+**Info — Hashbrown**
+
+`/claude-sdk-typescript/generative-ui/hashbrown` · route `/generative-ui/hashbrown`
+
+Now tracked for the first time.
+
+**Info — JSON Render**
+
+`/claude-sdk-typescript/generative-ui/json-render` · route `/generative-ui/json-render`
+
+Now tracked for the first time.
+
+---
+
 ## 2026-09-22
 
 ### 07:53 UTC — 13 pages, highest severity high
@@ -231,6 +563,8 @@ weeks between changes does not expire anything.
 
 ---
 
+---
+
 ## 2026-09-09
 
 ### 08:18 UTC — 2 pages, highest severity high
@@ -268,156 +602,6 @@ weeks between changes does not expire anything.
 + surface directly.
 + 
 ````
-
----
-
----
-
-## 2026-09-04
-
-### 08:44 UTC — 11 pages, highest severity high
-
-**High — Agent Config**
-
-`/claude-sdk-typescript/agent-config` · route `/agent-config` · under “Make runtime configuration explicit”
-
-36 code lines, 5 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-- The backend half is also a single node. Read the latest config context at the top of every run and use it to build the system prompt for that turn:
-- 
-- ```python title="backend/agent.py — agent reads config and rebuilds the system prompt"
-- import json
-- 
-- CONFIG_KEYS = ("tone", "expertise", "responseLength")
-- 
-- def read_config_value(entry):
-````
-
-**High — State Rendering**
-
-`/claude-sdk-typescript/generative-ui/state-rendering` · route `/generative-ui/state-rendering` · under “How it works in code”
-
-16 code lines, 1 heading, 12 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ <Steps>
-+ <Step>
-+ ### Stream partial state updates while Claude responds
-+ 
-+ For streaming state, parse the agent's structured deltas as they arrive and
-+ emit CopilotKit state updates before the final message is complete. This
-+ branch runs inside the streamed tool-argument handler.
-+ 
-````
-
-**High — Programmatic Control**
-
-`/claude-sdk-typescript/programmatic-control` · route `/programmatic-control` · under “Run Claude through an AG-UI endpoint” · in a `tsx` block
-
-2 code lines changed.
-
-````diff
-+ "use client";
-+ 
-````
-
-**High — Shared State**
-
-`/claude-sdk-typescript/shared-state` · route `/shared-state` · under “Put shared state in the system prompt and tools”
-
-38 code lines, 2 headings, 17 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ 
-+ <Step>
-+ ### Pass the schema to the shared agent loop
-+ 
-+ The route reads the current preferences and notes, then registers
-+ `SET_NOTES_TOOL_SCHEMA` with `runAgenticLoop`.
-+ 
-+ 
-````
-
-**Low — Introduction**
-
-`/claude-sdk-typescript` · routes `/`, `/doc-sync` · under “Quickstart”
-
-5 prose lines changed.
-
-````diff
-+ <IntelligenceOnboardingPrompt
-+ feature="learning"
-+ surface="docs_claude_sdk_typescript_quickstart"
-+ />
-+ 
-````
-
-**Low — Frontend Tools**
-
-`/claude-sdk-typescript/frontend-tools` · route `/frontend-tools` · under “Frontend Tools”
-
-12 prose lines changed.
-
-````diff
-- <Callout type="info" title="See this in Inspector">
-- Open Inspector on localhost. Go to **Inspect**, then **Event Snippets**.
-- You can compile a tool call, reasoning, text, or activity, run it on the live
-- agent, and save it. Saved snippets are grouped by recipe. On localhost chat,
-- **Save as snippet** uses the recipe for the thing you click and fills the form.
-- On a tool call, generative UI, or A2UI, the bookmark sits to the right of the
-- block (or to the left if there is no room on the right).
-- Run of a `generateSandboxedUi` tool call paints the sandbox UI in chat.
-````
-
-**Low — A2UI · Fixed Schema**
-
-`/claude-sdk-typescript/generative-ui/a2ui/fixed-schema` · route `/generative-ui/a2ui/fixed-schema` · under “Fixed Schema A2UI”
-
-14 prose lines changed.
-
-````diff
-+ <Callout type="info" title="The flight card is an illustrative domain">
-+ Everything below uses flight booking so the wiring has something concrete to
-+ render — `display_flight`, `flight-fixed-catalog`, and the airport/airline
-+ components are this page's example, not part of the API.
-+ 
-+ What transfers is the **shape**: a fixed catalog, a tool that returns data
-+ against it, and `a2ui.render(...)` with `createSurface` + `updateComponents` +
-+ `updateDataModel`. Keep your own application's domain and substitute your own
-````
-
-**Low — Quickstart**
-
-`/claude-sdk-typescript/quickstart` · routes `/quickstart`, `/backend/copilot-runtime` · under “Quickstart”
-
-5 prose lines changed.
-
-````diff
-+ <IntelligenceOnboardingPrompt
-+ feature="learning"
-+ surface="docs_claude_sdk_typescript_quickstart"
-+ />
-+ 
-````
-
-**Info — Headless Threads**
-
-`/claude-sdk-typescript/headless-threads` · route `/headless-threads`
-
-Now tracked for the first time.
-
-**Info — Threads Drawer**
-
-`/claude-sdk-typescript/prebuilt-components/copilot-threads-drawer` · route `/prebuilt-components/copilot-threads-drawer`
-
-Now tracked for the first time.
-
-**Info — Thread & History Lifecycle**
-
-`/claude-sdk-typescript/threads-lifecycle` · route `/threads-lifecycle`
-
-Now tracked for the first time.
 
 ---
 
