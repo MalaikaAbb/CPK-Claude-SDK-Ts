@@ -38,6 +38,7 @@ export const AGENT_IDS = [
   "chat-controls",
   "chat-customization-css",
   "chat-slots",
+  "chat-markdown",
   "headless-simple",
   "headless-complete",
   "reasoning-default",

@@ -219,6 +219,18 @@ export const NAV: NavGroup[] = [
         statusNote:
           "Claude emits thinking blocks with no extra configuration and the adapter translates them into the full REASONING_* lifecycle, so the card paints. Verified against the live agent.",
       },
+      {
+        path: "/custom-look-and-feel/markdown",
+        hasDemo: true,
+        agentId: "chat-markdown",
+        title: "Markdown Rendering",
+        docPath: "/claude-sdk-typescript/custom-look-and-feel/markdown",
+        summary:
+          "The markdownRenderer slot on assistant messages in all three forms: a Streamdown components map, a class string, and a whole replacement component.",
+        status: "partial",
+        statusNote:
+          "All three snippets are wired as published, on a plain Quickstart-prompt agent. Not yet checked in a browser. The page defines no CSS for its my-link and my-heading classes, so the first example is only visible in DevTools.",
+      },
     ],
   },
   {

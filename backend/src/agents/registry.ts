@@ -97,6 +97,7 @@ export const REGISTRY: Record<string, AgentDefinition> = {
   // ── Custom Look and Feel ─────────────────────────────────────────────────
   "chat-customization-css": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
   "chat-slots": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
+  "chat-markdown": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
   "headless-simple": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
   "headless-complete": { systemPrompt: DEFAULT_SYSTEM_PROMPT },
   "reasoning-default": {
