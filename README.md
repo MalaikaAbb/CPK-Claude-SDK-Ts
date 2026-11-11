@@ -212,6 +212,8 @@ Every route below has a notes page at the path shown and a live demo at `<path>/
 **`/custom-look-and-feel/slots`** — the three override levels (class string, props object, whole component) across three slots.
 *Try:* look before sending, then send "Hello."
 *Pass:* a badged welcome card first; then a badged assistant card, with the disclaimer overridden throughout. *Fail:* default chrome with no badges.
+*Try (toolCallsView tab):* "What's the weather in Tokyo?"
+*Pass:* the `get_weather` call sits inside a dashed rounded border, then the reply. *Fail:* no dashed border (sub-slot ignored), or no tool call at all (chat not on the `tool-rendering` agent).
 
 **`/custom-look-and-feel/headless-ui`** — the whole chat rebuilt from `useAgent`, `useCopilotKit` and `useRenderToolCall`, with no CopilotKit UI.
 *Try:* "Tell me about yourself."
@@ -362,7 +364,7 @@ Native generative UI (A2UI 1.0, marked **Experimental** in the docs). Needs `@co
 | [headless-threads](https://docs.copilotkit.ai/claude-sdk-typescript/headless-threads) | `/headless-threads` | ✅ Working | Needs Intelligence mode; in SSE mode `/info` reports `mutations: false`. |
 | [threads-lifecycle](https://docs.copilotkit.ai/claude-sdk-typescript/threads-lifecycle) | `/threads-lifecycle` | ✅ Working | Switch/start work in any mode; history replay needs a server-side store. |
 | [custom-look-and-feel/css](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/css) | `/custom-look-and-feel/css` | ✅ Working | `theme.css` is the published subset only — the page shows it in excerpt. |
-| [custom-look-and-feel/slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots) | `/custom-look-and-feel/slots` | ✅ Working | Override components are this repo's; the doc only `declare`s them. |
+| [custom-look-and-feel/slots](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/slots) | `/custom-look-and-feel/slots` | ✅ Working | Override components are this repo's; the doc only `declare`s them. New `toolCallsView` example on a second tab, wired to the `tool-rendering` agent (harness glue) — not yet checked in a browser. |
 | [custom-look-and-feel/headless-ui](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/headless-ui) | `/custom-look-and-feel/headless-ui` | ✅ Working | `headless-complete` half lives on `/programmatic-control`. |
 | [custom-look-and-feel/reasoning-messages](https://docs.copilotkit.ai/claude-sdk-typescript/custom-look-and-feel/reasoning-messages) | `/custom-look-and-feel/reasoning-messages` | ✅ Working | Claude emits thinking blocks with no config; the adapter maps them to the full `REASONING_*` lifecycle. Verified live. |
 | [multimodal-attachments](https://docs.copilotkit.ai/claude-sdk-typescript/multimodal-attachments) | `/multimodal-attachments` | ✅ Working | Base64 variant; the URL variant needs storage this repo has none of. |
