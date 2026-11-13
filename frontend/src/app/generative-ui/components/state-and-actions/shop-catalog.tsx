@@ -42,7 +42,7 @@ function ProductCard({ productId, name, inCart, onAddToCart }: GenerativeUICompo
         className="mt-2 rounded border px-2 py-1 text-sm"
         onClick={async () => {
           const result = await onAddToCart?.({ productId });
-          if (result && !result.ok) setError(result.error.message);
+          if (result) setError(result.ok ? undefined : result.error.message);
         }}
       >
         Add to cart
