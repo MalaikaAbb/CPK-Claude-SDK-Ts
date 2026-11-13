@@ -8,6 +8,289 @@ Holds the 3 most recent dated entries. When a change lands on a fourth
 date, the oldest entry is dropped. Entries are counted, not aged, so a gap of
 weeks between changes does not expire anything.
 
+## 2026-11-13
+
+### 11:09 UTC — 23 pages, highest severity high
+
+**High — A2UI · Dynamic Schema**
+
+`/claude-sdk-typescript/generative-ui/a2ui/dynamic-schema` · route `/generative-ui/a2ui/dynamic-schema` · under “Implement the React renderers” · in a `typescript` block
+
+4 code lines changed.
+
+````diff
+- ? "text-emerald-600"
++ ? "text-emerald-600 dark:text-emerald-400"
+- ? "text-rose-600"
++ ? "text-rose-600 dark:text-rose-400"
+````
+
+**High — A2UI · Fixed Schema**
+
+`/claude-sdk-typescript/generative-ui/a2ui/fixed-schema` · route `/generative-ui/a2ui/fixed-schema` · under “Implement the React renderers” · in a `typescript` block
+
+16 code lines changed.
+
+````diff
+- <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500">
++ <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-500 dark:text-muted-foreground">
+- <h3 className="text-base font-semibold leading-none tracking-tight text-neutral-900">
++ <h3 className="text-base font-semibold leading-none tracking-tight text-neutral-900 dark:text-foreground">
+- <span className="font-mono text-2xl font-semibold tracking-wider text-neutral-900">
++ <span className="font-mono text-2xl font-semibold tracking-wider text-neutral-900 dark:text-foreground">
+- <Separator className="flex-1 bg-neutral-200" />
++ <Separator className="flex-1 bg-neutral-200 dark:bg-border" />
+````
+
+**High — Components and surfaces**
+
+`/claude-sdk-typescript/generative-ui/components` · route `/generative-ui/components` · under “What is this?”
+
+118 code lines, 44 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- With components and surfaces, the agent renders real React or Angular components while it answers:
++ With components and surfaces, the agent renders real React, Angular, React Native or Vue components while it answers:
+- These steps add generative UI to a Next.js or Angular app, with an OpenAI model through TanStack AI.
++ These steps add generative UI to a Next.js, Angular, React Native or Vue app, with an OpenAI model through TanStack AI.
+- Already have CopilotKit running? Do step 3 only. Your runtime needs no change: when the provider sends a catalog, the runtime gives that run a `render_ui` tool and a short guide. Your agent must pass the run's tools and context to its model, as in step 2. For a LangGraph Python agent, add `CopilotKitMiddleware`.
++ Already have CopilotKit running? Do step 3 only. Your runtime needs no change: when the provider sends a catalog with at least one component, the runtime gives that run a `render_ui` tool and a short guide. Your agent must pass the run's tools and context to its model, as in step 2. For a LangGraph Python agent, add `CopilotKitMiddleware`.
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
+````
+
+**High — Catalogs**
+
+`/claude-sdk-typescript/generative-ui/components/catalogs` · route `/generative-ui/components/catalogs` · under “Create a catalog”
+
+128 code lines, 43 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
++ <Tab value="React Native">
++ A component of the catalog is a React Native component. It renders native views, and a slot arrives as React nodes:
++ 
++ ```tsx title="src/shopUI.tsx"
++ import { Image, StyleSheet, Text, View } from "react-native";
++ import { z } from "zod";
+````
+
+**High — Markdown mode**
+
+`/claude-sdk-typescript/generative-ui/components/markdown-mode` · route `/generative-ui/components/markdown-mode` · under “What is this?”
+
+18 code lines, 14 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ <Callout type="info" title="React Native">
++ Markdown mode is not available on React Native yet. `GenerativeUIProvider` from `@copilotkit/react-native/generative-ui` uses the [tool transport](/claude-sdk-typescript/generative-ui/components/transports#tool-transport) only: `transport: "markdown"` is a type error, and passed from JavaScript it is dropped, with a warning in development.
++ </Callout>
++ 
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "Vue"]} persist>
++ <Tab value="Vue">
++ ```vue title="src/App.vue"
+````
+
+**High — Standard catalog**
+
+`/claude-sdk-typescript/generative-ui/components/standard-catalog` · route `/generative-ui/components/standard-catalog` · under “What is this?”
+
+42 code lines, 25 prose lines changed. The number of fenced code blocks changed.
+
+````diff
++ <Callout type="info" title="React Native">
++ The standard components render DOM, so React Native has no `standardUI` yet. Build a catalog of your own native components with `createGenerativeUI`; see [Catalogs](/claude-sdk-typescript/generative-ui/components/catalogs) and [Generative UI with your own components](/claude-sdk-typescript/react-native#generative-ui-with-your-own-components).
++ </Callout>
++ 
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "Vue"]} persist>
++ <Tab value="Vue">
++ ```vue
+````
+
+**High — State and actions**
+
+`/claude-sdk-typescript/generative-ui/components/state-and-actions` · route `/generative-ui/components/state-and-actions` · under “Show live app state”
+
+175 code lines, 52 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
++ <Tab value="React Native">
++ ```tsx title="src/shopUI.tsx"
++ const cartSchema = z.object({
++ items: z.array(z.object({ productId: z.string(), quantity: z.number() })),
++ });
++ 
+````
+
+**High — Surfaces**
+
+`/claude-sdk-typescript/generative-ui/components/surfaces` · route `/generative-ui/components/surfaces` · under “What is this?”
+
+149 code lines, 59 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- - **The chat.** Always there. The agent can use every component of the catalog.
+- - **A page target.** An area of your page that you mark with `GenerativeUISurface`, or `<copilot-generative-ui-surface>` in Angular. The agent sees it only while it is on screen.
++ - **The chat.** Always there. The agent can use every component of the catalog. On React Native, you draw chat surfaces yourself, with `GenerativeUIActivity`; see [Chat surfaces on React Native](#chat-surfaces-on-react-native). The agent is offered the chat target even when the app shows no chat, so a React Native app that renders only `GenerativeUISurface` targets, or only the prebuilt `CopilotChat` (which does not draw surfaces yet), never shows a surface aimed at the chat.
++ - **A page target.** An area of your page that you mark with `GenerativeUISurface`, or `<copilot-generative-ui-surface>` in Angular. The agent sees it only while it is mounted.
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
++ <Tab value="React Native">
++ ```tsx title="src/FeaturedProducts.tsx"
+````
+
+**High — Theming**
+
+`/claude-sdk-typescript/generative-ui/components/theming` · route `/generative-ui/components/theming` · under “What is this?”
+
+35 code lines, 18 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "Vue"]} persist>
++ <Tab value="Vue">
++ ```vue
++ <script setup lang="ts">
++ import { CopilotKitProvider } from "@copilotkit/vue/v2";
++ import { standardUI, type GenerativeUITheme } from "@copilotkit/vue/v2/generative-ui";
++ 
+````
+
+**High — Transports**
+
+`/claude-sdk-typescript/generative-ui/components/transports` · route `/generative-ui/components/transports` · under “What is this?”
+
+18 code lines, 29 prose lines changed. The number of fenced code blocks changed.
+
+````diff
+- The agent must send the UI to the browser somehow. Some agents are good at tool calls. Others only stream text, or you build their prompt yourself. A **transport** is the way the UI travels:
++ The agent must send the UI to the app somehow: the browser, or a React Native app. Some agents are good at tool calls. Others only stream text, or you build their prompt yourself. A **transport** is the way the UI travels:
+- Both transports use the same catalogs, surfaces, and components. Only the path between the agent and the browser changes.
++ Both transports use the same catalogs, surfaces, and components. Only the path between the agent and the app changes.
+- | Checked before the browser gets it | yes, by the runtime, and again in the browser | in the browser |
++ | Checked before the app gets it | yes, by the runtime, and again in the app | in the app |
+- <Tabs groupId="frontend_framework" items={["React", "Angular"]} persist>
++ <Tabs groupId="frontend_framework" items={["React", "Angular", "React Native", "Vue"]} persist>
+````
+
+**High — Reasoning**
+
+`/claude-sdk-typescript/generative-ui/reasoning` · route `/generative-ui/reasoning` · under “Custom reasoning rendering” · in a `typescript` block
+
+10 code lines changed.
+
+````diff
+- className="my-2 rounded-xl border border-[#DBDBE5] bg-[#BEC2FF1A] px-3.5 py-2.5 text-sm"
++ className="my-2 rounded-xl border border-[#DBDBE5] bg-[#BEC2FF1A] px-3.5 py-2.5 text-sm dark:border-border"
+- <div className="flex items-center gap-2 font-medium text-[#010507]">
+- <span className="inline-block rounded-full border border-[#BEC2FF] bg-white px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-[#57575B]">
++ <div className="flex items-center gap-2 font-medium text-[#010507] dark:text-foreground">
++ <span className="inline-block rounded-full border border-[#BEC2FF] bg-white px-2 py-0.5 text-[10px] uppercase tracking-[0.14em] text-[#57575B] dark:bg-card dark:text-muted-foreground">
+- <span className="text-[#57575B]">
++ <span className="text-[#57575B] dark:text-muted-foreground">
+````
+
+**High — Sub-Agents**
+
+`/claude-sdk-typescript/multi-agent/subagents` · route `/multi-agent/subagents` · under “Rendering a live delegation log” · in a `typescript` block
+
+30 code lines changed.
+
+````diff
+- className="w-full h-full flex flex-col bg-white rounded-2xl shadow-sm border border-[#DBDBE5] overflow-hidden"
++ className="w-full h-full flex flex-col bg-white rounded-2xl shadow-sm border border-[#DBDBE5] overflow-hidden dark:bg-card dark:border-border"
+- <div className="flex items-center justify-between px-6 py-3 border-b border-[#E9E9EF] bg-[#FAFAFC]">
++ <div className="flex items-center justify-between px-6 py-3 border-b border-[#E9E9EF] bg-[#FAFAFC] dark:border-border dark:bg-muted">
+- <span className="text-lg font-semibold text-[#010507]">
++ <span className="text-lg font-semibold text-[#010507] dark:text-foreground">
+- className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[#BEC2FF] bg-[#BEC2FF1A] text-[#010507] text-[10px] font-semibold uppercase tracking-[0.12em]"
++ className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-[#BEC2FF] bg-[#BEC2FF1A] text-[#010507] text-[10px] font-semibold uppercase tracking-[0.12em] dark:text-foreground"
+````
+
+**High — Shared State**
+
+`/claude-sdk-typescript/shared-state` · route `/shared-state` · under “Rendering shared state in the UI” · in a `typescript` block
+
+10 code lines changed.
+
+````diff
+- <code className="font-mono text-[11px] text-[#010507]">
++ <code className="font-mono text-[11px] text-[#010507] dark:text-foreground">
+- className="text-sm text-[#838389] italic min-h-[160px] flex items-center justify-center text-center px-4 border border-dashed border-[#E9E9EF] rounded-xl bg-[#FAFAFC]"
++ className="text-sm text-[#838389] italic min-h-[160px] flex items-center justify-center text-center px-4 border border-dashed border-[#E9E9EF] rounded-xl bg-[#FAFAFC] dark:text-muted-foreground dark:border-border dark:bg-muted"
+- className="space-y-2 text-sm text-[#010507]"
++ className="space-y-2 text-sm text-[#010507] dark:text-foreground"
+- className="flex gap-2 rounded-lg border border-[#E9E9EF] bg-[#FAFAFC] px-3 py-2"
++ className="flex gap-2 rounded-lg border border-[#E9E9EF] bg-[#FAFAFC] px-3 py-2 dark:border-border dark:bg-muted"
+````
+
+**Info — Markdown Rendering**
+
+`/claude-sdk-typescript/custom-look-and-feel/markdown` · route `/custom-look-and-feel/markdown`
+
+Now tracked for the first time.
+
+**Info — A2UI**
+
+`/claude-sdk-typescript/generative-ui/a2ui` · route `/generative-ui/a2ui`
+
+Now tracked for the first time.
+
+**Info — Adopt from A2UI**
+
+`/claude-sdk-typescript/generative-ui/components/from-a2ui` · route `/generative-ui/components/from-a2ui`
+
+Now tracked for the first time.
+
+**Info — MCP Apps**
+
+`/claude-sdk-typescript/generative-ui/mcp-apps` · route `/generative-ui/mcp-apps`
+
+Now tracked for the first time.
+
+**Info — Open Generative UI**
+
+`/claude-sdk-typescript/generative-ui/open-generative-ui` · route `/generative-ui/open-generative-ui`
+
+Now tracked for the first time.
+
+**Info — Governed Action Approval UI**
+
+`/claude-sdk-typescript/human-in-the-loop/governed-actions` · route `/human-in-the-loop/governed-actions`
+
+Now tracked for the first time.
+
+**Info — Headless Interrupts**
+
+`/claude-sdk-typescript/human-in-the-loop/headless` · route `/human-in-the-loop/headless`
+
+Now tracked for the first time.
+
+**Info — HITL Overview**
+
+`/claude-sdk-typescript/human-in-the-loop/index` · route `/human-in-the-loop/overview`
+
+Now tracked for the first time.
+
+**Info — Pausing the Agent for Input**
+
+`/claude-sdk-typescript/human-in-the-loop/useInterrupt` · route `/human-in-the-loop/useInterrupt`
+
+Now tracked for the first time.
+
+**Info — WebMCP**
+
+`/claude-sdk-typescript/webmcp` · route `/webmcp`
+
+Now tracked for the first time.
+
+---
+
 ## 2026-11-11
 
 ### 14:08 UTC — 27 pages, highest severity high
@@ -340,6 +623,8 @@ Now tracked for the first time.
 
 ---
 
+---
+
 ## 2026-09-22
 
 ### 07:53 UTC — 13 pages, highest severity high
@@ -559,48 +844,6 @@ Now tracked for the first time.
 + </Callout>
 + <Callout type="warn" title="Calling `/transcribe` yourself">
 + The chat handles this for you; these are the rules if you post to the route directly. As
-````
-
----
-
----
-
-## 2026-09-09
-
-### 08:18 UTC — 2 pages, highest severity high
-
-**High — Multimodal Attachments**
-
-`/claude-sdk-typescript/multimodal-attachments` · route `/multimodal-attachments` · under “Configuration”
-
-9 code lines, 1 heading, 11 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ | `maxConcurrentUploads` | `number` | `1` | How many files upload at the same time. See [Upload concurrency](#upload-concurrency). |
-+ 
-+ ## Upload concurrency
-+ 
-+ When a user attaches several files at once, they upload one at a time by default. Every picked file shows in the attachment queue immediately, whether or not its upload has started.
-+ 
-+ Set `maxConcurrentUploads` to upload several together — worth raising when your upload endpoint handles parallel requests:
-+ 
-````
-
-**High — Open, close, and feedback**
-
-`/claude-sdk-typescript/prebuilt-components/chat-controls` · route `/prebuilt-components/chat-controls` · under “Control the open state from your own UI”
-
-20 code lines, 1 heading, 36 prose lines changed. The number of fenced code blocks changed.
-
-````diff
-+ ## Control the open state from your own UI
-+ 
-+ Pass `open` and `onOpenChange` to `<CopilotSidebar>` or `<CopilotPopup>` to own
-+ the open state yourself. This is the controlled pattern: the surface renders
-+ whatever `open` says, and every request to open or close (the toggle button,
-+ click-outside on the popup) arrives on `onOpenChange` instead of moving the
-+ surface directly.
-+ 
 ````
 
 ---
