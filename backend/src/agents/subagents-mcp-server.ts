@@ -43,7 +43,7 @@ const SUBAGENT_MODEL =
   process.env.CLAUDE_SUBAGENT_MODEL ||
   process.env.ANTHROPIC_SUBAGENT_MODEL ||
   process.env.CLAUDE_MODEL ||
-  "claude-sonnet-4-6";
+  "claude-opus-4-8";
 
 // Created on first use so it reads ANTHROPIC_API_KEY after dotenv has run.
 let anthropic: Anthropic | null = null;
